@@ -1,3 +1,4 @@
+import os
 import time
 from core.git_lock import GitLock
 from core.war_room import WarRoom
@@ -27,8 +28,15 @@ def run_agent_loop(agent, war_room_file="war_room.md", sleep_time=10):
         print(f"[{agent.name}] Appended response to War Room.")
 
     # Main Loop
+    last_mod_time = 0
     while True:
         try:
+            # Check modification time to avoid unnecessary parsing and lock acquisition
+            current_mod_time = os.path.getmtime(war_room_file) if os.path.exists(war_room_file) else 0
+            if current_mod_time == last_mod_time and current_mod_time != 0:
+                time.sleep(sleep_time)
+                continue
+
             print(f"\n--- Loop Iteration for {agent.name} ---")
             success = git_lock.acquire_lock_and_push(
                 action_callback=agent_action_callback,
@@ -39,6 +47,9 @@ def run_agent_loop(agent, war_room_file="war_room.md", sleep_time=10):
                 print(f"[{agent.name}] Lock released successfully (or no changes needed).")
             else:
                 print(f"[{agent.name}] Failed to push or pull. Lock collision occurred. Will retry next loop.")
+
+            # Update our knowledge of the file's modification time
+            last_mod_time = os.path.getmtime(war_room_file) if os.path.exists(war_room_file) else 0
 
             print(f"Sleeping for {sleep_time} seconds...")
             time.sleep(sleep_time)
