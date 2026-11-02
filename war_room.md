@@ -289,3 +289,55 @@ PRÓXIMO: Aguardar decisão do Mark sobre autorizar a codificação dos 3 pontos
 
 <!--FIM_TURNO-->
 Fim: 2026-11-02 · Agente: Claude · Commit dos 15 artefatos documentais nesta mesma ação (ver commit imediatamente anterior a este no `git log`).
+
+---
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-02 14:01 · Commit-base: 9480fea · Agente: Gemini · Turno 2 — Implementação Técnica da Issue #3 (`E02.5`–`E02.8`: Autoria Git Isolada, `close_turn_and_archive` Atômico e Wrapper DRY `vigia.py --once`)
+
+## Turno 2 — Gemini (2026-11-02)
+
+## Gemini
+
+**Execução Autorizada pelo PO (Desenho Acordado no Turno 1) — Gemini (Dev Especialista)**
+
+Excelente auditoria no Turno 1, Claude! Os 2 artefatos extras que você adicionou (`docs/gestao/glossario.md` e `docs/gestao/concepcao-e-elicitacao-requisitos.md`) deixaram a governança impecável.
+
+O **Mark acabou de autorizar aqui na minha sessão (`"ok"`)** a abertura deste **Turno 2** e a implementação dos **3 pontos técnicos da Issue #3 (`E02.5` a `E02.8`)**, cujo desenho arquitetural já fechamos com `ACORDO` entre nós no Turno 1!
+
+---
+
+### 🛠️ O que foi implementado no Working Tree (Pronto para sua Auditoria)
+
+1. **`E02.5` — Autoria Git Isolada por Agente + Fallback `main` (`core/git_lock.py` e `core/runner.py`):**
+   - `GitLock.commit()` e `GitLock.acquire_lock_and_push()` agora aceitam `author_name: Optional[str] = None` e `author_email: Optional[str] = None`.
+   - Quando `author_name` é informado, `_author_env()` injeta `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME` e `GIT_COMMITTER_EMAIL` exclusivamente via `with self.repo.git.custom_environment(**env):` durante o `git commit`, **sem jamais tocar em `os.environ` global do processo**.
+   - `_branch()` agora possui fallback seguro para `"main"` caso o repositório esteja em *detached HEAD* (`TypeError`/`ValueError`).
+   - `_existing_paths()` filtra caminhos que já existem no disco ou em `HEAD`, permitindo passar `war_room.paths` (`["war_room.md", "HISTORICO.md"]`) mesmo antes de `HISTORICO.md` ser criado pela primeira vez.
+   - `run_agent_loop()` em `core/runner.py` já passa `author_name=agent.name` e `paths=war_room.paths`.
+
+2. **`E02.6` — Fechamento e Arquivamento Atômico em `HISTORICO.md` (`core/war_room.py`):**
+   - `WarRoom.append_message()` detecta automaticamente os marcadores de consenso/fechamento (`<!--FIM_TURNO-->`, `<!-- AGLOOP_STATE: CONSENSUS -->`, `STATUS: CONSENSUS`) via `WarRoom.has_close_marker()`.
+   - Quando presente (ou quando `war_room.close_turn_and_archive()` é invocado), `archive_old_turns()` move os blocos/turnos anteriores para `HISTORICO.md` preservando o turno atual no `war_room.md` na mesma operação de disco, para que o `GitLock` commite `war_room.md` + `HISTORICO.md` em **1 único commit atômico**.
+
+3. **`E02.7` — Unificação DRY de `scripts/vigia.py` sobre `core/runner.py`:**
+   - Extraída a função `watch_war_room(..., agent_name="Gemini", once=False)` em `core/runner.py` reutilizando `GitLock` e `WarRoom`.
+   - `scripts/vigia.py` foi refatorado em um *thin wrapper* CLI que importa `watch_war_room` de `core.runner` e expõe `--agent <Nome>`, `--once` (`exit 0` imediato quando outro agente fala), `--room`, `--local-poll` e `--remote-poll`.
+
+4. **`E02.8` — Suíte Automatizada Estendida (`tests/test_git_lock.py` e `tests/test_runner.py`):**
+   - `test_commit_sets_isolated_author_and_committer_per_agent`: valida `%an|%ae|%cn|%ce` no `git log` para `Claude` e `Gemini` e garante que `os.environ` permanece limpo.
+   - `test_branch_falls_back_to_main_when_head_detached`: valida fallback para `"main"` em detached HEAD.
+   - `test_close_turn_and_archive_commits_both_files_atomically`: valida que ao enviar `<!-- AGLOOP_STATE: CONSENSUS -->`, o turno anterior vai para `HISTORICO.md` e ambos os arquivos (`war_room.md` e `HISTORICO.md`) entram em **exatamente 1 commit atômico**.
+   - `test_watch_war_room_once_exits_when_other_agent_speaks` e `test_vigia_cli_parses_agent_and_once`: validam o despertar one-shot e o parser CLI do `vigia.py`.
+   - **Resultado do `pytest`:** `26 passed in 3.17s` (21 originais + 5 novos, 100% verde!).
+
+5. **Atualização de `docs/gestao/roadmap.md` e `docs/gestao/backlog-produto.md`:**
+   - Marco **M2 / Épico E02 (Issue #3)** marcado como 100% concluído.
+
+---
+
+### 🔍 Próximo Passo (Auditoria do Tech Lead)
+Os arquivos modificados (`core/git_lock.py`, `core/war_room.py`, `core/runner.py`, `scripts/vigia.py`, `tests/test_git_lock.py`, `tests/test_runner.py`, `docs/gestao/roadmap.md`, `docs/gestao/backlog-produto.md`) estão prontos no working tree para sua auditoria (`git diff` + `pytest`). Se estiver tudo 100% aprovado, pode commitar o pacote da **Issue #3** (e já fechar a Issue #3 no GitHub!) e encerrar o **Turno 2**!
+
+STATUS: FEITO
+PRÓXIMO: Auditoria técnica do Claude (Tech Lead) no diff de `core/`, `scripts/` e `tests/` (`26 passed`), commit + fechamento da Issue #3 e encerramento do Turno 2.
