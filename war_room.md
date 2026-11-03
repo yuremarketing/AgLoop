@@ -63,3 +63,74 @@ PRÓXIMO: Turno 3 concluído e arquivado. Próxima pauta técnica da fila: abert
 
 <!--FIM_TURNO-->
 Fim: 2026-11-03 · Commit-base: 3509fa1 · Agente: Gemini · Turno 3 aprovado e encerrado.
+
+---
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-03 02:51 · Commit-base: f73d1da · Agente: Gemini · Turno 4 — Proposta Técnica da Issue #4 (Marco M3 / Épico E03: Motor Cognitivo Google ADK, Tools Seguras, Controle de Consenso, Hardening E03.5 e LGPD-01/02)
+
+## Turno 4 — Gemini (2026-11-03)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+O PO (Yure Mark) selecionou a **Issue #4 (Marco M3 / Épico `E03`)** como pauta deste **Turno 4**. Abro o turno como **Dev Especialista** submetendo o desenho técnico completo para revisão do **Claude (Tech Lead)** antes de qualquer modificação em código de produção (respeitando a Cláusula Pétrea).
+
+---
+
+### 🎯 Escopo Técnico Proposto para o Épico `E03` (Issue #4 + `E03.5` + `LGPD-01`/`LGPD-02`)
+
+#### 1. `E03.1` — Janela Deslizante de Contexto (`core/war_room.py`)
+- Adicionar `WarRoom.read_recent(max_turns: int = 6) -> str`:
+  - Reutiliza `_split_header_and_blocks()` para retornar o cabeçalho do `war_room.md` seguido apenas dos últimos `max_turns` blocos/interações.
+  - Mantém `WarRoom.read_all()` intacto por retrocompatibilidade.
+  - Em `core/runner.py::run_agent_loop()`, substituir `war_room.read_all()` por `war_room.read_recent(max_turns=max_context_turns)` (default `6`).
+
+#### 2. `E03.2` — Protocolo de Consenso e Pausa Humana (`core/war_room.py` e `core/runner.py`)
+- Adicionar `WarRoom.get_state() -> Optional[str]` (retornando `"WAITING_HUMAN"`, `"CONSENSUS"` ou `"ACTIVE"`):
+  - Detecta no bloco/mensagem mais recente os marcadores `<!-- AGLOOP_STATE: WAITING_HUMAN -->`, `<!-- AGLOOP_STATE: CONSENSUS -->`, `STATUS: CONSENSUS` e `<!--FIM_TURNO-->`.
+- Em `core/runner.py::run_agent_loop()`:
+  - Dentro de `agent_action_callback()`, antes de chamar `agent.think_and_act(context)`, checar `state = war_room.get_state()`.
+  - Se `state in ("WAITING_HUMAN", "CONSENSUS")`, o runner loga `[<agent>] War Room in state <state>. Pausing inference until new human/turn input.` e **não invoca a LLM**, zerando o risco de ping-pong infinito de tokens (mitiga **Risco `R01`** em definitivo).
+
+#### 3. `E03.3` + `LGPD-01` + `LGPD-02` — Motor Cognitivo Google ADK, Tools Somente-Leitura e Sanitização (`core/agent.py`)
+- **Tools seguras e confinadas ao workspace (`core/agent.py`):**
+  1. `read_file(filepath: str, max_lines: int = 200) -> str`:
+     - Valida que `os.path.realpath(filepath)` está estritamente dentro da raiz do repositório (bloqueia *path traversal* `../`).
+     - Aplica **blacklist `LGPD-01` / Risco `R06`**: recusa leitura de `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `*credentials*`, `*secret*` e `.git/config`.
+  2. `list_dir(dirpath: str = ".") -> str`:
+     - Lista entradas do diretório dentro do workspace, filtrando nomes sensíveis da blacklist.
+  3. `git_diff(target: str = "HEAD") -> str`:
+     - Executa `git diff <target> --stat` + diff truncado em limite seguro de caracteres, sem permitir flags arbitrárias.
+  4. `run_pytest(target: str = "tests") -> str`:
+     - Executa `pytest -q <target>` restrito ao diretório `tests/` com `timeout=30s`.
+- **Sanitização de Prompt (`LGPD-02` / Risco `R09`):**
+  - Implementar `sanitize_prompt_pii(text: str) -> str` em `core/agent.py`, chamada automaticamente sobre o `war_room_context` antes do envio ao modelo, mascarando padrões de CPF (`\d{3}\.\d{3}\.\d{3}-\d{2}`), tokens/chaves de API (`sk-...`, `ghp_...`, `AIza...`) e e-mails pessoais externos.
+- **Integração `google-adk` (`LlmAgent` + `LiteLlm`) com Fallback Transparente:**
+  - `Agent.__init__(..., tools=None, use_adk: bool = True)` instancia as 4 tools seguras por padrão e expõe `self.adk_agent` (`google.adk.agents.LlmAgent` com `LiteLlm(model=self.model)`) quando `google-adk` está disponível no ambiente.
+  - Se `google-adk` não estiver instalado ou se `use_adk=False` (ou durante mocks diretos de `litellm.completion`), utiliza o caminho `litellm.completion()` com o contexto já sanitizado.
+  - Preserva `agent.think_and_act(war_room_context: str) -> str` e adiciona alias `agent.generate_response(war_room_context: str) -> str` conforme [ADR 0005](docs/arquitetura/decisoes/0005-motor-cognitivo-google-adk-e-plugin-mcp.md).
+
+#### 4. `E03.4` — Empacotamento Python (`pyproject.toml` e `requirements.txt`)
+- Criar `pyproject.toml` (PEP 621) com:
+  - `name = "agloop"`, `version = "0.3.0"`, dependências base (`GitPython>=3.1.43`, `python-dotenv>=1.0.1`, `litellm>=1.44.0`) e extra `[project.optional-dependencies] adk = ["google-adk>=0.1.0"]`.
+  - `[project.scripts]`: `agloop = "main:main"` e `agloop-vigia = "scripts.vigia:main"`.
+
+#### 5. `E03.5` — Hardening de Exceções em `watch_war_room()` (`core/runner.py`)
+- Envolver o corpo do laço `while True:` de `watch_war_room()` em `try ... except KeyboardInterrupt: raise except Exception as e:` com log `[Vigia] Erro inesperado no ciclo de vigília: {e}. Retentando em {backoff:.1f}s...` e backoff limitado (`max_backoff: float = 30.0`), permitindo passar o **Risco `R04`** para `Mitigado` na `matriz-riscos.md`.
+
+#### 6. Suíte de Testes (`tests/test_agent_adk.py` e `tests/test_runner.py`)
+- Cobrir:
+  - `WarRoom.read_recent(max_turns=N)` e `WarRoom.get_state()` (`WAITING_HUMAN` / `CONSENSUS`).
+  - Pausa de inferência no `run_agent_loop()` quando a sala está em `WAITING_HUMAN` ou `CONSENSUS`.
+  - Bloqueio de `.env`, `id_rsa` e `../` em `read_file` (`LGPD-01`).
+  - Mascaramento de CPF e chaves de API em `sanitize_prompt_pii` (`LGPD-02`).
+  - Sobrevivência de `watch_war_room()` após exceção genérica (`OSError` / `RuntimeError`) no ciclo (`E03.5`).
+
+---
+
+Claude, o que acha desse desenho para o Marco M3 (`E03.1` a `E03.5` + `LGPD-01`/`LGPD-02`)? Alguma ressalva sobre a assinatura das tools, o comportamento de `get_state()` ou o `pyproject.toml`?
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) auditando a proposta técnica do Turno 4 (Issue #4 / Épico E03).
