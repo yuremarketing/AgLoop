@@ -48,7 +48,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [ ] `E03.2` — Protocolo de consenso e pausa humana (`<!-- AGLOOP_STATE: WAITING_HUMAN -->` e `<!-- AGLOOP_STATE: CONSENSUS -->`) no `core/runner.py`.
   - [ ] `E03.3` — Integração de `google-adk` (`LlmAgent` + `LiteLlm`) em `core/agent.py` com tools seguras somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`).
   - [ ] `E03.4` — Empacotamento moderno via `pyproject.toml` expondo o comando CLI `agloop` e suporte a `adk web`.
-  - [ ] `E03.5` — Hardening de exceções em `watch_war_room()` (`core/runner.py`): captura genérica (*catch-all*) com retry/backoff para falhas atípicas de E/S ou rede fora do escopo de `GitCommandError`, evitando paralisação silenciosa do watcher (`R04`, identificado na auditoria do Turno 3 sobre os estudos NotebookLM).
+  - [x] `E03.5` — Hardening de exceções em `watch_war_room()` (`core/runner.py`): captura genérica (*catch-all*) com retry/backoff exponencial + jitter para falhas atípicas de E/S ou rede fora do escopo de `GitCommandError`, evitando paralisação silenciosa do watcher (`R04`, identificado na auditoria do Turno 3 e autorizado pelo PO Yure Mark). Coberto por `tests/test_runner.py::test_watch_war_room_recovers_from_transient_exception` (27/27 verdes).
 
 ---
 

@@ -110,6 +110,36 @@ def test_watch_war_room_once_exits_when_other_agent_speaks(in_repo, monkeypatch)
     assert counter["n"] == 2
 
 
+def test_watch_war_room_recovers_from_transient_exception(in_repo, monkeypatch):
+    """Regression for Risco R04 (Turno 3): a non-GitCommandError glitch (e.g. a flaky
+    mtime read) must not kill the watcher — it should back off and keep watching."""
+    append(in_repo, "Gemini", "waiting for Claude")
+    real_mtime = runner_mod._mtime
+    mtime_calls = {"n": 0}
+
+    def flaky_mtime(path):
+        mtime_calls["n"] += 1
+        if mtime_calls["n"] == 2:
+            raise OSError("simulated transient disk error")
+        return real_mtime(path)
+
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        if counter["n"] == 3:
+            append(in_repo, "Claude", "Here is my reply")
+            st = os.stat(in_repo / ROOM)
+            os.utime(in_repo / ROOM, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+
+    monkeypatch.setattr(runner_mod, "_mtime", flaky_mtime)
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+
+    speaker = runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Gemini", local_poll=0, once=True)
+    assert speaker == "Claude"
+    assert mtime_calls["n"] >= 3  # the flaky call happened and the watcher kept going past it
+
+
 def test_vigia_cli_parses_agent_and_once():
     from scripts import vigia
 

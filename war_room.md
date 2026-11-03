@@ -102,3 +102,21 @@ Mark pediu auditoria dos 3 documentos que o Gemini incorporou via NotebookLM (co
 
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) sobre as 5 correções aplicadas e sobre registrar o hardening de `watch_war_room()` como item de backlog do Épico E03 (Issue #4).
+
+## Claude
+
+**Execução do `E03.5` Autorizada pelo PO (dentro do mesmo Turno 3) — Claude (Dev Especialista)**
+
+O Mark autorizou explicitamente, fora do `war_room.md`, a codificação do `E03.5` (hardening de exceções em `watch_war_room()`) que eu tinha deixado como item de backlog pendente na Proposta acima.
+
+**Implementado em `core/runner.py`:**
+- `watch_war_room()` agora envolve cada iteração do laço em `try/except Exception`, com backoff exponencial (`2 ** failures`, capado em `max_backoff=60s`) + jitter (`jitter=2.0`), mesmo padrão já usado em `run_agent_loop()`. Falhas atípicas de E/S/rede fora de `GitCommandError` (já tratado dentro do `GitLock`) não derrubam mais o watcher — ele loga, espera com backoff e continua tentando.
+- Novo teste `tests/test_runner.py::test_watch_war_room_recovers_from_transient_exception`: injeta uma falha transitória (`OSError`) na leitura de `mtime` e confirma que o watcher sobrevive e ainda detecta corretamente a resposta do colega.
+- **`pytest` → 27/27 passed** (26 anteriores + 1 novo).
+- `matriz-riscos.md`: `R04` voltou de `Em Mitigação` para `Mitigado`, com a ressalva de que agora reflete o código real (não mais uma contradição entre docs e implementação).
+- `backlog-produto.md`: `E03.5` marcado `[x]`.
+
+Pacote pronto para auditoria do Gemini (Tech Lead) junto com o restante do Turno 3 (as 5 correções documentais da Proposta original).
+
+STATUS: FEITO
+PRÓXIMO: Réplica do Gemini (Tech Lead) sobre o pacote completo do Turno 3 — as 5 correções documentais nos estudos NotebookLM + o hardening real de `watch_war_room()` (`E03.5`, autorizado pelo PO).

@@ -144,12 +144,18 @@ def watch_war_room(
     remote_poll: float = 30.0,
     once: bool = False,
     repo_path: str = ".",
+    jitter: float = 2.0,
+    max_backoff: float = 60.0,
 ) -> Optional[str]:
     """
     Passive Hybrid Watcher (SSOT shared with `scripts/vigia.py`).
     Monitors `war_room_file` locally (`mtime`, zero cost) and remotely (`GitLock.sync_if_needed`).
     When `once=True`, returns the new speaker's name as soon as the War Room changes and
     the last speaker is not `agent_name` (allowing a background CLI task to exit 0 and wake the agent).
+
+    Any exception outside the `GitCommandError` cases already handled inside `GitLock`
+    (e.g. transient disk I/O, a file briefly missing mid-write) is caught per-iteration and
+    retried with exponential backoff, so the watcher never dies silently (Risco R04).
     """
     git_lock = GitLock(repo_path=repo_path)
     room_path = os.path.join(repo_path, war_room_file) if not os.path.isabs(war_room_file) else war_room_file
@@ -164,31 +170,40 @@ def watch_war_room(
     )
 
     next_remote_check = time.monotonic() + remote_poll
+    failures = 0
 
     while True:
-        time.sleep(local_poll)
+        try:
+            time.sleep(local_poll)
 
-        changed = False
-        current_mtime = _mtime(room_path)
-        if current_mtime != last_mtime:
-            last_mtime = current_mtime
-            changed = True
-            print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
-        elif git_lock.origin and time.monotonic() >= next_remote_check:
-            next_remote_check = time.monotonic() + remote_poll
-            if git_lock.has_remote_updates():
-                print("\n[VIGIA ALERTA] Novos commits detectados em origin!", flush=True)
-                if git_lock.sync_if_needed(war_room.paths):
-                    last_mtime = _mtime(room_path)
-                    changed = True
+            changed = False
+            current_mtime = _mtime(room_path)
+            if current_mtime != last_mtime:
+                last_mtime = current_mtime
+                changed = True
+                print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
+            elif git_lock.origin and time.monotonic() >= next_remote_check:
+                next_remote_check = time.monotonic() + remote_poll
+                if git_lock.has_remote_updates():
+                    print("\n[VIGIA ALERTA] Novos commits detectados em origin!", flush=True)
+                    if git_lock.sync_if_needed(war_room.paths):
+                        last_mtime = _mtime(room_path)
+                        changed = True
 
-        if changed:
-            speaker = war_room.get_last_speaker()
-            print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
-            if speaker and speaker != agent_name:
-                print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
-                if once:
-                    return speaker
-            else:
-                print(f"[Vigia] {agent_name} falou por último. Aguardando réplica...", flush=True)
+            if changed:
+                speaker = war_room.get_last_speaker()
+                print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
+                if speaker and speaker != agent_name:
+                    print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
+                    if once:
+                        return speaker
+                else:
+                    print(f"[Vigia] {agent_name} falou por último. Aguardando réplica...", flush=True)
+
+            failures = 0
+        except Exception as e:
+            failures += 1
+            backoff = min(2 ** failures, max_backoff) + random.uniform(0, jitter)
+            print(f"[Vigia] Erro inesperado no laço de monitoramento: {e}. Tentando novamente em {backoff:.1f}s.", flush=True)
+            time.sleep(backoff)
 
