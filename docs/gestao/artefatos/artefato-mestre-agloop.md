@@ -59,8 +59,11 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 - [`matriz-riscos.md`](../matriz-riscos.md) — Matriz de Riscos técnicos, operacionais e financeiros (`R01` a `R07`) com planos de mitigação e contingência.
 - [`roadmap.md`](../roadmap.md) — Marcos estratégicos do projeto (`M1` a `M4`).
 - [`backlog-produto.md`](../backlog-produto.md) — Épicos e itens de backlog rastreados contra as Issues do GitHub.
-- [`glossario.md`](../glossario.md) — Definições das siglas e nomenclaturas usadas nos demais artefatos (M1–M4, R01–R08, ADR, SSOT, Vigília Híbrida, etc.).
+- [`glossario.md`](../glossario.md) — Definições das siglas e nomenclaturas usadas nos demais artefatos (M1–M4, R01–R10, ADR, SSOT, Vigília Híbrida, etc.).
 - [`concepcao-e-elicitacao-requisitos.md`](../concepcao-e-elicitacao-requisitos.md) — Origem real dos requisitos (derivação de incidentes do Sysoft + decisão direta do PO), requisitos funcionais e não-funcionais rastreados aos épicos.
+- [`estudo-campo-e-governanca-agloop.md`](../estudo-campo-e-governanca-agloop.md) — Estudo de Campo, Benchmarking Competitivo (Iguais, Parecidos e Melhores) e Matriz Comparativa Estrutural.
+- [`auditoria-governanca-agloop.md`](../auditoria-governanca-agloop.md) — Diagnóstico Estrutural de Maturidade de Governança (Nível 3.8 / 5.0), análise de *blind spots* e plano de hardening para M3/M4.
+- [`lgpd-conformidade-agloop.md`](../lgpd-conformidade-agloop.md) — Relatório de Mapeamento de Conformidade LGPD (Lei nº 13.709/2018), governança de dados, privacidade (`R06`, `R09`, `R10`) e requisitos `LGPD-01` a `LGPD-04`.
 
 ### 3.2 Decisões de Arquitetura (`docs/arquitetura/decisoes/`)
 - [`0001-ipc-markdown-e-git-serverless-broker.md`](../../arquitetura/decisoes/0001-ipc-markdown-e-git-serverless-broker.md) — Uso de `war_room.md` e Git como broker serverless.
@@ -85,3 +88,4 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 | 2026-10-22 | [Issue #3](https://github.com/yuremarketing/AgLoop/issues/3) | Aberta Issue de Governança & DRY trazendo as lições do Turno 72 do Sysoft (SSOT em `SKILL.md`, `GIT_AUTHOR_*`/`GIT_COMMITTER_*`, fallback `origin/main`, fechamento/arquivamento atômico e testes do harness). |
 | 2026-11-01 | [Issue #4](https://github.com/yuremarketing/AgLoop/issues/4) | Aberta RFC para evoluir `core/agent.py` com Google ADK (`LlmAgent` + `LiteLlm`), tools nativas seguras, marcadores de consenso/pausa humana e janela deslizante. |
 | 2026-11-01 | `war_room.md` (Turno 1) | Abertura formal do Turno 1 por ordem do PO Yure Mark para implantar toda a camada de governança padrão Sysoft (`docs/gestao/`, Matriz de Riscos, ADRs 0001–0005, `SKILL.md`, `CLAUDE.md`, `GEMINI.md`) antes de codificar as mudanças de `core/` das Issues #3, #4 e #2. |
+| 2026-11-03 | `war_room.md` (Turno 2) / `docs/gestao/` | Conclusão e auditoria do Turno 2 (`E02.5`–`E02.8`) e incorporação dos 3 estudos gerados via NotebookLM (`estudo-campo-e-governanca-agloop.md`, `auditoria-governanca-agloop.md` e `lgpd-conformidade-agloop.md`) à governança oficial em `docs/gestao/`. |
