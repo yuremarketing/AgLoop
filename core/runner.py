@@ -33,7 +33,7 @@ def run_agent_loop(
 
     git_lock = GitLock(repo_path=".")
     war_room = WarRoom(filepath=war_room_file)
-    room_paths = [war_room_file]
+    room_paths = war_room.paths
 
     print(f"Starting AgLoop for Agent: {agent.name}")
     print(f"Model: {agent.model}")
@@ -96,6 +96,7 @@ def run_agent_loop(
                 action_callback=agent_action_callback,
                 message=f"AgLoop: {agent.name} update in {war_room_file}",
                 paths=room_paths,
+                author_name=agent.name,
             )
 
             if success:
@@ -134,3 +135,60 @@ def run_agent_loop(
             backoff = min(2 ** failures, max_backoff) + random.uniform(1, 5)
             print(f"Unexpected error in loop: {e}. Backing off {backoff:.1f}s.")
             time.sleep(backoff)
+
+
+def watch_war_room(
+    war_room_file: str = "war_room.md",
+    agent_name: str = "Gemini",
+    local_poll: float = 2.0,
+    remote_poll: float = 30.0,
+    once: bool = False,
+    repo_path: str = ".",
+) -> Optional[str]:
+    """
+    Passive Hybrid Watcher (SSOT shared with `scripts/vigia.py`).
+    Monitors `war_room_file` locally (`mtime`, zero cost) and remotely (`GitLock.sync_if_needed`).
+    When `once=True`, returns the new speaker's name as soon as the War Room changes and
+    the last speaker is not `agent_name` (allowing a background CLI task to exit 0 and wake the agent).
+    """
+    git_lock = GitLock(repo_path=repo_path)
+    room_path = os.path.join(repo_path, war_room_file) if not os.path.isabs(war_room_file) else war_room_file
+    war_room = WarRoom(filepath=room_path)
+
+    last_mtime = _mtime(room_path)
+    last_speaker = war_room.get_last_speaker()
+    print(
+        f"[Vigia] Monitorando '{war_room_file}' (Agente: {agent_name}, modo: {'once' if once else 'contínuo'}, "
+        f"último orador: '{last_speaker}')",
+        flush=True,
+    )
+
+    next_remote_check = time.monotonic() + remote_poll
+
+    while True:
+        time.sleep(local_poll)
+
+        changed = False
+        current_mtime = _mtime(room_path)
+        if current_mtime != last_mtime:
+            last_mtime = current_mtime
+            changed = True
+            print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
+        elif git_lock.origin and time.monotonic() >= next_remote_check:
+            next_remote_check = time.monotonic() + remote_poll
+            if git_lock.has_remote_updates():
+                print("\n[VIGIA ALERTA] Novos commits detectados em origin!", flush=True)
+                if git_lock.sync_if_needed(war_room.paths):
+                    last_mtime = _mtime(room_path)
+                    changed = True
+
+        if changed:
+            speaker = war_room.get_last_speaker()
+            print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
+            if speaker and speaker != agent_name:
+                print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
+                if once:
+                    return speaker
+            else:
+                print(f"[Vigia] {agent_name} falou por último. Aguardando réplica...", flush=True)
+

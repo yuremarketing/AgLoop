@@ -91,3 +91,30 @@ def test_local_write_by_other_agent_triggers_turn(in_repo, monkeypatch):
     run_with_sleep_hook(monkeypatch, agent, hook, max_sleeps=10)
     assert agent.calls == 2
     assert (in_repo / ROOM).read_text().rstrip().endswith("message #2")
+
+
+def test_watch_war_room_once_exits_when_other_agent_speaks(in_repo, monkeypatch):
+    append(in_repo, "Gemini", "waiting for Claude")
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        if counter["n"] == 2:
+            append(in_repo, "Claude", "Here is my reply")
+            st = os.stat(in_repo / ROOM)
+            os.utime(in_repo / ROOM, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    speaker = runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Gemini", local_poll=0, once=True)
+    assert speaker == "Claude"
+    assert counter["n"] == 2
+
+
+def test_vigia_cli_parses_agent_and_once():
+    from scripts import vigia
+
+    args = vigia.parse_args(["--agent", "Claude", "--once", "--room", "war_room.md"])
+    assert args.agent == "Claude"
+    assert args.once is True
+    assert args.room == "war_room.md"
+

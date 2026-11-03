@@ -140,7 +140,10 @@ class GitLock:
             print(msg)
 
     def _branch(self) -> str:
-        return self.repo.active_branch.name
+        try:
+            return self.repo.active_branch.name
+        except (TypeError, ValueError):
+            return "main"
 
     def _remote_ref(self) -> str:
         return f"origin/{self._branch()}"
@@ -249,25 +252,61 @@ class GitLock:
         """Backward-compatible alias: syncs with the remote only when needed."""
         return self.sync_if_needed()
 
+    def _existing_paths(self, paths: Iterable[str]) -> list:
+        result = []
+        for p in paths:
+            full = os.path.join(self.repo_path, p) if not os.path.isabs(p) else p
+            if os.path.exists(full) or self._path_in_tree("HEAD", p):
+                result.append(p)
+        return result
+
     def has_changes(self, paths: Iterable[str]) -> bool:
         """Checks if any of `paths` is modified, staged or untracked."""
-        return bool(self.repo.git.status("--porcelain", "--", *paths).strip())
+        active = self._existing_paths(paths)
+        if not active:
+            return False
+        return bool(self.repo.git.status("--porcelain", "--", *active).strip())
 
     def has_uncommitted_changes(self) -> bool:
         """Checks if there are any modified or untracked files (whole working tree)."""
         return self.repo.is_dirty(untracked_files=True)
 
-    def commit(self, message: str, paths: Iterable[str]) -> bool:
+    @staticmethod
+    def _author_env(author_name: Optional[str], author_email: Optional[str]) -> dict:
+        if not author_name:
+            return {}
+        slug = author_name.strip().lower().replace(" ", ".")
+        email = author_email or f"{slug}@agloop.local"
+        return {
+            "GIT_AUTHOR_NAME": author_name,
+            "GIT_AUTHOR_EMAIL": email,
+            "GIT_COMMITTER_NAME": author_name,
+            "GIT_COMMITTER_EMAIL": email,
+        }
+
+    def commit(
+        self,
+        message: str,
+        paths: Iterable[str],
+        author_name: Optional[str] = None,
+        author_email: Optional[str] = None,
+    ) -> bool:
         """
         Stages and commits ONLY `paths`. `git commit -- <paths>` also ignores anything
         another agent may have staged in the shared index.
+        When `author_name` is provided, sets `GIT_AUTHOR_*` and `GIT_COMMITTER_*`
+        scoped strictly to the git commit subprocess (never mutates global os.environ).
         """
-        paths = list(paths)
+        active = self._existing_paths(paths)
+        if not active:
+            return True
         try:
-            self.repo.git.add("--", *paths)
-            if not self.has_changes(paths):
+            self.repo.git.add("--", *active)
+            if not self.has_changes(active):
                 return True
-            self.repo.git.commit("-m", message, "--", *paths)
+            env = self._author_env(author_name, author_email)
+            with self.repo.git.custom_environment(**env):
+                self.repo.git.commit("-m", message, "--", *active)
             return True
         except GitCommandError as e:
             print(f"[AgLoop] Git commit error: {e}")
@@ -307,12 +346,19 @@ class GitLock:
         self.last_status = "push_failed"
         return False
 
-    def acquire_lock_and_push(self, action_callback, message: str, paths: Iterable[str]) -> bool:
+    def acquire_lock_and_push(
+        self,
+        action_callback,
+        message: str,
+        paths: Iterable[str],
+        author_name: Optional[str] = None,
+        author_email: Optional[str] = None,
+    ) -> bool:
         """
         1. acquire local lock (always)
         2. sync with remote only if it has news
         3. action_callback() modifies the War Room
-        4. commit only `paths`
+        4. commit only `paths` (with optional isolated per-agent Git author/committer)
         5. push any unpushed commit (including leftovers from earlier failures)
         6. release local lock
         Check `self.last_status` for the reason of a False return.
@@ -329,7 +375,9 @@ class GitLock:
 
             action_callback()
 
-            if self.has_changes(paths) and not self.commit(message, paths):
+            if self.has_changes(paths) and not self.commit(
+                message, paths, author_name=author_name, author_email=author_email
+            ):
                 self.last_status = "commit_failed"
                 return False
 

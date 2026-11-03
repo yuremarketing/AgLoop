@@ -202,3 +202,72 @@ def test_local_mode_env_is_deprecated(local_repo, monkeypatch):
     monkeypatch.setenv("AGENT_LOOP_LOCAL_MODE", "true")
     with pytest.warns(FutureWarning, match="deprecated"):
         lock(local_repo)
+
+
+# --------------------------------------------------------------------------- #
+# Issue #3 (E02.5 / E02.6): Isolated per-agent author/committer + atomic archive
+# --------------------------------------------------------------------------- #
+def test_commit_sets_isolated_author_and_committer_per_agent(local_repo):
+    gl = lock(local_repo)
+    assert gl.acquire_lock_and_push(
+        lambda: append(local_repo, "Claude"),
+        "Claude turn",
+        [ROOM],
+        author_name="Claude",
+        author_email="claude@agloop.ai",
+    )
+    meta_claude = _git(local_repo, "log", "-1", "--format=%an|%ae|%cn|%ce").strip()
+    assert meta_claude == "Claude|claude@agloop.ai|Claude|claude@agloop.ai"
+    assert "GIT_AUTHOR_NAME" not in os.environ
+    assert "GIT_COMMITTER_NAME" not in os.environ
+
+    assert gl.acquire_lock_and_push(
+        lambda: append(local_repo, "Gemini"),
+        "Gemini turn",
+        [ROOM],
+        author_name="Gemini",
+    )
+    meta_gemini = _git(local_repo, "log", "-1", "--format=%an|%ae|%cn|%ce").strip()
+    assert meta_gemini == "Gemini|gemini@agloop.local|Gemini|gemini@agloop.local"
+
+
+def test_branch_falls_back_to_main_when_head_detached(local_repo):
+    _git(local_repo, "checkout", "--detach", "HEAD")
+    gl = lock(local_repo)
+    assert gl._branch() == "main"
+
+
+def test_close_turn_and_archive_commits_both_files_atomically(remote_setup):
+    from core.war_room import WarRoom
+
+    a, b, _ = remote_setup
+    wr = WarRoom(filepath=str(a / ROOM))
+    gl = lock(a)
+
+    # First turn (normal message, no archive yet)
+    assert gl.acquire_lock_and_push(
+        lambda: wr.append_message("Alice", "First proposal"),
+        "turn 1",
+        [ROOM, "HISTORICO.md"],
+        author_name="Alice",
+    )
+    assert not (a / "HISTORICO.md").exists()
+    assert files_in_last_commit(a) == {ROOM}
+
+    # Second turn closes with consensus marker -> archives Turn 1 into HISTORICO.md in 1 atomic commit
+    commits_before = int(_git(a, "rev-list", "--count", "HEAD").strip())
+    assert gl.acquire_lock_and_push(
+        lambda: wr.append_message("Bob", "Agreed!\n<!-- AGLOOP_STATE: CONSENSUS -->"),
+        "turn 2 close",
+        [ROOM, "HISTORICO.md"],
+        author_name="Bob",
+    )
+    commits_after = int(_git(a, "rev-list", "--count", "HEAD").strip())
+
+    assert commits_after == commits_before + 1  # Strictly 1 atomic commit
+    assert files_in_last_commit(a) == {ROOM, "HISTORICO.md"}
+    assert "First proposal" in (a / "HISTORICO.md").read_text()
+    assert "First proposal" not in (a / ROOM).read_text()
+    assert "Agreed!" in (a / ROOM).read_text()
+    assert wr.get_last_speaker() == "Bob"
+
