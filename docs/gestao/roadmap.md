@@ -11,7 +11,7 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 | **M1** | **Fundação Core & Vigília Híbrida** | Lock local atômico (`.agloop.lock`) com recuperação de stale lock, commits escopados ao War Room, reversão cirúrgica sem `reset --hard`, Vigília Híbrida (`mtime` + `git fetch` com backoff/jitter) e suíte `pytest`. | [#1](https://github.com/yuremarketing/AgLoop/issues/1) | ✅ **Concluído** |
 | **M2** | **Governança Padrão Sysoft & Saneamento DRY** | Implantação de `docs/gestao/` (TAP, Artefato Mestre, Matriz de Riscos, Roadmap, Backlog, Glossário, Requisitos), ADRs `0001`–`0005`, SSOT em `.claude/skills/vigilia/SKILL.md`, `CLAUDE.md`/`GEMINI.md` enxutos, autoria Git isolada por agente, fechamento/arquivamento atômico (`HISTORICO.md`) e wrapper `vigia.py --once`. | [#3](https://github.com/yuremarketing/AgLoop/issues/3) | ✅ **Concluído (Turnos 1 e 2)** |
 | **M3** | **Motor Cognitivo Google ADK & Controle de Consenso** | Evolução de `core/agent.py` integrando `google-adk` (`LlmAgent` + `LiteLlm`), ferramentas nativas somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`), protocolo de parada por consenso/pausa humana (`WAITING_HUMAN` / `CONSENSUS`), janela deslizante no `WarRoom` e empacotamento `pyproject.toml` (`agloop`). | [#4](https://github.com/yuremarketing/AgLoop/issues/4) | ✅ **Concluído (Turno 4)** |
-| **M4** | **Plugin Oficial Claude Code & Antigravity + Camada MCP** | Empacotamento `.claude-plugin/plugin.json`, Slash Commands (`/agloop:vigia`, `/agloop:status`, `/agloop:debate`), servidor MCP (`read_war_room`, `post_war_room_message`, `get_lock_status`) e Hooks de sincronização. | [#2](https://github.com/yuremarketing/AgLoop/issues/2) | 📋 **Planejado (Próximo)** |
+| **M4** | **Plugin Oficial Claude Code & Antigravity + Camada MCP** | Empacotamento `.claude-plugin/plugin.json`, Slash Commands (`/agloop:vigia`, `/agloop:status`, `/agloop:debate`), servidor MCP (`read_war_room`, `post_war_room_message`, `get_lock_status`) e Hooks de sincronização. | [#2](https://github.com/yuremarketing/AgLoop/issues/2) | ✅ **Concluído (Turno 6)** |
 | **M5** | **Gate de PR+CI Antes do Merge na Main** | Branch de feature por turno técnico, workflow de CI (GitHub Actions) rodando `pytest` em cada PR, aprovação do Tech Lead via `gh pr review --approve` só com CI verde — port do padrão de rigor já validado no Sysoft. | [#5](https://github.com/yuremarketing/AgLoop/issues/5) | 📋 **Planejado** |
 
 ---
@@ -36,6 +36,7 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 - [x] `Agent` baseado em `google-adk` + `LiteLlm` com tools seguras de inspeção (`read_file`, `list_dir`, `git_diff`, `run_pytest`), confinamento `os.path.commonpath` (`LGPD-01`) e sanitização de PII (`LGPD-02`).
 - [x] `pyproject.toml` com CLI `agloop` e `agloop-vigia` + 34 testes verdes.
 
-### M4 — Plugin Oficial & Servidor MCP
-- [ ] Manifesto `.claude-plugin/plugin.json` e comandos slash.
-- [ ] Servidor MCP expondo operações estruturadas da Sala de Guerra.
+### M4 — Plugin Oficial & Servidor MCP (Concluído em 2026-11-03 — Turno 6)
+- [x] Manifesto `.claude-plugin/plugin.json`, `.mcp.json`, hooks e slash commands (`commands/{vigia,status,debate}.md`).
+- [x] Servidor MCP `core/mcp_server.py` (`read_war_room`, `post_war_room_message`, `get_lock_status`) com allowlist estrita (`LGPD-03`).
+- [x] Subcomando `agloop audit --privacy` (`LGPD-04`) em `main.py` retrocompatível com `--name` e 56 testes verdes.
