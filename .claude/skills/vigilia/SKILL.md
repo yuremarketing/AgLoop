@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity): inversão de papéis por turno (Dev Especialista / Tech Lead), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -72,3 +72,16 @@ Fim: AAAA-MM-DD HH:MM · Commit: <hash> · Agente: <Agente>
 2. **Proibição Absoluta de `reset --hard`:** Em caso de perda de corrida de push (`lost_race`), a reversão é cirúrgica (`git reset --soft HEAD~1` + `git checkout HEAD -- <paths>`), preservando qualquer trabalho não commitado na working tree.
 3. **Autoria Isolada por Agente:** Cada commit registra `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL` e `GIT_COMMITTER_NAME`/`GIT_COMMITTER_EMAIL` escopados ao subprocesso do agente ativo, sem vazar variáveis para o ambiente global.
 4. **Fechamento e Arquivamento Atômico:** Ao fechar um turno (`<!--FIM_TURNO-->` / `CONSENSUS`), o arquivamento de turnos antigos em `HISTORICO.md` ocorre no mesmo commit/push atômico.
+
+---
+
+## 5. Painel de Gestão — Responsabilidade Portável entre Agentes (Issue #6)
+
+O AgLoop se propõe heterogêneo (Claude ⇄ Gemini/Antigravity ⇄ outros via `LiteLlm`), então a governança visual não pode depender de uma única plataforma. O contrato é **"precisa ter um agente capaz de publicar e manter um painel ao vivo equivalente"**, não "precisa ser Claude".
+
+1. **Fonte Única Versionada (`docs/gestao/painel-agloop.html`):** arquivo HTML autocontido (zero dependências externas além de Google Fonts, tema claro/escuro nativo). **Qualquer agente** (Claude, Gemini/Antigravity ou outro) atualiza esse arquivo ao fechar um turno relevante — isso nunca fica obsoleto, independe de quem está com sessão ativa.
+2. **Publicação Ao Vivo — Claude-Exclusivo, *Best Effort*:** publicar/atualizar um Claude Artifact é ferramenta exclusiva da plataforma Claude — Gemini/Antigravity e outros LLMs não têm acesso a ela, de forma alguma. Quando uma sessão Claude estiver ativa no fechamento de um turno, republique `docs/gestao/painel-agloop.html` como Artifact, preservando a URL entre atualizações. Sem sessão Claude ativa, isso simplesmente não acontece — e está tudo bem, veja a regra 3.
+3. **Regra de Fallback Explícita (Transparência Obrigatória):** todo fechamento de turno relevante declara o estado do painel na própria mensagem, nunca falhando silenciosamente:
+   - `PAINEL: atualizado em docs/gestao/painel-agloop.html + publicado ao vivo` (sessão Claude ativa); ou
+   - `PAINEL: atualizado localmente em docs/gestao/painel-agloop.html, sem publicação ao vivo nesta sessão` (nenhum agente da sessão tem ferramenta de publicação equivalente).
+   Se outro LLM/agente quiser ocupar o papel de publicador sem ter Claude disponível, a obrigação é ativa: oferecer um mecanismo de publicação ao vivo similar, igual ou melhor — não deixar o painel cair pro fallback como comportamento padrão aceitável.

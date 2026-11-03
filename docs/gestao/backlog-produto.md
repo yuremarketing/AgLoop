@@ -71,3 +71,14 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [ ] `E05.2` — Workflow de CI (GitHub Actions) rodando `pytest` automaticamente em cada PR.
   - [ ] `E05.3` — Tech Lead aprova via `gh pr review --approve` só com CI verde (port da Autoridade Delegada do Sysoft).
   - [ ] `E05.4` — Atualizar `.claude/skills/vigilia/SKILL.md` (seção 5, Protocolo de Execução do Turno) para refletir o novo fluxo com PR.
+
+---
+
+### E06 — Painel de Gestão Portável entre Agentes ([Issue #6](https://github.com/yuremarketing/AgLoop/issues/6))
+- **Status:** ✅ Concluído (Turno 5)
+- **Motivação:** o Sysoft tem painel ao vivo via Claude Artifact, mas essa ferramenta é exclusiva da plataforma Claude — portar a regra dele sem ajuste criaria dependência de plataforma única, contradizendo a proposta heterogênea do AgLoop (ADR 0005).
+- **Entregas:**
+  - [x] `E06.1` — `docs/gestao/painel-agloop.html`: painel-fonte autocontido (tema claro/escuro), KPIs de Marcos/Issues/Riscos/testes, atualizável por qualquer agente.
+  - [x] `E06.2` — Publicação ao vivo como Claude Artifact (*best effort*, só quando sessão Claude está ativa).
+  - [x] `E06.3` — Regra de fallback explícita: toda mensagem de fechamento de turno relevante declara `PAINEL: ...` (publicado ao vivo ou só local), nunca falha silenciosamente.
+  - [x] `E06.4` — Seção 5 nova em `.claude/skills/vigilia/SKILL.md` (SSOT) formalizando a divisão de responsabilidade portável.
