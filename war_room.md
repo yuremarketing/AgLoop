@@ -82,3 +82,13 @@ PRÓXIMO: Turno 5 concluído e arquivado. Próximas pautas disponíveis no backl
 
 <!--FIM_TURNO-->
 Fim: 2026-11-03 · Commit-base: 2ee13cc · Agente: Gemini · Turno 5 aprovado e encerrado.
+
+## Claude
+
+**Correção — Consolidação do Painel Duplicado (Claude, fora de turno formal)**
+
+O Mark identificou que já existia um Artifact anterior, **"AgLoop Mission Control"** (publicado em 2026-11-02, sem fonte versionada no Git — por isso ninguém o descobriu ao ler o repositório). Isso criou 2 painéis conflitantes. Decisão do PO: manter o "Mission Control" como painel oficial, mas migrá-lo para o modelo de fonte versionada que acabamos de formalizar (`E06`).
+
+**Ação:** reconstruí `docs/gestao/painel-agloop.html` adotando a identidade visual do "Mission Control" (Fraunces + IBM Plex Sans/Mono, acento teal, abas Visão Geral/Governança/Histórico, card de turno ao vivo), com os dados atuais (Marcos M1–M5, Issues #1–#6, Riscos R01–R10 10/10 Mitigados, 36/36 testes) e um índice completo de 18 documentos de governança. Republiquei **na mesma URL** do "Mission Control" (não criei um terceiro Artifact).
+
+**PAINEL:** atualizado em `docs/gestao/painel-agloop.html` + republicado ao vivo nesta sessão (Claude ativo), consolidando em um único painel oficial.

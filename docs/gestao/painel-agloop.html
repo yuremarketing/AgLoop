@@ -1,550 +1,339 @@
-<title>Painel AgLoop</title>
+<title>AgLoop Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --paper: #eef0ea;
+    --bg: #eef3f4;
     --surface: #ffffff;
-    --surface-2: #e1e6de;
-    --ink: #151d16;
-    --ink-muted: #4d5a4e;
-    --ink-faint: #828f80;
-    --border: #cdd5c8;
-    --border-strong: #aab5a3;
-
-    --accent: #96661d;
-    --accent-strong: #7a5116;
-    --accent-ink: #fff8ec;
-
-    --good-bg: #dcefe0;
-    --good-ink: #1f6b3f;
-    --warn-bg: #f7ecd2;
-    --warn-ink: #8a5a12;
-    --crit-bg: #f6dedb;
-    --crit-ink: #9c372f;
-    --queued-bg: #e4e7e0;
-    --queued-ink: #5a6459;
-
-    --claude-tag: #7a5116;
-    --gemini-tag: #2c6579;
-
-    --shadow: 0 1px 2px rgba(15, 20, 15, 0.05), 0 10px 24px -14px rgba(15, 20, 15, 0.22);
+    --surface-sunken: #e3eaec;
+    --text: #15242b;
+    --text-muted: #51686f;
+    --border: #cddadd;
+    --accent: #0e7490;
+    --accent-ink: #ffffff;
+    --accent-soft: #d7eef2;
+    --good: #15803d;
+    --good-soft: #dcf3e3;
+    --warn: #a3590a;
+    --warn-soft: #faeacd;
+    --pending: #5b6b70;
+    --pending-soft: #e1e8ea;
+    --shadow: 0 1px 2px rgba(21,36,43,0.06), 0 8px 24px -16px rgba(21,36,43,0.25);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #0e130f;
-      --surface: #161c15;
-      --surface-2: #1c231a;
-      --ink: #e6ecdf;
-      --ink-muted: #a7b39f;
-      --ink-faint: #70806c;
-      --border: #2a342b;
-      --border-strong: #3a473a;
-
-      --accent: #d6a24a;
-      --accent-strong: #e8b765;
-      --accent-ink: #16110a;
-
-      --good-bg: #163a26;
-      --good-ink: #7fd9a0;
-      --warn-bg: #3a2c12;
-      --warn-ink: #e8b765;
-      --crit-bg: #3a1c19;
-      --crit-ink: #f09a90;
-      --queued-bg: #232a21;
-      --queued-ink: #a7b39f;
-
-      --claude-tag: #e8b765;
-      --gemini-tag: #7fc4dd;
-
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.5);
+      --bg: #0c1518; --surface: #121e22; --surface-sunken: #0f1a1d;
+      --text: #e7f0f1; --text-muted: #8ba3a8; --border: #27393e;
+      --accent: #3fc3d6; --accent-ink: #06232a; --accent-soft: #163037;
+      --good: #4fd086; --good-soft: #15301f;
+      --warn: #e3a94c; --warn-soft: #3a2c10;
+      --pending: #9fb2b6; --pending-soft: #1b2a2e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.5);
     }
   }
-
   :root[data-theme="dark"] {
-    --paper: #0e130f;
-    --surface: #161c15;
-    --surface-2: #1c231a;
-    --ink: #e6ecdf;
-    --ink-muted: #a7b39f;
-    --ink-faint: #70806c;
-    --border: #2a342b;
-    --border-strong: #3a473a;
-
-    --accent: #d6a24a;
-    --accent-strong: #e8b765;
-    --accent-ink: #16110a;
-
-    --good-bg: #163a26;
-    --good-ink: #7fd9a0;
-    --warn-bg: #3a2c12;
-    --warn-ink: #e8b765;
-    --crit-bg: #3a1c19;
-    --crit-ink: #f09a90;
-    --queued-bg: #232a21;
-    --queued-ink: #a7b39f;
-
-    --claude-tag: #e8b765;
-    --gemini-tag: #7fc4dd;
-
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.5);
+    --bg: #0c1518; --surface: #121e22; --surface-sunken: #0f1a1d;
+    --text: #e7f0f1; --text-muted: #8ba3a8; --border: #27393e;
+    --accent: #3fc3d6; --accent-ink: #06232a; --accent-soft: #163037;
+    --good: #4fd086; --good-soft: #15301f;
+    --warn: #e3a94c; --warn-soft: #3a2c10;
+    --pending: #9fb2b6; --pending-soft: #1b2a2e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.5);
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif;
-    font-size: 15px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
     line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
+    padding: clamp(20px, 4vw, 48px);
   }
 
-  .wrap {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
+  .board { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+
+  h1, h2, h3, h4 { font-family: "Fraunces", Georgia, serif; text-wrap: balance; margin: 0; }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  p { margin: 0 0 8px; }
+  p:last-child { margin-bottom: 0; }
+  ul.plain { margin: 0; padding-left: 18px; }
+  ul.plain li { margin-bottom: 4px; }
+
+  /* ---------- Masthead ---------- */
+  .masthead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .masthead-id { display: flex; flex-direction: column; gap: 6px; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .masthead h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 600; }
+  .masthead-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--text-muted); }
+  .masthead-meta b { color: var(--text); font-weight: 500; }
+  .repo-badge { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; white-space: nowrap; }
+
+  /* ---------- Tabs ---------- */
+  .tabbar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    padding: 10px 6px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 2.25rem;
-  }
-
-  code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
-  .num { font-variant-numeric: tabular-nums; }
-
-  /* ---------- Header ---------- */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 1.5rem;
-  }
-
-  .eyebrow {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent-strong);
-    margin: 0 0 0.4rem;
-  }
-
-  h1 {
-    font-family: "Big Shoulders", sans-serif;
-    font-weight: 800;
-    font-size: clamp(2.2rem, 5vw, 3.2rem);
-    letter-spacing: 0.01em;
-    line-height: 0.95;
-    margin: 0;
-    text-wrap: balance;
-  }
-
-  .subhead {
-    color: var(--ink-muted);
-    margin: 0.5rem 0 0;
-    max-width: 38ch;
-  }
-
-  .sync {
-    text-align: right;
-    font-size: 0.82rem;
-    color: var(--ink-faint);
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    min-width: 13rem;
-  }
-
-  .sync .dot {
-    display: inline-block;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: var(--good-ink);
-    margin-right: 0.4rem;
-    box-shadow: 0 0 0 3px var(--good-bg);
-  }
-
-  /* ---------- KPI strip ---------- */
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .kpi {
-    background: var(--surface);
-    padding: 1.1rem 1.1rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  .kpi .figure {
-    font-family: "Big Shoulders", sans-serif;
-    font-weight: 700;
-    font-size: 2.1rem;
-    line-height: 1;
-  }
-
-  .kpi .figure small {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--ink-faint);
-  }
-
-  .kpi .label {
-    font-size: 0.74rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  /* ---------- Sections ---------- */
-  section { display: flex; flex-direction: column; gap: 1rem; }
-
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  h2 {
-    font-family: "Big Shoulders", sans-serif;
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin: 0;
-    letter-spacing: 0.01em;
-  }
-
-  .section-note { color: var(--ink-faint); font-size: 0.82rem; }
-
-  .pill {
-    display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.2rem 0.65rem;
-    border-radius: 100px;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
+    gap: 8px;
   }
-  .pill.good { background: var(--good-bg); color: var(--good-ink); }
-  .pill.warn { background: var(--warn-bg); color: var(--warn-ink); }
-  .pill.crit { background: var(--crit-bg); color: var(--crit-ink); }
-  .pill.queued { background: var(--queued-bg); color: var(--queued-ink); }
+  .tab-btn .tab-count { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--text-muted); background: var(--surface-sunken); border-radius: 999px; padding: 1px 7px; }
+  .tab-btn[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .tab-btn:hover { color: var(--text); }
 
-  /* ---------- Milestones ---------- */
-  .milestones {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--surface);
+  .tabpanel { display: none; flex-direction: column; gap: 22px; }
+  .tabpanel.is-active { display: flex; }
+
+  /* ---------- Live turn card ---------- */
+  .live-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 20px 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 16px 24px; align-items: start;
   }
+  .live-dot-wrap { display: flex; align-items: center; padding-top: 4px; }
+  .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px var(--good-soft); }
+  .live-label { font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .live-body h2 { font-size: 1.22rem; margin-bottom: 8px; }
+  .live-body p { color: var(--text-muted); font-size: 0.94rem; }
+  .status-chip { display: inline-flex; align-items: center; gap: 6px; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .chip-good { background: var(--good-soft); color: var(--good); }
+  .chip-warn { background: var(--warn-soft); color: var(--warn); }
+  .chip-pending { background: var(--pending-soft); color: var(--pending); }
+  .live-next { justify-self: end; text-align: right; display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
+  .live-next .who { font-size: 0.94rem; font-weight: 500; }
+  .live-next .what { font-size: 0.82rem; color: var(--text-muted); }
 
-  .milestone {
-    display: grid;
-    grid-template-columns: 3.4rem 1fr auto;
-    gap: 1rem;
-    align-items: center;
-    padding: 0.95rem 1.1rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .milestone:last-child { border-bottom: none; }
+  /* ---------- KPI row ---------- */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .kpi-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .kpi-tile .target { font-size: 0.8rem; color: var(--text-muted); }
+  .kpi-tile .label { font-size: 0.85rem; font-weight: 500; }
 
-  .milestone .m-number {
-    font-family: "Big Shoulders", sans-serif;
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: var(--ink-faint);
-  }
-  .milestone.done .m-number { color: var(--accent-strong); }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .section-head h2 { font-size: 1.2rem; font-weight: 600; }
+  .section-head .count { font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--text-muted); }
 
-  .milestone .m-body strong { display: block; font-weight: 600; }
-  .milestone .m-body span { color: var(--ink-muted); font-size: 0.86rem; }
-  .milestone .m-body a { color: var(--accent-strong); text-decoration: none; }
-  .milestone .m-body a:hover { text-decoration: underline; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow); }
 
-  /* ---------- Issues ---------- */
-  .issues {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .issue-card {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 0.85rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-  }
-
-  .issue-card .top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .issue-card .id { font-family: "JetBrains Mono", monospace; color: var(--ink-faint); font-size: 0.82rem; }
-  .issue-card .title { font-size: 0.92rem; font-weight: 500; line-height: 1.35; }
-  .issue-card .epic { font-size: 0.76rem; color: var(--ink-faint); }
-
-  /* ---------- Risk table ---------- */
-  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; min-width: 640px; }
-  thead th {
-    text-align: left;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid var(--border-strong);
-    background: var(--surface-2);
-  }
-  tbody td {
-    padding: 0.65rem 0.9rem;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
+  .scroll-x { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 560px; }
+  thead th { text-align: left; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
   tbody tr:last-child td { border-bottom: none; }
-  td.rid { font-family: "JetBrains Mono", monospace; color: var(--ink-faint); white-space: nowrap; }
-  td.sev { white-space: nowrap; }
 
-  /* ---------- War room status ---------- */
-  .ledger {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface);
-    padding: 1.1rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+  /* ---------- Governança doc list ---------- */
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .doc-item {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--surface-sunken); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; font-size: 0.9rem; font-weight: 500;
   }
+  .doc-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .doc-item .path { display: block; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+  .doc-group-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 18px 0 8px; }
+  .doc-group-label:first-child { margin-top: 0; }
 
-  .ledger .row {
-    display: grid;
-    grid-template-columns: 9.5rem 1fr;
-    gap: 1rem;
-    font-size: 0.88rem;
-  }
-  .ledger .row .k { color: var(--ink-faint); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 0.15rem; }
-  .ledger .row .v { color: var(--ink); }
-  .ledger .tag { font-weight: 700; }
-  .ledger .tag.claude { color: var(--claude-tag); }
-  .ledger .tag.gemini { color: var(--gemini-tag); }
+  /* ---------- Issue cards (Histórico) ---------- */
+  .issue-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .issue-row:last-child { border-bottom: none; }
+  .issue-row .id { font-family: "IBM Plex Mono", monospace; color: var(--text-muted); margin-right: 8px; }
 
-  footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    color: var(--ink-faint);
-    font-size: 0.78rem;
-    border-top: 1px solid var(--border);
-    padding-top: 1.25rem;
-  }
-  footer a { color: var(--ink-muted); }
+  .log-list { display: flex; flex-direction: column; gap: 10px; }
+  .log-row { display: grid; grid-template-columns: 7rem 1fr; gap: 12px; font-size: 0.88rem; }
+  .log-row .date { font-family: "IBM Plex Mono", monospace; color: var(--text-muted); }
 
-  @media (max-width: 720px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .issues { grid-template-columns: 1fr; }
-    .ledger .row { grid-template-columns: 1fr; }
-    header { flex-direction: column; }
-    .sync { text-align: left; }
+  footer { color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 680px) {
+    .live-card { grid-template-columns: auto 1fr; }
+    .live-next { grid-column: 1 / -1; justify-self: start; text-align: left; }
+    .masthead { flex-direction: column; align-items: flex-start; }
   }
 </style>
 
-<div class="wrap">
+<div class="board">
 
-  <header>
-    <div>
-      <p class="eyebrow">Governança &middot; Sala de Guerra</p>
-      <h1>Painel AgLoop</h1>
-      <p class="subhead">Estado consolidado da orquestração Claude &harr; Gemini/Antigravity via <code>war_room.md</code>.</p>
+  <div class="masthead">
+    <div class="masthead-id">
+      <span class="eyebrow">Mission Control &middot; Governança &amp; Status</span>
+      <h1>AgLoop</h1>
+      <div class="masthead-meta">
+        <span><b>3</b>/5 marcos concluídos</span>
+        <span><b>4</b>/6 issues fechadas</span>
+        <span><b>10</b>/10 riscos mitigados</span>
+        <span><b>36</b>/36 testes verdes</span>
+      </div>
     </div>
-    <div class="sync">
-      <span><span class="dot"></span>Snapshot do Turno&nbsp;5 (Concluído)</span>
-      <span>Commit base <code class="num">2ee13cc</code></span>
-      <span>Gerado em 2026-11-03</span>
-    </div>
-  </header>
+    <span class="repo-badge">github.com/yuremarketing/AgLoop &middot; atualizado 2026-11-03</span>
+  </div>
 
-  <div class="kpis">
-    <div class="kpi">
-      <div class="figure num">3<small>/5</small></div>
-      <div class="label">Marcos concluídos</div>
+  <div class="tabbar" role="tablist">
+    <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-visao" id="tab-visao" data-tab="visao">Visão Geral</button>
+    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-gov" id="tab-gov" data-tab="gov">Governança <span class="tab-count">18</span></button>
+    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-hist" id="tab-hist" data-tab="hist">Histórico</button>
+  </div>
+
+  <div class="tabpanel is-active" id="panel-visao" role="tabpanel" aria-labelledby="tab-visao">
+    <div class="live-card">
+      <div class="live-dot-wrap"><span class="live-dot" aria-hidden="true"></span></div>
+      <div class="live-body">
+        <span class="live-label">War Room &middot; war_room.md &middot; Turno 5 (encerrado)</span>
+        <h2>Issue #6 — Painel de Gestão Portável entre Agentes</h2>
+        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Gemini</b> (Tech Lead) &mdash; aprovou e encerrou o turno</p>
+      </div>
+      <div class="live-next">
+        <span class="live-label">Próxima pauta</span>
+        <span class="who">Em aberto</span>
+        <span class="what">Issue #2 (Plugin/MCP, M4) ou Issue #5 (Gate de PR+CI, M5), a critério do PO</span>
+      </div>
     </div>
-    <div class="kpi">
-      <div class="figure num">4<small>/6</small></div>
-      <div class="label">Issues fechadas</div>
+
+    <div class="kpi-row">
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ Mitigado</span><span class="label">Ping-pong infinito de turnos (R01)</span><span class="target">Pausa automática em CONSENSUS</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ Atingido</span><span class="label">Tokens em ociosidade (Vigília)</span><span class="target">0 tokens</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ Mitigado</span><span class="label">Watcher sobrevive a falhas atípicas (R04)</span><span class="target">Backoff exponencial + jitter</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ Formalizado</span><span class="label">Limite de rodadas por debate</span><span class="target">Máx. 3</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ 36/36</span><span class="label">Suíte de testes (pytest)</span><span class="target">100% verde</span></div>
     </div>
-    <div class="kpi">
-      <div class="figure num">10<small>/10</small></div>
-      <div class="label">Riscos mitigados</div>
+
+    <div class="panel">
+      <div class="section-head"><h2>Marcos</h2><span class="count">roadmap.md</span></div>
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>Marco</th><th>Escopo</th><th>Issue</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">M1</td><td>Fundação Core &amp; Vigília Híbrida</td><td>#1</td><td><span class="status-chip chip-good">Concluído</span></td></tr>
+            <tr><td class="mono">M2</td><td>Governança Padrão Sysoft &amp; DRY</td><td>#3</td><td><span class="status-chip chip-good">Concluído</span></td></tr>
+            <tr><td class="mono">M3</td><td>Motor Cognitivo Google ADK &amp; Consenso</td><td>#4</td><td><span class="status-chip chip-good">Concluído</span></td></tr>
+            <tr><td class="mono">M4</td><td>Plugin Oficial &amp; Camada MCP</td><td>#2</td><td><span class="status-chip chip-pending">Planejado</span></td></tr>
+            <tr><td class="mono">M5</td><td>Gate de PR+CI antes do merge na main</td><td>#5</td><td><span class="status-chip chip-pending">Planejado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="kpi">
-      <div class="figure num">36<small>/36</small></div>
-      <div class="label"><code>pytest</code> verdes</div>
-    </div>
-    <div class="kpi">
-      <div class="figure">5</div>
-      <div class="label">Turnos concluídos</div>
+
+    <div class="panel">
+      <div class="section-head"><h2>Matriz de Riscos</h2><span class="count">R01–R10 · matriz-riscos.md</span></div>
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>ID</th><th>Risco</th><th>P / I</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">R01</td><td>Ping-pong infinito de turnos / exaustão de tokens</td><td>Alta / Crítico</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R02</td><td>Perda de código não commitado em <code>lost_race</code></td><td>Média / Crítico</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R03</td><td>Deadlock por stale lock em <code>.agloop.lock</code></td><td>Média / Alto</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R04</td><td>Monitor de vigília não acorda a sessão</td><td>Alta / Alto</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R05</td><td>Divergência de regras / inflação de tokens no prompt</td><td>Alta / Médio</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R06</td><td>Execução destrutiva via Tools do Agente (ADK)</td><td>Média / Crítico</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R07</td><td>Degradação por crescimento ilimitado do war_room.md</td><td>Alta / Alto</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R08</td><td>Poluição de autoria Git / duplo commit de arquivamento</td><td>Média / Médio</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R09</td><td>Exposição de PII de desenvolvedores em commits</td><td>Baixa / Médio</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+            <tr><td class="mono">R10</td><td>Transferência internacional de PII via payload de LLM</td><td>Média / Alto</td><td><span class="status-chip chip-good">Mitigado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <section>
-    <div class="section-head">
-      <h2>Marcos</h2>
-      <span class="section-note">roadmap.md</span>
-    </div>
-    <div class="milestones">
-      <div class="milestone done">
-        <div class="m-number">M1</div>
-        <div class="m-body">
-          <strong>Fundação Core &amp; Vigília Híbrida</strong>
-          <span>Lock atômico, reversão cirúrgica, vigília híbrida &middot; <a href="https://github.com/yuremarketing/AgLoop/issues/1">Issue #1</a></span>
-        </div>
-        <span class="pill good">Concluído</span>
-      </div>
-      <div class="milestone done">
-        <div class="m-number">M2</div>
-        <div class="m-body">
-          <strong>Governança Padrão Sysoft &amp; Saneamento DRY</strong>
-          <span>SSOT, ADRs, autoria isolada, arquivamento atômico &middot; <a href="https://github.com/yuremarketing/AgLoop/issues/3">Issue #3</a></span>
-        </div>
-        <span class="pill good">Concluído</span>
-      </div>
-      <div class="milestone done">
-        <div class="m-number">M3</div>
-        <div class="m-body">
-          <strong>Motor Cognitivo Google ADK &amp; Controle de Consenso</strong>
-          <span>Tools confinadas, sanitização LGPD, pausa em consenso &middot; <a href="https://github.com/yuremarketing/AgLoop/issues/4">Issue #4</a></span>
-        </div>
-        <span class="pill good">Concluído</span>
-      </div>
-      <div class="milestone">
-        <div class="m-number">M4</div>
-        <div class="m-body">
-          <strong>Plugin Oficial Claude Code &amp; Antigravity + MCP</strong>
-          <span>Slash commands, servidor MCP, hooks &middot; <a href="https://github.com/yuremarketing/AgLoop/issues/2">Issue #2</a></span>
-        </div>
-        <span class="pill queued">Planejado</span>
-      </div>
-      <div class="milestone">
-        <div class="m-number">M5</div>
-        <div class="m-body">
-          <strong>Gate de PR+CI Antes do Merge na Main</strong>
-          <span>Branch por turno, CI com pytest, revisão via PR &middot; <a href="https://github.com/yuremarketing/AgLoop/issues/5">Issue #5</a></span>
-        </div>
-        <span class="pill queued">Planejado</span>
-      </div>
-    </div>
-  </section>
+  <div class="tabpanel" id="panel-gov" role="tabpanel" aria-labelledby="tab-gov">
+    <div class="section-head"><h2>Documentação de governança</h2><span class="count">18 artefatos · fonte versionada no Git</span></div>
 
-  <section>
-    <div class="section-head">
-      <h2>Issues</h2>
-      <span class="section-note">github.com/yuremarketing/AgLoop</span>
+    <p class="doc-group-label">Gestão (docs/gestao/)</p>
+    <div class="doc-grid">
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/artefatos/artefato-mestre-agloop.md">Artefato Mestre<span class="path">artefatos/artefato-mestre-agloop.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/termo-abertura.md">Termo de Abertura<span class="path">termo-abertura.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/matriz-riscos.md">Matriz de Riscos<span class="path">matriz-riscos.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/roadmap.md">Roadmap<span class="path">roadmap.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/backlog-produto.md">Backlog<span class="path">backlog-produto.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/glossario.md">Glossário<span class="path">glossario.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/concepcao-e-elicitacao-requisitos.md">Concepção &amp; Elicitação<span class="path">concepcao-e-elicitacao-requisitos.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/estudo-campo-e-governanca-agloop.md">Estudo de Campo &amp; Benchmark<span class="path">estudo-campo-e-governanca-agloop.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/auditoria-governanca-agloop.md">Auditoria de Governança<span class="path">auditoria-governanca-agloop.md</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/gestao/lgpd-conformidade-agloop.md">Conformidade LGPD<span class="path">lgpd-conformidade-agloop.md</span></a>
     </div>
-    <div class="issues">
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#1</span><span class="pill good">Closed</span></div>
-        <div class="title">Hardening do loop: lock híbrido + vigília híbrida</div>
-        <div class="epic">Épico E01 &middot; Marco M1</div>
-      </div>
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#2</span><span class="pill queued">Open</span></div>
-        <div class="title">RFC &mdash; Empacotar o AgLoop como plugin oficial</div>
-        <div class="epic">Épico E04 &middot; Marco M4</div>
-      </div>
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#3</span><span class="pill good">Closed</span></div>
-        <div class="title">Governança &amp; DRY &mdash; SSOT e fechamento atômico</div>
-        <div class="epic">Épico E02 &middot; Marco M2</div>
-      </div>
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#4</span><span class="pill good">Closed</span></div>
-        <div class="title">RFC &mdash; Evoluir <code>core/agent.py</code> com Google ADK</div>
-        <div class="epic">Épico E03 &middot; Marco M3</div>
-      </div>
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#5</span><span class="pill queued">Open</span></div>
-        <div class="title">Gate de PR+CI antes do merge na main</div>
-        <div class="epic">Épico E05 &middot; Marco M5</div>
-      </div>
-      <div class="issue-card">
-        <div class="top-row"><span class="id">#6</span><span class="pill good">Closed</span></div>
-        <div class="title">Painel de gestão portável entre agentes</div>
-        <div class="epic">Épico E06 &middot; Turno 5</div>
-      </div>
-    </div>
-  </section>
 
-  <section>
-    <div class="section-head">
-      <h2>Matriz de Riscos</h2>
-      <span class="section-note">matriz-riscos.md &middot; R01&ndash;R10</span>
+    <p class="doc-group-label">Decisões de Arquitetura (docs/arquitetura/decisoes/)</p>
+    <div class="doc-grid">
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0001-ipc-markdown-e-git-serverless-broker.md">ADR 0001<span class="path">IPC &amp; Git Broker</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0002-lock-hibrido-atomico-e-reversao-cirurgica-lost-race.md">ADR 0002<span class="path">Lock Híbrido</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0003-vigilia-hibrida-mtime-local-e-fetch-remoto.md">ADR 0003<span class="path">Vigília Híbrida</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0004-governanca-dry-ssot-autoria-e-fechamento-atomico.md">ADR 0004<span class="path">Governança DRY</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0005-motor-cognitivo-google-adk-e-plugin-mcp.md">ADR 0005<span class="path">ADK &amp; Plugin/MCP</span></a>
     </div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Risco</th><th>Severidade</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          <tr><td class="rid">R01</td><td>Ping-pong infinito de turnos / exaustão de tokens</td><td class="sev">Alta &middot; Crítico</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R02</td><td>Perda de código em colisão de push (<code>lost_race</code>)</td><td class="sev">Média &middot; Crítico</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R03</td><td>Deadlock por trava órfã (<code>.agloop.lock</code>)</td><td class="sev">Média &middot; Alto</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R04</td><td>Monitor de vigília não acorda a sessão</td><td class="sev">Alta &middot; Alto</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R05</td><td>Divergência de regras / inflação de prompt</td><td class="sev">Alta &middot; Médio</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R06</td><td>Execução destrutiva ou vazamento via tools do agente</td><td class="sev">Média &middot; Crítico</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R07</td><td>Estouro de contexto por crescimento do <code>war_room.md</code></td><td class="sev">Alta &middot; Alto</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R08</td><td>Poluição de autoria Git no arquivamento</td><td class="sev">Média &middot; Médio</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R09</td><td>Exposição de PII de desenvolvedores em commits</td><td class="sev">Baixa &middot; Médio</td><td><span class="pill good">Mitigado</span></td></tr>
-          <tr><td class="rid">R10</td><td>Transferência internacional de PII via payload de LLM</td><td class="sev">Média &middot; Alto</td><td><span class="pill good">Mitigado</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
 
-  <section>
-    <div class="section-head">
-      <h2>Sala de Guerra &mdash; agora</h2>
-      <span class="section-note">war_room.md</span>
+    <p class="doc-group-label">Protocolo &amp; Resumos de Sessão</p>
+    <div class="doc-grid">
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/.claude/skills/vigilia/SKILL.md">SKILL.md <span class="status-chip chip-good" style="margin-left:6px">v1.1.0</span><span class="path">.claude/skills/vigilia/</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/CLAUDE.md">CLAUDE.md<span class="path">raiz</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/GEMINI.md">GEMINI.md<span class="path">raiz</span></a>
     </div>
-    <div class="ledger">
-      <div class="row"><span class="k">Turno</span><span class="v">5 &mdash; Painel de Gestão Portável (<a href="https://github.com/yuremarketing/AgLoop/issues/6">Issue #6</a>)</span></div>
-      <div class="row"><span class="k">Dev Especialista</span><span class="v"><span class="tag claude">Claude</span> &middot; entregou <code>painel-agloop.html</code>, Seção 5 do <code>SKILL.md</code> e Épico <code>E06</code></span></div>
-      <div class="row"><span class="k">Tech Lead</span><span class="v"><span class="tag gemini">Gemini</span> &middot; auditou e aprovou o fechamento do Turno 5</span></div>
-      <div class="row"><span class="k">Status</span><span class="v"><span class="pill good">Concluído</span> &mdash; Turno 5 aprovado e encerrado (<code>STATUS: ACORDO</code>)</span></div>
-      <div class="row"><span class="k">Painel</span><span class="v">Atualizado localmente em <code>docs/gestao/painel-agloop.html</code> no fechamento do Turno 5 (sem publicação externa nesta sessão Gemini)</span></div>
+
+    <div class="panel">
+      <div class="section-head"><h2>Épicos</h2><span class="count">backlog-produto.md</span></div>
+      <ul class="plain">
+        <li>E01 — Sincronização Git Resiliente <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E02 — Governança Sysoft &amp; DRY <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E03 — Motor Cognitivo Google ADK <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E04 — Plugin Oficial &amp; MCP <span class="status-chip chip-pending" style="margin-left:6px">Planejado</span></li>
+        <li>E05 — Gate de PR+CI <span class="status-chip chip-pending" style="margin-left:6px">Planejado</span></li>
+        <li>E06 — Painel de Gestão Portável <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+      </ul>
     </div>
-  </section>
+  </div>
+
+  <div class="tabpanel" id="panel-hist" role="tabpanel" aria-labelledby="tab-hist">
+    <div class="panel">
+      <div class="section-head"><h2>Histórico por issue</h2><span class="count">6 issues</span></div>
+      <div class="issue-row"><span><span class="id">#1</span>Hardening do loop: lock híbrido + vigília híbrida</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#2</span>RFC — Empacotar o AgLoop como plugin oficial</span><span class="status-chip chip-pending">Open</span></div>
+      <div class="issue-row"><span><span class="id">#3</span>Governança &amp; DRY — SSOT e fechamento atômico</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#4</span>RFC — Evoluir core/agent.py com Google ADK</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#5</span>Gate de PR+CI antes do merge na main</span><span class="status-chip chip-pending">Open</span></div>
+      <div class="issue-row"><span><span class="id">#6</span>Painel de gestão portável entre agentes</span><span class="status-chip chip-good">Closed</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head"><h2>Log de decisões e turnos</h2><span class="count">war_room.md + HISTORICO.md</span></div>
+      <div class="log-list">
+        <div class="log-row"><span class="date">2026-10-15</span><span>Hardening do loop: lock híbrido seguro + Vigília Híbrida no runner (Issue #1).</span></div>
+        <div class="log-row"><span class="date">2026-11-01</span><span>Turno 1 — Governança Sysoft completa: 15 artefatos, ADRs 0001–0005, SSOT em <code>SKILL.md</code> (Issue #3).</span></div>
+        <div class="log-row"><span class="date">2026-11-02</span><span>Turno 2 — Autoria Git isolada, <code>close_turn_and_archive</code> atômico, DRY <code>vigia.py</code> (26 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-03</span><span>Turno 3 — Auditoria dos estudos NotebookLM, 5 correções de governança, hardening de <code>watch_war_room()</code> (27 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-03</span><span>Turno 4 — Motor Google ADK conectado de fato (tool-calling real), Marco M3 concluído (36 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-03</span><span>Turno 5 — Painel de gestão portável entre agentes, fonte versionada + regra de fallback (Issue #6).</span></div>
+      </div>
+    </div>
+  </div>
 
   <footer>
-    <span>Fonte versionada &middot; atualizável por qualquer agente (Claude ou Gemini) ao fechar um turno.</span>
-    <span>Publicação ao vivo via Claude Artifact &eacute; <em>best effort</em> &mdash; sem sessão Claude ativa, o painel permanece v&aacute;lido como arquivo local.</span>
+    <span>Fonte versionada em <code>docs/gestao/painel-agloop.html</code> &middot; atualizável por qualquer agente (Claude ou Gemini).</span>
+    <span>Publicação ao vivo via Claude Artifact é <em>best effort</em> &mdash; sem sessão Claude ativa, o painel permanece válido como arquivo local.</span>
   </footer>
 
 </div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.setAttribute('aria-selected', 'false'); });
+      document.querySelectorAll('.tabpanel').forEach(function (p) { p.classList.remove('is-active'); });
+      btn.setAttribute('aria-selected', 'true');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('is-active');
+    });
+  });
+</script>
