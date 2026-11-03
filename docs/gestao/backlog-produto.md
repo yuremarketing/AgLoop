@@ -53,12 +53,13 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E04 — Plugin Oficial Claude Code & Antigravity + Servidor MCP ([Issue #2](https://github.com/yuremarketing/AgLoop/issues/2))
-- **Status:** 📋 Planejado (Marco M4)
+- **Status:** ✅ Concluído (Turno 6)
 - **ADR:** [ADR 0005](../arquitetura/decisoes/0005-motor-cognitivo-google-adk-e-plugin-mcp.md)
 - **Entregas:**
-  - [ ] `E04.1` — Manifesto `.claude-plugin/plugin.json` e comandos slash (`commands/vigia.md`, `commands/status.md`, `commands/debate.md`).
-  - [ ] `E04.2` — Servidor MCP (`mcp_server.py` + `.mcp.json`) expondo `read_war_room`, `post_war_room_message` e `get_lock_status`.
-  - [ ] `E04.3` — Hooks de eventos (`hooks/hooks.json`) para verificação pós-fetch.
+  - [x] `E04.1` — Manifesto `.claude-plugin/plugin.json` e comandos slash (`commands/vigia.md`, `commands/status.md`, `commands/debate.md`).
+  - [x] `E04.2` — Servidor MCP (`core/mcp_server.py` + `.mcp.json`) expondo `read_war_room`, `post_war_room_message` e `get_lock_status`, restritos por *allowlist* (`LGPD-03`) a `war_room.md`/`HISTORICO.md`.
+  - [x] `E04.3` — Hooks de eventos (`hooks/hooks.json`) com verificação de status da Sala de Guerra no `SessionStart`.
+  - [x] `LGPD-04` — `agloop audit --privacy` (`core/privacy_audit.py`) via subcomando `audit` em `main.py` (retrocompatível com `--name`).
 
 ---
 

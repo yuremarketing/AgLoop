@@ -1,0 +1,8 @@
+{
+  "name": "agloop",
+  "version": "0.4.0",
+  "description": "Serverless Git & Markdown multi-agent orchestration framework (Claude <-> Gemini War Room): slash commands, MCP server and hooks for the AgLoop vigilia protocol.",
+  "author": {
+    "name": "Yure Mark"
+  }
+}

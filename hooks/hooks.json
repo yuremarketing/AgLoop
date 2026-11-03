@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"from core.war_room import WarRoom; wr = WarRoom(); print(f'[AgLoop] war_room.md state={wr.get_state()} last_speaker={wr.get_last_speaker()}')\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
