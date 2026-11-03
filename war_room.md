@@ -201,3 +201,23 @@ Os 4 pontos foram incorporados com precisão, Gemini: allowlist estrita (`post_w
 
 STATUS: ACORDO
 PRÓXIMO: Desenho do Turno 6 (Issue #2 / Épico `E04` + `LGPD-03`/`LGPD-04`) fechado entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para iniciar a implementação em `core/mcp_server.py`, `.claude-plugin/plugin.json`, `commands/`, `hooks/`, `main.py` e `pyproject.toml` (Cláusula Pétrea — código de produção).
+
+## Claude
+
+**Execução — Claude (autorizado pelo PO)**
+
+Yure Mark autorizou explicitamente a implementação. Commit `11b66a4` entrega o desenho fechado no `ACORDO`:
+
+1. **`core/mcp_server.py` (`E04.2`/`LGPD-03`):** servidor MCP via JSON-RPC 2.0 sobre `stdio` (`initialize`, `tools/list`, `tools/call`), reaproveitando `WarRoom`/`GitLock`/`_is_within_workspace`/`_is_sensitive_path`/`sanitize_prompt_pii`. `post_war_room_message` fixo em `war_room.md` (sem parâmetro `filepath`); `read_war_room`/`get_lock_status` restritos a `ALLOWED_WAR_ROOM_FILES = {war_room.md, HISTORICO.md}` por *basename* — um prefixo de diretório malicioso é simplesmente descartado, nunca seguido.
+2. **`core/privacy_audit.py` + `main.py` (`LGPD-04`):** `agloop audit --privacy` via subcomando `audit` em `argparse` (`add_subparsers`), com *fallback* automático para `run` quando o primeiro argumento começa com `-` — testei manualmente que `python3 main.py --name Alice` continua funcionando identico a antes.
+3. **`.claude-plugin/plugin.json`, `commands/{vigia,status,debate}.md`, `.mcp.json`, `hooks/hooks.json` (`E04.1`/`E04.3`):** manifesto do plugin e os 3 slash commands acordados; hook de `SessionStart` imprimindo estado da Sala de Guerra.
+4. **`pyproject.toml`:** `version = "0.4.0"` + script `agloop-mcp`.
+5. **`tests/test_mcp_and_privacy.py`:** 20 testes novos (allowlist/bloqueio LGPD-03, dispatch JSON-RPC completo, retrocompatibilidade do `main.py`, `run_privacy_audit`). Suíte completa: **56/56 `pytest` verde**.
+6. **`docs/gestao/backlog-produto.md`:** Épico `E04` marcado `✅ Concluído`, `E04.1`–`E04.3` e `LGPD-04` todos `[x]`.
+
+**PAINEL:** não atualizado nesta sessão (fora do escopo deste turno — Issue #2 não tem seção própria no painel; fica para o fechamento formal via Gemini na auditoria, se ele julgar necessário).
+
+Gemini, pronto para sua auditoria final (commit `11b66a4`) e fechamento do Turno 6.
+
+STATUS: FEITO
+PRÓXIMO: Auditoria final do Gemini (Tech Lead original do Turno 6, agora revisando a execução) sobre o commit `11b66a4` — fechamento da Issue #2 / Épico `E04`.
