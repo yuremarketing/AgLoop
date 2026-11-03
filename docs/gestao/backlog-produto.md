@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Em andamento)` → `E03 (Google ADK & Consenso)` → `E04 (Plugin & MCP)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso)` → `E04 (Plugin & MCP)` → `E05 (Gate de PR+CI — Planejado)`
 
 ---
 
@@ -25,18 +25,18 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E02 — Governança Padrão Sysoft, Matriz de Riscos, ADRs e Saneamento DRY ([Issue #3](https://github.com/yuremarketing/AgLoop/issues/3))
-- **Status:** 🔄 Em andamento (Turno 1)
+- **Status:** ✅ Concluído (Turnos 1 e 2)
 - **ADR:** [ADR 0004](../arquitetura/decisoes/0004-governanca-dry-ssot-autoria-e-fechamento-atomico.md)
 - **Entregas Documentais (Delegadas — Concluídas no Turno 1):**
   - [x] `E02.1` — Fonte Única da Verdade do protocolo em `.claude/skills/vigilia/SKILL.md` e ponteiros enxutos em `CLAUDE.md` / `GEMINI.md`.
-  - [x] `E02.2` — Termo de Abertura (`docs/gestao/termo-abertura.md`) e Artefato Mestre (`docs/gestao/artefatos/artefato-mestre-agloop.md`).
+  - [x] `E02.2` — Termo de Abertura (`docs/gestao/termo-abertura.md`), Artefato Mestre (`docs/gestao/artefatos/artefato-mestre-agloop.md`), Glossário (`docs/gestao/glossario.md`) e Elicitação de Requisitos (`docs/gestao/concepcao-e-elicitacao-requisitos.md`).
   - [x] `E02.3` — Matriz de Riscos (`docs/gestao/matriz-riscos.md`) cobrindo `R01`–`R08`.
   - [x] `E02.4` — ADRs fundacionais `0001` a `0005` em `docs/arquitetura/decisoes/`.
-- **Entregas de Código (Aguardando aprovação do PO Yure Mark para tocar `core/` e `scripts/`):**
-  - [ ] `E02.5` — Parametrizar `author_name`/`author_email` em `GitLock.commit()` injetando `GIT_AUTHOR_*` e `GIT_COMMITTER_*` de forma isolada no ambiente do subprocesso Git.
-  - [ ] `E02.6` — Implementar `close_turn_and_archive()` em `core/war_room.py` acoplado aos marcadores `<!--FIM_TURNO-->` / `CONSENSUS`, arquivando turnos antigos em `HISTORICO.md` em commit único atômico.
-  - [ ] `E02.7` — Refatorar `scripts/vigia.py` como thin wrapper DRY de `core/runner.py` com suporte a `--agent` e `--once` (`exit 0` ao mudar o orador).
-  - [ ] `E02.8` — Novos testes em `tests/` validando autoria Git isolada e arquivamento atômico.
+- **Entregas de Código (Autorizadas pelo PO Yure Mark — Concluídas no Turno 2):**
+  - [x] `E02.5` — Parametrizar `author_name`/`author_email` em `GitLock.commit()` injetando `GIT_AUTHOR_*` e `GIT_COMMITTER_*` de forma isolada no ambiente do subprocesso Git (`custom_environment`), + fallback `main` em `_branch()`.
+  - [x] `E02.6` — Implementar `close_turn_and_archive()` e `archive_old_turns()` em `core/war_room.py` acoplados aos marcadores `<!--FIM_TURNO-->` / `CONSENSUS`, arquivando turnos antigos em `HISTORICO.md` em commit único atômico.
+  - [x] `E02.7` — Refatorar `scripts/vigia.py` como thin wrapper DRY de `core.runner.watch_war_room` com suporte a `--agent` e `--once` (`exit 0` ao mudar o orador).
+  - [x] `E02.8` — Novos testes em `tests/test_git_lock.py` e `tests/test_runner.py` (26 passed) validando autoria Git isolada, fallback de branch, arquivamento atômico e `watch_war_room(once=True)`.
 
 ---
 
@@ -58,3 +58,15 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [ ] `E04.1` — Manifesto `.claude-plugin/plugin.json` e comandos slash (`commands/vigia.md`, `commands/status.md`, `commands/debate.md`).
   - [ ] `E04.2` — Servidor MCP (`mcp_server.py` + `.mcp.json`) expondo `read_war_room`, `post_war_room_message` e `get_lock_status`.
   - [ ] `E04.3` — Hooks de eventos (`hooks/hooks.json`) para verificação pós-fetch.
+
+---
+
+### E05 — Gate de PR+CI Antes do Merge na Main ([Issue #5](https://github.com/yuremarketing/AgLoop/issues/5))
+- **Status:** 📋 Planejado (identificado ao comparar o protocolo `vigilia` do AgLoop com o do **Sysoft**, projeto de origem — 2026-11-03)
+- **Motivação:** o Sysoft já exige, antes de qualquer merge na `main`, branch de feature + PR real + `gh pr review --approve` + CI verde (`SKILL.md` do Sysoft, seção 5). O AgLoop hoje aprova só textualmente no `war_room.md` (`STATUS: ACORDO`) seguido de commit direto — sem gate automatizado de terceiro, dependendo inteiramente do auditor ter corrido o `pytest` manualmente antes de commitar.
+- **Risco que mitiga:** nada impede hoje, por construção, um commit com testes vermelhos chegar na `main` além da disciplina manual do auditor.
+- **Entregas (a debater em turno formal antes de codificar):**
+  - [ ] `E05.1` — Branch de feature por turno técnico (`feat/issue-N-...`) em vez de commit direto na `main` para mudanças em `core/`/`scripts/`.
+  - [ ] `E05.2` — Workflow de CI (GitHub Actions) rodando `pytest` automaticamente em cada PR.
+  - [ ] `E05.3` — Tech Lead aprova via `gh pr review --approve` só com CI verde (port da Autoridade Delegada do Sysoft).
+  - [ ] `E05.4` — Atualizar `.claude/skills/vigilia/SKILL.md` (seção 5, Protocolo de Execução do Turno) para refletir o novo fluxo com PR.
