@@ -78,3 +78,27 @@ PRÓXIMO: Claude commita o pacote técnico (`E02.5`–`E02.8`), fecha a Issue #3
 
 <!--FIM_TURNO-->
 Fim: 2026-11-03 · Agente: Claude · Commit do pacote técnico + fechamento da Issue #3 nesta mesma ação.
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-03 · Commit-base: 011ac2f · Agente: Claude · Turno 3 — Auditoria dos 3 Estudos NotebookLM Incorporados à Governança (`estudo-campo-e-governanca-agloop.md`, `auditoria-governanca-agloop.md`, `lgpd-conformidade-agloop.md`)
+
+## Turno 3 — Claude (2026-11-03)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Mark pediu auditoria dos 3 documentos que o Gemini incorporou via NotebookLM (commit `011ac2f`). Fiz a leitura completa dos 3 arquivos e cruzei contra o código real (`core/git_lock.py`, `core/runner.py::watch_war_room`) e contra a própria `matriz-riscos.md` que foi atualizada no mesmo commit. Achei **5 inconsistências factuais**, todas já corrigidas no working tree (puro `docs/gestao/`, dentro da Autoridade Delegada — sem tocar `core/`):
+
+1. **Contradição interna em `R04`:** `matriz-riscos.md` marcou `R04` como `Mitigado`, mas os 2 relatórios (`auditoria-governanca-agloop.md` e `estudo-campo-e-governanca-agloop.md`) **identificam, no próprio texto**, que `watch_war_room()` não tem captura genérica de exceção (só trata `GitCommandError`) — exatamente a ressalva não-bloqueante que registrei na minha auditoria do Turno 2. Os documentos se contradizem entre si. **Revertido `R04` para `Em Mitigação`** na matriz, com nota explicando a contradição.
+2. **Alegação técnica incorreta de "backoff exponencial + jitter" no fetch remoto de `watch_war_room()`:** conferi o código — esse backoff/jitter existe só em `run_agent_loop()` (retry de sync após falha), uma função diferente. `watch_war_room()` usa intervalo fixo (2s local / 30s remoto), sem backoff. Corrigido nos 2 documentos que repetiam a alegação.
+3. **`LGPD-02` apontava o módulo errado:** pedia "sanitização de prompt" dentro de `scripts/vigia.py`, mas esse script **nunca monta payload nem chama API de LLM** — é só um watcher de arquivo. Corrigido para apontar `core/agent.py`/`core/runner.py::run_agent_loop()`, onde o contexto é de fato montado e enviado ao `litellm.completion()`.
+4. **Métrica "Nível de Maturidade 3.8/5.0" sem fonte:** apresentada como avaliação "padronizada"/"escala internacional", sem citar metodologia ou certificador externo. Adicionei ressalva nos 2 documentos que citam o número: é autoavaliação qualitativa interna, não benchmark validado por terceiros — pra não criar falsa aparência de aval externo caso o Mark compartilhe esses documentos fora do projeto.
+5. **Índice do `artefato-mestre-agloop.md` desatualizado:** ainda descrevia a matriz como cobrindo "R01 a R07" depois que o mesmo commit (`011ac2f`) já tinha incluído `R09`/`R10`. Corrigido para "R01 a R10".
+
+**O que ficou de fora da correção textual (precisa de desenho + aprovação do Mark pra codificar):** o hardening de exceção genérica em `watch_war_room()` (`core/runner.py`) continua **pendente de implementação real** — a correção que fiz foi só documental (status da matriz refletindo a realidade do código). Proponho registrar isso como item explícito de backlog no Épico `E03` (Marco M3, Issue #4), já que a própria `auditoria-governanca-agloop.md` já lista essa ação como parte do M3.
+
+**Avaliação geral dos 3 documentos:** qualidade de análise competitiva e estrutura muito boas (matriz comparativa contra LangGraph/CrewAI/AutoGen, mapeamento de *blind spots*, riscos LGPD R09/R10 bem fundamentados). As 5 inconsistências acima são pontuais e já corrigidas — não invalidam o conteúdo, mas precisavam de correção antes de ficarem como referência oficial de governança.
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Gemini (Tech Lead) sobre as 5 correções aplicadas e sobre registrar o hardening de `watch_war_room()` como item de backlog do Épico E03 (Issue #4).

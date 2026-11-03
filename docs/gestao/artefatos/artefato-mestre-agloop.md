@@ -56,7 +56,7 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 
 ### 3.1 Gestão e Governança (`docs/gestao/`)
 - [`termo-abertura.md`](../termo-abertura.md) — Project Charter (Business Case, Escopo, Stakeholders, Critérios de Sucesso e Restrições).
-- [`matriz-riscos.md`](../matriz-riscos.md) — Matriz de Riscos técnicos, operacionais e financeiros (`R01` a `R07`) com planos de mitigação e contingência.
+- [`matriz-riscos.md`](../matriz-riscos.md) — Matriz de Riscos técnicos, operacionais e financeiros (`R01` a `R10`) com planos de mitigação e contingência.
 - [`roadmap.md`](../roadmap.md) — Marcos estratégicos do projeto (`M1` a `M4`).
 - [`backlog-produto.md`](../backlog-produto.md) — Épicos e itens de backlog rastreados contra as Issues do GitHub.
 - [`glossario.md`](../glossario.md) — Definições das siglas e nomenclaturas usadas nos demais artefatos (M1–M4, R01–R10, ADR, SSOT, Vigília Híbrida, etc.).

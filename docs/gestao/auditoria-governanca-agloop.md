@@ -8,7 +8,7 @@ A auditoria a seguir examina o nível de maturidade do framework na escala inter
 
 ## 1. Diagnóstico Estrutural de Maturidade de Governança (Nível 3.8 / 5.0)
 
-Em uma avaliação padronizada para sistemas multi-agente operando em ambientes de desenvolvimento e engenharia de software, o **AgLoop atinge a marca de Maturidade Nível 3.8 em uma escala de 1.0 a 5.0**.
+Em uma avaliação padronizada para sistemas multi-agente operando em ambientes de desenvolvimento e engenharia de software, o **AgLoop atinge a marca de Maturidade Nível 3.8 em uma escala de 1.0 a 5.0**. *Ressalva de auditoria (Turno 3):* trata-se de uma autoavaliação qualitativa interna do projeto, sem metodologia externa certificadora citada — não deve ser apresentada como benchmark validado por terceiros.
 
 A classificação do AgLoop reflete a transição conclusiva de uma governança baseada em instruções de linguagem natural ("prompt engineering") para um modelo em que as regras operacionais são **impostas diretamente pelo código-fonte** no diretório `core/`.
 
@@ -26,7 +26,7 @@ O avanço do AgLoop para a nota 3.8 baseia-se na entrega completa dos Marcos M1 
 
 * **Superação da Dependência de Prompt (Mitigação do Risco R05):** Ao centralizar o protocolo operacional na Fonte Única de Verdade (*Single Source of Truth* - SSOT) em `.claude/skills/vigilia/SKILL.md` e criar ponteiros enxutos (`CLAUDE.md` e `GEMINI.md`), o sistema reduziu a inflação de tokens e eliminou a divergência de comportamento entre LLMs de fornecedores diferentes.
 * **Integridade Rígida da Suíte de Testes:** O sistema mantém uma suíte automatizada via `pytest` com **26 de 26 testes unitários e de integração passando com 100% de sucesso**, validando cenários de concorrência e manipulação do Git.
-* **Mecanismos de Bloqueio em Nível de Sistema Operacional (Mitigação dos Riscos R02, R03 e R04):** O módulo `core/` impõe a trava atômica local via `.agloop.lock` com validação de PID ativo (`os.kill`) para evitar *deadlocks*, extingue comandos destrutivos no Git (banindo `git add -A` e `git reset --hard`) e fornece a vigília zero-token (`scripts/vigia.py`) que zera o consumo de API em estado de ociosidade.
+* **Mecanismos de Bloqueio em Nível de Sistema Operacional (Mitigação dos Riscos R02, R03 e R04):** O módulo `core/` impõe a trava atômica local via `.agloop.lock` com validação de PID ativo (`os.kill`) para evitar *deadlocks*, extingue comandos destrutivos no Git (banindo `git add -A` e `git reset --hard`) e fornece a vigília zero-token (`scripts/vigia.py`) que zera o consumo de API em estado de ociosidade (R04 permanece **Em Mitigação** — ver Seção 3, item 4, sobre o hardening de exceções ainda pendente).
 
 A fração restante para atingir o Nível 5.0 decorre da necessidade de finalizar o confinamento de *tools* do motor cognitivo no Marco M3 (Risco R06) e implementar a abstração nativa via Servidor MCP no Marco M4.
 

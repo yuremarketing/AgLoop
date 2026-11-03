@@ -11,7 +11,7 @@ O AgLoop foi concebido para resolver os gargalos de custo, concorrência e diver
 1. **Mecanismo IPC via Markdown (Padrão Blackboard):** A comunicação assíncrona e o debate arquitetural entre os agentes ocorrem exclusivamente através do arquivo `war_room.md`, versionado via Git, onde as propostas, revisões e vereditos são registrados de forma transparente.
 2. **Git como Broker Serverless e Lock Híbrido Atômico (GitLock):** O controle de concorrência combina um arquivo de travamento local (`.agloop.lock`) — auditado por verificação de PID vivo via `os.kill(pid, 0)` e expiração automatizada por tempo limite configurável (`AGLOOP_LOCK_TIMEOUT=300s`) — com operações Git descentralizadas. Em caso de colisão de *push* (*lost race*), o sistema realiza reversão cirúrgica (`git reset --soft HEAD~1` + `git checkout HEAD -- <paths>`) sem utilizar comandos destrutivos como `git reset --hard` ou `git add -A`.
 3. **Execução por Turnos com Papéis Alternados (Actor-Critic):** O sistema impõe a alternância estrita de papéis entre o *Dev Especialista* (responsável por propor e implementar soluções) e o *Tech Lead* (responsável por auditar diffs, rodar testes `pytest` e emitir o acordo), operando sob uma trava anti-loop estrita.
-4. **Vigília Híbrida Zero-Token:** O monitoramento do repositório é realizado pelo script `scripts/vigia.py` (assentado sobre a rotina `watch_war_room()`), combinando a verificação de modificações no sistema de arquivos local (`mtime` a cada 2 segundos) com buscas remotas via `git fetch` (a cada 30 segundos com *backoff* exponencial e *jitter*). Essa abordagem acorda a sessão da LLM apenas quando a vez do agente chega, garantindo consumo zero de tokens durante o tempo de espera ociosa.
+4. **Vigília Híbrida Zero-Token:** O monitoramento do repositório é realizado pelo script `scripts/vigia.py` (assentado sobre a rotina `watch_war_room()`), combinando a verificação de modificações no sistema de arquivos local (`mtime` a cada 2 segundos) com buscas remotas via `git fetch` em intervalo fixo (a cada 30 segundos). *Correção de auditoria (Turno 3):* o **backoff exponencial com jitter existe apenas em `run_agent_loop()`** (retentativa de sincronização após falha), não no laço de `watch_war_room()` em si. Essa abordagem acorda a sessão da LLM apenas quando a vez do agente chega, garantindo consumo zero de tokens durante o tempo de espera ociosa.
 5. **Cláusula Pétrea do Product Owner (Human-in-the-Loop):** Conforme definido pela liderança do projeto (Product Owner Yure Mark), nenhuma alteração no código de produção ou arquivos críticos (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`, `.env`) pode ser commitada sem:
    - Atualização prévia da documentação gerencial e arquitetural;
    - Suíte de testes automatizados (`pytest`) 100% verde (com 26 de 26 testes passando);
@@ -75,7 +75,7 @@ A avaliação comparativa a seguir analisa o comportamento do AgLoop frente às 
 
 ## 5. Auditoria de Governança e Diagnóstico de Maturidade
 
-A governança do AgLoop é avaliada em **Nível 3.8 em uma escala de 1.0 a 5.0** para sistemas multi-agente em produção. 
+A governança do AgLoop é avaliada em **Nível 3.8 em uma escala de 1.0 a 5.0** para sistemas multi-agente em produção. *Ressalva de auditoria (Turno 3):* esta é uma **autoavaliação qualitativa interna** do próprio projeto (sem citação de metodologia externa certificadora) — deve ser lida como diagnóstico de maturidade do AgLoop contra seus próprios marcos, não como benchmark validado por terceiros.
 
 Essa pontuação fundamenta-se na conclusão bem-sucedida dos **Marcos M1 e M2**, nos quais as travas operacionais foram transpostas de prompts instrucionais para mecanismos executáveis no pacote `core/`, validados por uma suíte de testes com **26 de 26 testes `pytest` passando**.
 
@@ -87,7 +87,7 @@ Essa pontuação fundamenta-se na conclusão bem-sucedida dos **Marcos M1 e M2**
 1. **Trava de Concorrência Local (`.agloop.lock`):** Gerenciada por diretório atômico contendo `owner.json`. Valida se o processo proprietário está ativo via `os.kill(pid, 0)` e aplica expiração automática por tempo limite configurável (`AGLOOP_LOCK_TIMEOUT=300s`), conforme estabelecido na ADR 0002.
 2. **Isolamento de Autoria no Git:** Injeta as variáveis de ambiente `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME` e `GIT_COMMITTER_EMAIL` diretamente no subprocesso de execução do Git, prevenindo a poluição do ambiente global e garantindo a rastreabilidade exata do agente autor (Épico E02.5 / ADR 0004).
 3. **Fechamento e Arquivamento Atômico:** A função `close_turn_and_archive()` move rodadas passadas da sala de guerra para o arquivo `HISTORICO.md` e realiza o commit unificado de ambos os arquivos em uma única transação atômica (Épico E02.6 / ADR 0004).
-4. **Vigília Zero-Token (`scripts/vigia.py`):** Executa o monitoramento por verificação de atributos de arquivo (`mtime` local a cada 2 segundos) e atualizações remotas via `git fetch` (com intervalo de 30 segundos, backoff exponencial e *jitter*), encerrando a execução com código zero apenas quando a resposta do agente colega é detectada (Épico E02.7 / ADR 0003).
+4. **Vigília Zero-Token (`scripts/vigia.py`):** Executa o monitoramento por verificação de atributos de arquivo (`mtime` local a cada 2 segundos) e atualizações remotas via `git fetch` (intervalo fixo de 30 segundos, sem backoff/jitter neste laço — ver correção de auditoria na Seção 6), encerrando a execução com código zero apenas quando a resposta do agente colega é detectada (Épico E02.7 / ADR 0003).
 
 ---
 
@@ -111,7 +111,7 @@ Apesar da robustez dos Marcos M1 e M2, a auditoria identifica brechas que exigem
 
 * **Vulnerabilidade a Prompt Injection Indireto:** Um agente pode interpretar dados maliciosos presentes em arquivos de terceiros ou relatórios de erros e alterar o fluxo de debate no `war_room.md`.
 * **Risco de Acesso a Variáveis de Ambiente (R06):** Sem um sandbox de execução no nível de ferramentas, agentes possuem capacidade técnica de ler arquivos confidenciais como `.env`.
-* **Tratamento de Exceções no Observador:** A rotina do observador necessita de um tratamento abrangente de exceções no laço `watch_war_room()` para capturar falhas fora do escopo de erros nativos `GitCommandError`.
+* **Tratamento de Exceções no Observador:** A rotina do observador necessita de um tratamento abrangente de exceções no laço `watch_war_room()` para capturar falhas fora do escopo de erros nativos `GitCommandError`. *Nota de auditoria (Turno 3):* por este motivo `R04` foi revertido de `Mitigado` para `Em Mitigação` na `matriz-riscos.md` — este relatório e a `matriz-riscos.md` estavam em contradição entre si.
 
 ---
 

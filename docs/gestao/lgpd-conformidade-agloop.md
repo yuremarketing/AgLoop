@@ -54,7 +54,7 @@ Para consolidar a conformidade com a LGPD nas próximas entregas do projeto, for
 
 ### Requisitos para o Marco M3 (Motor Cognitivo ADK & Confinamento)
 * **Requisito LGPD-01 (Filtro de Arquivos Sensíveis):** Implementar no `LlmAgent` (Google ADK / `LiteLlm`) uma lista de bloqueio (*blacklisting*) automática para leitura de arquivos `.env`, `.pem`, `id_rsa` e arquivos de credenciais.
-* **Requisito LGPD-02 (Sanitização de Prompts):** Adicionar um módulo de varredura prévia no `scripts/vigia.py` para mascarar CPFs, e-mails ou dados pessoais identificadores presentes em trechos de código submetidos à revisão do *Tech Lead*.
+* **Requisito LGPD-02 (Sanitização de Prompts):** Adicionar um módulo de varredura prévia em `core/agent.py` / `core/runner.py::run_agent_loop()` — onde o contexto da Sala de Guerra é de fato montado e enviado ao `litellm.completion()` — para mascarar CPFs, e-mails ou dados pessoais identificadores antes do envio à API do LLM. *Correção de auditoria (Turno 3):* `scripts/vigia.py`/`watch_war_room()` é só um observador de `mtime`/`git fetch`, nunca monta payload nem chama API de LLM — não é o módulo correto para esta sanitização.
 
 ### Requisitos para o Marco M4 (Plugin Nativo & Servidor MCP)
 * **Requisito LGPD-03 (Isolamento de Escopo MCP):** Garantir que o Servidor MCP do AgLoop limite as permissões das *tools* exclusivamente ao diretório do projeto ativo (*workspace sandboxing*).
