@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso)` → `E04 (Plugin & MCP)` → `E05 (Gate de PR+CI — Planejado)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Próximo)` → `E05 (Gate de PR+CI — Planejado)`
 
 ---
 
@@ -41,13 +41,13 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E03 — Motor Cognitivo Google ADK, Tools Seguras e Controle de Consenso ([Issue #4](https://github.com/yuremarketing/AgLoop/issues/4))
-- **Status:** 📋 Planejado (Marco M3)
+- **Status:** ✅ Concluído (Turnos 3 e 4 — Marco M3)
 - **ADR:** [ADR 0005](../arquitetura/decisoes/0005-motor-cognitivo-google-adk-e-plugin-mcp.md)
 - **Entregas:**
-  - [ ] `E03.1` — Janela deslizante `WarRoom.read_recent(max_turns=6)` mantendo retrocompatibilidade de `read_all()`.
-  - [ ] `E03.2` — Protocolo de consenso e pausa humana (`<!-- AGLOOP_STATE: WAITING_HUMAN -->` e `<!-- AGLOOP_STATE: CONSENSUS -->`) no `core/runner.py`.
-  - [ ] `E03.3` — Integração de `google-adk` (`LlmAgent` + `LiteLlm`) em `core/agent.py` com tools seguras somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`).
-  - [ ] `E03.4` — Empacotamento moderno via `pyproject.toml` expondo o comando CLI `agloop` e suporte a `adk web`.
+  - [x] `E03.1` — Janela deslizante `WarRoom.read_recent(max_turns=6)` mantendo retrocompatibilidade de `read_all()`.
+  - [x] `E03.2` — Protocolo de consenso e pausa humana (`<!-- AGLOOP_STATE: WAITING_HUMAN -->` e `<!-- AGLOOP_STATE: CONSENSUS -->`) via `WarRoom.get_state()` + pausa de inferência no `core/runner.py`.
+  - [x] `E03.3` — Integração de `google-adk` (`LlmAgent` + `LiteLlm`) em `core/agent.py` com tools seguras somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`), confinamento `os.path.commonpath` (`LGPD-01`) e sanitização `sanitize_prompt_pii` (`LGPD-02`). `think_and_act()` invoca de fato o motor (`InMemoryRunner` do ADK ou loop multi-round de tool-calling do `litellm`) — corrigido após achado de auditoria do Claude de que o agente ficava "cego" (36/36 testes verdes). **Pendente de validação futura:** o ramo assíncrono real do `InMemoryRunner` (`run_async`) só é exercitado via mock (`run_text`) — precisa ser validado com `google-adk` de fato instalado antes de depender dele em produção.
+  - [x] `E03.4` — Empacotamento moderno via `pyproject.toml` expondo os comandos CLI `agloop` e `agloop-vigia`.
   - [x] `E03.5` — Hardening de exceções em `watch_war_room()` (`core/runner.py`): captura genérica (*catch-all*) com retry/backoff exponencial + jitter para falhas atípicas de E/S ou rede fora do escopo de `GitCommandError`, evitando paralisação silenciosa do watcher (`R04`, identificado na auditoria do Turno 3 e autorizado pelo PO Yure Mark). Coberto por `tests/test_runner.py::test_watch_war_room_recovers_from_transient_exception` (27/27 verdes).
 
 ---

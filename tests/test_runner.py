@@ -148,3 +148,43 @@ def test_vigia_cli_parses_agent_and_once():
     assert args.once is True
     assert args.room == "war_room.md"
 
+
+def test_war_room_read_recent_sliding_window(in_repo):
+    from core.war_room import WarRoom
+
+    wr = WarRoom(ROOM)
+    for idx in range(1, 6):
+        wr.append_message("Alice" if idx % 2 else "Bob", f"turn-{idx}")
+
+    recent = wr.read_recent(max_turns=2)
+    assert "# AgLoop War Room" in recent
+    assert "turn-1" not in recent
+    assert "turn-2" not in recent
+    assert "turn-3" not in recent
+    assert "turn-4" in recent
+    assert "turn-5" in recent
+    # read_all() remains backward compatible
+    assert "turn-1" in wr.read_all()
+
+
+def test_runner_pauses_on_waiting_human_and_consensus(in_repo, monkeypatch):
+    from core.war_room import WarRoom
+
+    wr = WarRoom(ROOM)
+    wr.append_message("Bob", "Need PO approval\n\n<!-- AGLOOP_STATE: WAITING_HUMAN -->")
+    _git(in_repo, "commit", "-qam", "waiting human")
+
+    assert wr.get_state() == "WAITING_HUMAN"
+
+    agent = FakeAgent("Alice")
+    run_with_sleep_hook(monkeypatch, agent, lambda n: None, max_sleeps=3)
+    assert agent.calls == 0  # paused — no LLM call despite Bob being last speaker
+
+    wr.append_message("Bob", "All agreed\n\n<!-- AGLOOP_STATE: CONSENSUS -->")
+    _git(in_repo, "commit", "-qam", "consensus reached")
+    assert wr.get_state() == "CONSENSUS"
+
+    run_with_sleep_hook(monkeypatch, agent, lambda n: None, max_sleeps=3)
+    assert agent.calls == 0  # still paused on consensus
+
+

@@ -8,6 +8,11 @@ CLOSE_MARKERS = (
     "STATUS: CONSENSUS",
 )
 
+WAITING_HUMAN_MARKERS = (
+    "<!-- AGLOOP_STATE: WAITING_HUMAN -->",
+    "STATUS: WAITING_HUMAN",
+)
+
 
 class WarRoom:
     def __init__(
@@ -38,10 +43,55 @@ class WarRoom:
         """Returns True if `text` contains a turn-closing or consensus marker."""
         return any(marker in text for marker in CLOSE_MARKERS)
 
+    @staticmethod
+    def has_waiting_human_marker(text: str) -> bool:
+        """Returns True if `text` contains a waiting-for-human marker."""
+        return any(marker in text for marker in WAITING_HUMAN_MARKERS)
+
     def read_all(self) -> str:
         """Reads the entire war room content."""
         with open(self.filepath, "r", encoding="utf-8") as f:
             return f.read()
+
+    def read_recent(self, max_turns: int = 6) -> str:
+        """
+        Reads the War Room header plus at most the last `max_turns` speaker messages
+        (sliding context window — E03.1 / Risco R07).
+        """
+        content = self.read_all()
+        if max_turns <= 0:
+            parts = re.split(r"(?=^##\s+(?!Turno\b))", content, flags=re.MULTILINE)
+            return (parts[0].rstrip() + "\n") if parts else ""
+
+        parts = re.split(r"(?=^##\s+(?!Turno\b))", content, flags=re.MULTILINE)
+        header = parts[0] if parts else ""
+        speaker_blocks = [p for p in parts[1:] if p.strip()]
+        if len(speaker_blocks) <= max_turns:
+            return content
+
+        kept = speaker_blocks[-max_turns:]
+        return header.rstrip() + "\n\n" + "\n\n".join(b.strip() for b in kept) + "\n"
+
+    def get_state(self) -> str:
+        """
+        Inspects the latest speaker block (after any trailing `<!--INICIANDO_TURNO-->`)
+        and returns one of:
+          * `"WAITING_HUMAN"` — if a human-intervention marker is present
+          * `"CONSENSUS"`     — if a consensus / turn-closed marker is present
+          * `"ACTIVE"`        — otherwise
+        """
+        content = self.read_all()
+        parts = re.split(r"(?=^##\s+(?!Turno\b))", content, flags=re.MULTILINE)
+        speaker_blocks = [p for p in parts[1:] if p.strip()]
+        if not speaker_blocks:
+            return "ACTIVE"
+
+        last_segment = speaker_blocks[-1].split("<!--INICIANDO_TURNO-->")[-1]
+        if self.has_waiting_human_marker(last_segment):
+            return "WAITING_HUMAN"
+        if self.has_close_marker(last_segment):
+            return "CONSENSUS"
+        return "ACTIVE"
 
     def append_message(self, agent_name: str, message: str):
         """

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agloop"
+version = "0.3.0"
+description = "Serverless Git & Markdown Multi-Agent Orchestration Framework (Claude <-> Gemini War Room)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Yure Mark" }
+]
+dependencies = [
+    "GitPython>=3.1.43",
+    "python-dotenv>=1.0.1",
+    "litellm>=1.44.0",
+]
+
+[project.optional-dependencies]
+adk = [
+    "google-adk>=0.1.0",
+]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+agloop = "main:main"
+agloop-vigia = "scripts.vigia:main"
+
+[tool.setuptools]
+py-modules = ["main"]
+packages = ["core", "scripts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

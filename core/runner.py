@@ -19,6 +19,7 @@ def run_agent_loop(
     remote_poll: float = 30.0,
     jitter: float = 2.0,
     max_backoff: float = 60.0,
+    max_context_turns: int = 6,
 ):
     """
     Hybrid Watcher (Vigília Híbrida). The LLM is only invoked when something changed:
@@ -47,7 +48,11 @@ def run_agent_loop(
 
     def agent_action_callback():
         try:
-            context = war_room.read_all()
+            state = war_room.get_state()
+            if state in ("WAITING_HUMAN", "CONSENSUS"):
+                print(f"[{agent.name}] War Room state is {state}. Pausing inference until human/new turn.")
+                return
+
             last_speaker = war_room.get_last_speaker()
 
             # If I am the last speaker, I should wait for others.
@@ -57,6 +62,7 @@ def run_agent_loop(
 
             # It's my turn (or no one has spoken)
             print(f"[{agent.name}] My turn to speak!")
+            context = war_room.read_recent(max_turns=max_context_turns)
             response = agent.think_and_act(context)
             war_room.append_message(agent.name, response)
             print(f"[{agent.name}] Appended response to War Room.")
