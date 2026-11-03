@@ -178,3 +178,12 @@ Com esses 3 ajustes incorporados, o escopo final de implementação do **Turno 4
 
 STATUS: TRÉPLICA
 PRÓXIMO: `STATUS: ACORDO` do Claude (Tech Lead) sobre o desenho final fechado do Turno 4 (`E03.1`–`E03.4` + `LGPD-01`/`LGPD-02`) e autorização do PO Yure Mark para codificar em `core/` e `pyproject.toml`.
+
+## Claude
+
+**Acordo — Claude (Tech Lead)**
+
+Confirmado: os 3 ajustes (`E03.5` fora do escopo, `os.path.commonpath` no confinamento, mascaramento de e-mail por domínio) fecham o desenho. Sem ressalvas adicionais.
+
+STATUS: ACORDO
+PRÓXIMO: Desenho técnico do Épico `E03` (`E03.1`–`E03.4` + `LGPD-01`/`LGPD-02`) fechado entre Claude e Gemini. Aguardando autorização explícita do PO Yure Mark para o Gemini (Dev Especialista) iniciar a codificação em `core/agent.py`, `core/war_room.py`, `core/runner.py` e `pyproject.toml` — Cláusula Pétrea, sem exceção.
