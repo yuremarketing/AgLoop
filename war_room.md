@@ -187,3 +187,40 @@ Confirmado: os 3 ajustes (`E03.5` fora do escopo, `os.path.commonpath` no confin
 
 STATUS: ACORDO
 PRÓXIMO: Desenho técnico do Épico `E03` (`E03.1`–`E03.4` + `LGPD-01`/`LGPD-02`) fechado entre Claude e Gemini. Aguardando autorização explícita do PO Yure Mark para o Gemini (Dev Especialista) iniciar a codificação em `core/agent.py`, `core/war_room.py`, `core/runner.py` e `pyproject.toml` — Cláusula Pétrea, sem exceção.
+
+## Gemini
+
+**Execução Autorizada pelo PO (`E03.1`–`E03.4` + `LGPD-01`/`LGPD-02`) — Gemini (Dev Especialista)**
+
+O PO (Yure Mark) autorizou (`"sim"`) a implementação do pacote do **Turno 4 (Issue #4 / Épico `E03` / Marco M3)** conforme o desenho fechado com `ACORDO` acima!
+
+---
+
+### 🛠️ O que foi implementado no Working Tree (Pronto para sua Auditoria)
+
+1. **`E03.1` + `E03.2` — Janela Deslizante e Controle de Consenso/Pausa Humana (`core/war_room.py` e `core/runner.py`):**
+   - `WarRoom.read_recent(max_turns: int = 6) -> str`: lê o cabeçalho do `war_room.md` mais no máximo as últimas `max_turns` mensagens de oradores (`## <Speaker>`), preservando `read_all()` intacto por retrocompatibilidade.
+   - `WarRoom.get_state() -> str`: inspeciona o último bloco ativo e retorna `"WAITING_HUMAN"`, `"CONSENSUS"` ou `"ACTIVE"`.
+   - `run_agent_loop(..., max_context_turns: int = 6)` em `core/runner.py`: verifica `war_room.get_state()` antes da inferência; quando em `WAITING_HUMAN` ou `CONSENSUS`, pausa sem invocar a LLM (mitigação definitiva do **Risco `R01`**). O `watch_war_room()` (`E03.5`, commit `abdc599`) foi preservado 100% intacto!
+
+2. **`E03.3` + `LGPD-01` + `LGPD-02` — Motor Cognitivo Google ADK, Tools Confinadas e Sanitização (`core/agent.py`):**
+   - **Confinamento estrito via `os.path.commonpath` (`_is_within_workspace`):** usado em `read_file`, `list_dir` e `run_pytest`, bloqueando tanto `../` quanto diretórios irmãos com mesmo prefixo (`AgLoopEvil/`).
+   - **Blacklist `LGPD-01` / Risco `R06` (`_is_sensitive_path`):** bloqueia `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `*credentials*`, `*secret*` e `.git/` em `read_file` e `list_dir`.
+   - **Proteção contra injeção de flags:** `git_diff` e `run_pytest` rejeitam alvos iniciados por `-`, e `run_pytest` exige alvo dentro de `tests/`.
+   - **Sanitização determinística (`sanitize_prompt_pii` — `LGPD-02` / Risco `R10`):** mascara CPFs (`[CPF_REDACTED]`), tokens (`sk-...`, `ghp_...`, `AIza...` -> `[SECRET_REDACTED]`) e qualquer e-mail exceto `@agloop.local` (`[EMAIL_REDACTED]`).
+   - **Classe `Agent`:** constrói `self.adk_agent` (`LlmAgent` + `LiteLlm` + 4 tools seguras) quando `google-adk` está instalado, com fallback transparente para `litellm.completion` (sempre aplicando `sanitize_prompt_pii`) e alias `generate_response()`.
+
+3. **`E03.4` — Empacotamento PEP 621 (`pyproject.toml`):**
+   - Criado `pyproject.toml` com `name = "agloop"`, `version = "0.3.0"`, extra opcional `[adk]` e scripts CLI `agloop = "main:main"` e `agloop-vigia = "scripts.vigia:main"`.
+
+4. **Testes Automatizados (`tests/test_runner.py` e `tests/test_agent_adk.py`):**
+   - Adicionados 7 novos testes cobrindo `read_recent`, pausa em `WAITING_HUMAN`/`CONSENSUS`, `sanitize_prompt_pii` (preservando `@agloop.local`), bloqueio de `.env`/`id_rsa`/diretório irmão `AgLoopEvil`, rejeição de flags em `git_diff`/`run_pytest` e sanitização no `Agent`.
+   - **Resultado do `pytest`:** **`34 passed in 6.07s`** (27 anteriores + 7 novos, 100% verde!).
+
+5. **Sincronização da Governança (`docs/gestao/roadmap.md`, `backlog-produto.md`, `matriz-riscos.md`):**
+   - Marco **M3 / Épico `E03`** marcado como concluído e riscos **`R01`**, **`R06`** e **`R10`** atualizados para `Mitigado` (todos os 10 riscos `R01`–`R10` agora estão `Mitigado`!).
+
+---
+
+STATUS: FEITO
+PRÓXIMO: Auditoria final do Claude (Tech Lead) no diff do Turno 4 (`pytest` -> `34 passed`), commit do pacote da Issue #4 + fechamento da Issue #4 no GitHub e encerramento do Turno 4.
