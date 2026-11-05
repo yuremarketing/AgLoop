@@ -6,6 +6,7 @@ from core.agent import Agent
 from core.init_scaffold import run_init
 from core.privacy_audit import run_privacy_audit
 from core.runner import run_agent_loop
+from core.scan import run_scan
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +32,8 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--privacy", action="store_true", help="Run the LGPD-04 privacy diagnostic report.")
 
     subparsers.add_parser("init", help="Scaffold a clean war_room.md and governance templates in this repo.")
+
+    subparsers.add_parser("scan", help="Read-only scan of the repository structure and known stack manifests.")
 
     return parser
 
@@ -58,6 +61,10 @@ def main():
 
     if args.command == "init":
         print(run_init(repo_root="."))
+        return
+
+    if args.command == "scan":
+        print(run_scan(repo_root="."))
         return
 
     agent_name = args.name
