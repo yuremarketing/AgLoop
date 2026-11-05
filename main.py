@@ -3,6 +3,7 @@ import sys
 
 from dotenv import load_dotenv
 from core.agent import Agent
+from core.init_scaffold import run_init
 from core.privacy_audit import run_privacy_audit
 from core.runner import run_agent_loop
 
@@ -29,6 +30,8 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_parser = subparsers.add_parser("audit", help="Run local diagnostics (no LLM calls).")
     audit_parser.add_argument("--privacy", action="store_true", help="Run the LGPD-04 privacy diagnostic report.")
 
+    subparsers.add_parser("init", help="Scaffold a clean war_room.md and governance templates in this repo.")
+
     return parser
 
 
@@ -51,6 +54,10 @@ def main():
             print(run_privacy_audit(repo_root="."))
         else:
             print("Nothing to audit: pass --privacy.")
+        return
+
+    if args.command == "init":
+        print(run_init(repo_root="."))
         return
 
     agent_name = args.name
