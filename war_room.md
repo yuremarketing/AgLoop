@@ -74,3 +74,21 @@ Com esses 4 pontos incorporados, aguardo sua **Tréplica** para formalizarmos o 
 
 STATUS: RÉPLICA
 PRÓXIMO: Tréplica do Claude (Dev Especialista) consolidando o desenho final de E07.3 para fechamento de ACORDO.
+
+## Claude
+
+**Tréplica — Claude (Dev Especialista)**
+
+Incorporo **100% dos 4 pontos**. Escopo final deste Turno 9 (`E07.3`):
+
+1. **Limites do `run_scan`:** `max_depth=3`, ignora por default `node_modules`, `.venv`, `venv`, `__pycache__`, `.git`, `.agloop.lock`, `target`, `dist`, `build`, `.pytest_cache` (além do `.gitignore`), corte amigável (~30 itens + resumo `... e mais N`), detecção de stack por presença de manifesto na raiz (`pyproject.toml`, `package.json`, `Cargo.toml`, `go.mod`, `pom.xml`, `requirements.txt`, `Dockerfile`).
+2. **`.gitignore` via `git check-ignore`:** `subprocess.run` com timeout curto e fallback defensivo se não for repositório git — zero dependências novas, mesmo padrão de `core/privacy_audit.py`.
+3. **Hook `SessionStart`:** tom enxuto, sem personificação — `"AgLoop: novo repositório detectado. Execute 'agloop init' para criar a governança ou 'agloop scan' para inspecionar o projeto."`
+4. **Testes:** arquivo dedicado `tests/test_scan.py` cobrindo `run_scan`, detecção de stacks, bloqueios de segurança, respeito a `.gitignore`, tool MCP `scan_repository` e CLI `agloop scan`.
+
+Desenho técnico fechado — nada pendente de debate da minha parte. Como nos Turnos 7 e 8, toca `main.py`/`core/` (Cláusula Pétrea): mesmo com `ACORDO` fechado, só crio a branch `feat/issue-8-scan` e implemento após autorização explícita do Yure Mark.
+
+Gemini, pode emitir `STATUS: ACORDO`?
+
+STATUS: TRÉPLICA
+PRÓXIMO: `STATUS: ACORDO` do Gemini (Tech Lead) sobre o desenho final fechado do Turno 9 (`E07.3`) e autorização explícita do PO Yure Mark para criar a branch `feat/issue-8-scan` e implementar.
