@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity): inversão de papéis por turno (Dev Especialista / Tech Lead), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -34,7 +34,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - Abrir/comentar issues e auditar PRs/diffs tecnicamente desde que a suíte `pytest` esteja 100% verde e sem segredos expostos.
 
 ### Sempre Exige Aprovação Explícita do Yure Mark (Sem Exceção)
-- **Qualquer commit ou alteração em código de produção** (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`) ou infraestrutura/credenciais (`.env`).
+- **Qualquer commit ou alteração em código de produção** (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`) ou infraestrutura/credenciais (`.env`) — e, a partir do Turno 7 (Issue #5 / Épico `E05`), passa obrigatoriamente pelo Gate de PR+CI da Seção 6 (branch de feature + PR real + CI verde + `gh pr review --approve`), nunca mais commit direto na `main`.
 - Aprovar mudanças com testes falhando (`pytest` vermelho) ou com risco de regressão.
 - Qualquer debate que ultrapasse a 3ª rodada (`TRÉPLICA`) sem convergência técnica — escale imediatamente ao Yure Mark.
 
@@ -60,12 +60,14 @@ Início: AAAA-MM-DD HH:MM · Commit-base: <hash> · Agente: <Claude|Gemini> · <
 
 **Proposta — <Agente> (Dev Especialista)**
 ...
-STATUS: PROPOSTA | RÉPLICA | TRÉPLICA | ACORDO | FEITO | CONCLUIDO
+STATUS: PROPOSTA | RÉPLICA | TRÉPLICA | ACORDO | FEITO | PR_ABERTO | CONCLUIDO
 PRÓXIMO: <próximo passo claro>
 
 <!--FIM_TURNO-->
 Fim: AAAA-MM-DD HH:MM · Commit: <hash> · Agente: <Agente>
 ```
+
+Quando o turno toca `core/`, `scripts/`, `main.py`, `pyproject.toml` ou `requirements.txt`, o `STATUS: FEITO` não comita direto na `main`: o Dev Especialista abre PR (ver Seção 6) e usa `STATUS: PR_ABERTO` referenciando o número do PR, aguardando `gh pr checks` verde + `STATUS: ACORDO` de fechamento do Tech Lead via `gh pr review --approve`.
 
 ### Regras de Segurança do `GitLock` (`core/git_lock.py`)
 1. **Commits Escopados:** Apenas os caminhos da Sala de Guerra (`war_room.md`, `HISTORICO.md`) são adicionados/commitados pelo loop automático (`git commit -- <paths>`).
@@ -85,3 +87,16 @@ O AgLoop se propõe heterogêneo (Claude ⇄ Gemini/Antigravity ⇄ outros via `
    - `PAINEL: atualizado em docs/gestao/painel-agloop.html + publicado ao vivo` (sessão Claude ativa); ou
    - `PAINEL: atualizado localmente em docs/gestao/painel-agloop.html, sem publicação ao vivo nesta sessão` (nenhum agente da sessão tem ferramenta de publicação equivalente).
    Se outro LLM/agente quiser ocupar o papel de publicador sem ter Claude disponível, a obrigação é ativa: oferecer um mecanismo de publicação ao vivo similar, igual ou melhor — não deixar o painel cair pro fallback como comportamento padrão aceitável.
+
+---
+
+## 6. Gate de PR+CI antes do Merge na `main` (Issue #5 / Épico `E05`)
+
+Port do padrão Sysoft: nenhuma mudança em `core/`, `scripts/`, `main.py`, `pyproject.toml` ou `requirements.txt` chega mais na `main` por commit direto — passa por branch de feature, PR real no GitHub e CI verde antes da aprovação do Tech Lead.
+
+1. **Branch por Issue:** o Dev Especialista cria `feat/issue-N-<slug>` (ou `fix/issue-N-<slug>`) a partir da `main` antes de implementar. Todos os commits do turno para aquela issue entram nessa mesma branch — sem fragmentar em múltiplas PRs.
+2. **CI (`.github/workflows/ci.yml`):** GitHub Actions roda `pytest` em matriz `python-version: ["3.10", "3.11", "3.12"]` a cada push na branch/PR contra `main`, com permissões `contents: read`, `pull-requests: write`, `statuses: write`.
+3. **Abertura do PR:** ao concluir a implementação (equivalente ao antigo `STATUS: FEITO`), o Dev Especialista abre o PR (`gh pr create`) referenciando a Issue e o turno, e registra `STATUS: PR_ABERTO` no `war_room.md` com o número do PR.
+4. **Aprovação do Tech Lead:** só depois de `gh pr checks` 100% verde, o Tech Lead revisa o diff real (`gh pr diff`) e aprova via `gh pr review --approve` — essa aprovação no GitHub substitui/complementa o `STATUS: ACORDO` textual, que passa a citar o número do PR e o resultado do `gh pr checks`.
+5. **Merge:** só após `--approve` + CI verde, `gh pr merge --squash --delete-branch --auto`, preservando o changelog linear da `main`.
+6. **`war_room.md`/`HISTORICO.md` seguem fora do gate:** continuam indo direto na `main` via `GitLock` (camada de governança/debate, não código de produção).
