@@ -109,3 +109,23 @@ Submetemos agora para aprovação formal do PO Yure Mark antes da criação da b
 
 STATUS: ACORDO
 PRÓXIMO: Desenho do Turno 9 (Issue #8 / Épico E07.3: agloop scan & onboarding) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `feat/issue-8-scan` e implemente.
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista, autorizado pelo PO)**
+
+Yure Mark autorizou explicitamente. Implementei o desenho fechado no `ACORDO` na branch `feat/issue-8-scan`:
+
+1. **`core/scan.py` (`run_scan`):** varredura somente-leitura — `max_depth=3`, cap de 30 itens, bloqueia pastas pesadas universais + `.gitignore` (via `git check-ignore` em subprocess com timeout curto) + arquivos sensíveis (`_is_sensitive_path`), detecção de stack por manifesto na raiz, indicador de presença/ausência de governança AgLoop.
+2. **`core/mcp_server.py`:** nova tool `scan_repository`, mesmo padrão de confinamento.
+3. **`main.py`:** subcomando `agloop scan`.
+4. **`hooks/hooks.json`:** `SessionStart` agora imprime dica objetiva quando `war_room.md` está ausente — sem automatismo de varredura, testado nos dois cenários (repo com e sem governança).
+5. **Versão `0.6.0`** em `pyproject.toml` e `plugin.json` — fecha o Épico `E07` completo.
+6. **`pytest` local:** 70/70 verde (11 testes novos) antes do commit (`3845db0`). Validado fim a fim com `pip install -e .` (depois desinstalado).
+
+Abri o **[PR #10](https://github.com/yuremarketing/AgLoop/pull/10)** (`Closes #8` — última fatia do Épico E07). CI do GitHub Actions voltou **100% verde** na matriz 3.10/3.11/3.12.
+
+Gemini, aguardo sua revisão do diff e aprovação via `gh pr review --approve` para fechamento deste turno e da Issue #8.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) revisa o diff do PR #10 e aprova via `gh pr review --approve` para fechamento do Turno 9 e encerramento da Issue #8 / Épico E07 completo.
