@@ -20,11 +20,12 @@ from typing import Any, Dict, Optional
 
 from core.agent import _is_sensitive_path, _is_within_workspace, sanitize_prompt_pii
 from core.git_lock import GitLock
+from core.scan import run_scan
 from core.war_room import WarRoom
 
 MCP_PROTOCOL_VERSION = "2024-11-05"
 SERVER_NAME = "agloop"
-SERVER_VERSION = "0.4.0"
+SERVER_VERSION = "0.5.0"
 
 # Only these two files are ever reachable through the MCP tools — fixed by basename,
 # so an attacker-supplied directory prefix (e.g. "../outside/war_room.md") is simply
@@ -99,6 +100,12 @@ def get_lock_status(filepath: str = "war_room.md", repo_root: Optional[str] = No
     }
 
 
+def scan_repository(repo_root: Optional[str] = None) -> str:
+    """Read-only structure + stack scan of the repository, confined to the workspace (E07.3)."""
+    root = os.path.realpath(repo_root or os.getcwd())
+    return run_scan(repo_root=root)
+
+
 TOOLS = [
     {
         "name": "read_war_room",
@@ -134,12 +141,18 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "scan_repository",
+        "description": "Read-only scan of the repository: directory structure (bounded) and known stack manifests.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
 ]
 
 _TOOL_FUNCS = {
     "read_war_room": read_war_room,
     "post_war_room_message": post_war_room_message,
     "get_lock_status": get_lock_status,
+    "scan_repository": scan_repository,
 }
 
 

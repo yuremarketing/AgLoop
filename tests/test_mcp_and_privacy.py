@@ -102,7 +102,7 @@ def test_initialize_and_tools_list(in_repo):
 
     listed = _dispatch("tools/list", {})
     names = {t["name"] for t in listed["tools"]}
-    assert names == {"read_war_room", "post_war_room_message", "get_lock_status"}
+    assert names == {"read_war_room", "post_war_room_message", "get_lock_status", "scan_repository"}
 
 
 def test_handle_line_tools_call_round_trip(in_repo):
