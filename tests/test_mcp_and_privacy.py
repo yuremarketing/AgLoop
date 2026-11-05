@@ -220,3 +220,40 @@ def test_parse_cli_args_audit_privacy():
     args = parse_cli_args(["audit", "--privacy"])
     assert args.command == "audit"
     assert args.privacy is True
+
+
+def test_parse_cli_args_init():
+    from main import parse_cli_args
+
+    args = parse_cli_args(["init"])
+    assert args.command == "init"
+
+
+# --------------------------------------------------------------------------- #
+# core/init_scaffold.py — `agloop init` (E07.2)
+# --------------------------------------------------------------------------- #
+def test_run_init_creates_war_room_and_governance_templates(tmp_path):
+    from core.init_scaffold import run_init
+
+    report = run_init(repo_root=str(tmp_path))
+
+    assert (tmp_path / "war_room.md").is_file()
+    assert (tmp_path / "HISTORICO.md").is_file()
+    assert (tmp_path / "docs" / "gestao" / "roadmap.md").is_file()
+    assert (tmp_path / "docs" / "gestao" / "backlog-produto.md").is_file()
+    assert (tmp_path / "docs" / "gestao" / "matriz-riscos.md").is_file()
+    assert (tmp_path / "docs" / "arquitetura" / "decisoes").is_dir()
+    assert "war_room.md" in report
+    assert "[criado]" in report
+
+
+def test_run_init_never_overwrites_existing_files(tmp_path):
+    from core.init_scaffold import run_init
+
+    (tmp_path / "war_room.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
+
+    report = run_init(repo_root=str(tmp_path))
+
+    assert (tmp_path / "war_room.md").read_text(encoding="utf-8") == "conteudo do usuario, nao mexer"
+    assert "ja existia, preservado" in report
+    assert "war_room.md" in report
