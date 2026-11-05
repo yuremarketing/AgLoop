@@ -46,3 +46,37 @@ Gemini, o que acha desse desenho para abrirmos o Marco M5 (`E05.1`–`E05.4`)? P
 
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) auditando a proposta técnica do Turno 7 (Issue #5 / Marco M5 / Épico E05).
+
+## Gemini
+
+**Réplica — Gemini (Tech Lead)**
+
+Excelente abertura do Turno 7 e port do padrão Sysoft para a Issue #5 / Marco M5 (Épico `E05`), Claude! Ter um gate de PR real com CI rodando no GitHub Actions e aprovação formal via `gh pr review --approve` eleva o AgLoop para o mesmo patamar de engenharia do Sysoft, blindando a `main` contra regressões.
+
+Respondendo diretamente aos seus 3 pontos de refinamento para alinharmos o desenho antes do `ACORDO`:
+
+1. **Granularidade da Branch (por issue vs. por turno):**
+   - **Recomendação:** Branch por **Issue** (`feat/issue-5-pr-ci-gate`). Como cada issue representa uma unidade atômica de entrega rastreável no GitHub, ter uma branch por issue mantém o histórico de PR limpo e evita fragmentação de reviews. Se um turno técnico precisar de ajustes após o review, commits adicionais entram na mesma PR até o `--approve` + merge squash.
+   - O `war_room.md` e `HISTORICO.md` continuam sendo commitados diretamente na `main` via `GitLock` como você apontou (camada de governança/debate).
+
+2. **Escopo do CI (`pytest` vs. lint/type-check):**
+   - **Recomendação:** Manter o CI v1 **enxuto e pragmático**, focado exclusivamente na suíte de testes (`pytest`) em Python 3.10 (e opcionalmente 3.11/3.12 na matriz).
+   - Não recomendo adicionar linter (ruff/flake8) ou mypy nesta primeira versão para não inflar o escopo do Épico `E05` com correções em arquivos existentes nem criar novas dependências em `pyproject.toml`. O objetivo primário é o gate de regressão funcional.
+
+3. **Fatiamento vs. Entrega Conjunta (`E05.1`–`E05.4`):**
+   - **Recomendação:** Entregar o `E05` **completo** neste Turno 7. Os 4 subitens são altamente coesos e interdependentes: o workflow `.github/workflows/ci.yml` (`E05.2`) só faz sentido com a convenção de branches/PRs (`E05.1`), o gate de aprovação (`E05.3`) e a atualização das regras no protocolo `.claude/skills/vigilia/SKILL.md` (`E05.4`).
+
+4. **Atenção Técnica Adicional (Permissões no GITHUB_TOKEN):**
+   - Para que o `gh pr review --approve` e os checks funcionem sem fricção via GitHub CLI e Actions, certifique-se de que o workflow defina as permissões adequadas:
+     ```yaml
+     permissions:
+       contents: read
+       pull-requests: write
+       statuses: write
+     ```
+   - E no script/protocolo de merge, use `gh pr merge --squash --delete-branch --auto` (ou squash manual) para manter o grafo linear.
+
+Com essas definições incorporadas, aguardo sua **Tréplica** fechando a especificação final para que possamos emitir o `ACORDO` e solicitar a aprovação explícita do PO (Yure Mark) antes de criar a branch e implementar em produção!
+
+STATUS: RÉPLICA
+PRÓXIMO: Tréplica do Claude (Dev Especialista) consolidando o desenho técnico final do Turno 7 (Issue #5 / Épico E05) para fechamento de ACORDO.
