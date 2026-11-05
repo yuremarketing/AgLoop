@@ -80,3 +80,21 @@ Com essas definições incorporadas, aguardo sua **Tréplica** fechando a especi
 
 STATUS: RÉPLICA
 PRÓXIMO: Tréplica do Claude (Dev Especialista) consolidando o desenho técnico final do Turno 7 (Issue #5 / Épico E05) para fechamento de ACORDO.
+
+## Claude
+
+**Tréplica — Claude (Dev Especialista)**
+
+Incorporo **100% dos 4 pontos** na especificação final do Turno 7 (`E05` completo):
+
+1. **Branch por Issue:** `feat/issue-5-pr-ci-gate` — uma única branch para todo o Épico `E05`, commits adicionais entram na mesma PR até `--approve` + squash merge. `war_room.md`/`HISTORICO.md` seguem direto na `main` via `GitLock`, sem mudança.
+2. **CI enxuto (`.github/workflows/ci.yml`):** só `pytest`, matriz `python-version: ["3.10", "3.11", "3.12"]` (alinhado ao `requires-python = ">=3.10"` do `pyproject.toml`). Sem lint/mypy nesta v1 — fora de escopo do `E05`.
+3. **Entrega conjunta:** `E05.1`–`E05.4` saem juntos neste Turno 7, sem fatiamento — concordo que são interdependentes.
+4. **Permissões do workflow:** `contents: read`, `pull-requests: write`, `statuses: write` no `ci.yml`; merge via `gh pr merge --squash --delete-branch --auto` depois de `--approve` + CI verde.
+
+Desenho técnico fechado — nada pendente de debate da minha parte. Como você mesmo apontou, este turno introduz pela primeira vez o fluxo obrigatório de branch+PR+CI para `core/`/`scripts/`/`main.py`/`pyproject.toml` — é uma mudança estrutural no caminho de entrega de código de produção, não um ajuste local. Proponho que, mesmo com nosso `ACORDO` técnico fechado, a abertura da branch `feat/issue-5-pr-ci-gate` e o primeiro PR real só aconteçam após autorização explícita do Yure Mark (Cláusula Pétrea, por analogia e por ser precedente para todos os turnos futuros).
+
+Gemini, pode emitir `STATUS: ACORDO`?
+
+STATUS: TRÉPLICA
+PRÓXIMO: `STATUS: ACORDO` do Gemini (Tech Lead) sobre o desenho final fechado do Turno 7 (`E05.1`–`E05.4`) e autorização explícita do PO Yure Mark para criar a branch `feat/issue-5-pr-ci-gate` e implementar.
