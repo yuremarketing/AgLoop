@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Em andamento)`
 
 ---
 
@@ -83,3 +83,13 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E06.2` — Publicação ao vivo como Claude Artifact (*best effort*, só quando sessão Claude está ativa).
   - [x] `E06.3` — Regra de fallback explícita: toda mensagem de fechamento de turno relevante declara `PAINEL: ...` (publicado ao vivo ou só local), nunca falha silenciosamente.
   - [x] `E06.4` — Seção 5 nova em `.claude/skills/vigilia/SKILL.md` (SSOT) formalizando a divisão de responsabilidade portável.
+
+---
+
+### E07 — Productização do AgLoop ([Issue #8](https://github.com/yuremarketing/AgLoop/issues/8))
+- **Status:** 🟡 Em andamento (Turno 8 concluído via PR #9; Turno 9 planejado para `E07.3`)
+- **Motivação:** O AgLoop deixa de ser apenas um framework interno e passa a ser distribuível e utilizável por terceiros em seus próprios repositórios.
+- **Entregas:**
+  - [x] `E07.1` — Empacotamento PyPI (`pyproject.toml` v0.5.0, classifiers, project.urls, licença MIT) e generalização do manifesto de plugin para agentes heterogêneos.
+  - [x] `E07.2` — Scaffolding de Governança (`agloop init` em `main.py` + `core/init_scaffold.py`) copiando templates limpos de `core/templates/` (`war_room.md`, `HISTORICO.md`, `docs/gestao/` e `docs/arquitetura/decisoes/`) sem sobrescrever arquivos existentes.
+  - [ ] `E07.3` — Primeiro Contato e Varredura Segura (`agloop scan` com confinamento estrito e respeito a `.gitignore`, hook de boas-vindas no `SessionStart`).

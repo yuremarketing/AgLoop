@@ -13,6 +13,7 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 | **M3** | **Motor Cognitivo Google ADK & Controle de Consenso** | Evolução de `core/agent.py` integrando `google-adk` (`LlmAgent` + `LiteLlm`), ferramentas nativas somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`), protocolo de parada por consenso/pausa humana (`WAITING_HUMAN` / `CONSENSUS`), janela deslizante no `WarRoom` e empacotamento `pyproject.toml` (`agloop`). | [#4](https://github.com/yuremarketing/AgLoop/issues/4) | ✅ **Concluído (Turno 4)** |
 | **M4** | **Plugin Oficial Claude Code & Antigravity + Camada MCP** | Empacotamento `.claude-plugin/plugin.json`, Slash Commands (`/agloop:vigia`, `/agloop:status`, `/agloop:debate`), servidor MCP (`read_war_room`, `post_war_room_message`, `get_lock_status`) e Hooks de sincronização. | [#2](https://github.com/yuremarketing/AgLoop/issues/2) | ✅ **Concluído (Turno 6)** |
 | **M5** | **Gate de PR+CI Antes do Merge na Main** | Branch de feature por turno técnico, workflow de CI (GitHub Actions) rodando `pytest` em cada PR na matriz 3.10/3.11/3.12, aprovação do Tech Lead via `gh pr review --approve` só com CI verde — port do padrão de rigor já validado no Sysoft. | [#5](https://github.com/yuremarketing/AgLoop/issues/5) | ✅ **Concluído (Turno 7, PR #7)** |
+| **M6** | **Productização do AgLoop** | Empacotamento PyPI (`pip install agloop`), scaffolding de governança (`agloop init`) com templates limpos e varredura de repositórios (`agloop scan`). | [#8](https://github.com/yuremarketing/AgLoop/issues/8) | 🟡 **Em andamento (Turno 8)** |
 
 ---
 
@@ -46,3 +47,8 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 - [x] Port do padrão Sysoft: branch de feature (`feat/issue-5-pr-ci-gate`) + PR real + CI 100% verde antes do merge.
 - [x] Atualização da governança canônica no `.claude/skills/vigilia/SKILL.md` (v1.2.0, Seção 6 e novo `STATUS: PR_ABERTO`).
 - [x] Squash merge do PR #7 com branches deletadas e histórico linear preservado.
+
+### M6 — Productização do AgLoop (Em andamento — Turno 8, PR #9)
+- [x] Empacotamento PyPI com licença MIT, classifiers, project.urls e versão `0.5.0` (`E07.1`).
+- [x] Scaffolding de governança (`agloop init`) com templates limpos em `core/templates/` (`E07.2`).
+- [ ] Varredura segura de repositórios de terceiros (`agloop scan` e hook de primeiro contato) (`E07.3`, Turno 9).
