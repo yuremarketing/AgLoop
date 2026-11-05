@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Próximo)` → `E05 (Gate de PR+CI — Planejado)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)`
 
 ---
 
@@ -64,14 +64,14 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E05 — Gate de PR+CI Antes do Merge na Main ([Issue #5](https://github.com/yuremarketing/AgLoop/issues/5))
-- **Status:** 📋 Planejado (identificado ao comparar o protocolo `vigilia` do AgLoop com o do **Sysoft**, projeto de origem — 2026-11-03)
+- **Status:** ✅ Concluído (Turno 7, PR #7 squash-merged)
 - **Motivação:** o Sysoft já exige, antes de qualquer merge na `main`, branch de feature + PR real + `gh pr review --approve` + CI verde (`SKILL.md` do Sysoft, seção 5). O AgLoop hoje aprova só textualmente no `war_room.md` (`STATUS: ACORDO`) seguido de commit direto — sem gate automatizado de terceiro, dependendo inteiramente do auditor ter corrido o `pytest` manualmente antes de commitar.
 - **Risco que mitiga:** nada impede hoje, por construção, um commit com testes vermelhos chegar na `main` além da disciplina manual do auditor.
-- **Entregas (a debater em turno formal antes de codificar):**
-  - [ ] `E05.1` — Branch de feature por turno técnico (`feat/issue-N-...`) em vez de commit direto na `main` para mudanças em `core/`/`scripts/`.
-  - [ ] `E05.2` — Workflow de CI (GitHub Actions) rodando `pytest` automaticamente em cada PR.
-  - [ ] `E05.3` — Tech Lead aprova via `gh pr review --approve` só com CI verde (port da Autoridade Delegada do Sysoft).
-  - [ ] `E05.4` — Atualizar `.claude/skills/vigilia/SKILL.md` (seção 5, Protocolo de Execução do Turno) para refletir o novo fluxo com PR.
+- **Entregas:**
+  - [x] `E05.1` — Branch de feature por turno técnico (`feat/issue-N-...`) em vez de commit direto na `main` para mudanças em `core/`/`scripts/`.
+  - [x] `E05.2` — Workflow de CI (GitHub Actions) rodando `pytest` automaticamente em cada PR na matriz Python 3.10/3.11/3.12.
+  - [x] `E05.3` — Tech Lead aprova via `gh pr review --approve` só com CI verde (port da Autoridade Delegada do Sysoft).
+  - [x] `E05.4` — Atualizar `.claude/skills/vigilia/SKILL.md` (seção 6, Gate de PR+CI e STATUS: PR_ABERTO) para refletir o novo fluxo com PR.
 
 ---
 

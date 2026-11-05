@@ -12,7 +12,7 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 | **M2** | **Governança Padrão Sysoft & Saneamento DRY** | Implantação de `docs/gestao/` (TAP, Artefato Mestre, Matriz de Riscos, Roadmap, Backlog, Glossário, Requisitos), ADRs `0001`–`0005`, SSOT em `.claude/skills/vigilia/SKILL.md`, `CLAUDE.md`/`GEMINI.md` enxutos, autoria Git isolada por agente, fechamento/arquivamento atômico (`HISTORICO.md`) e wrapper `vigia.py --once`. | [#3](https://github.com/yuremarketing/AgLoop/issues/3) | ✅ **Concluído (Turnos 1 e 2)** |
 | **M3** | **Motor Cognitivo Google ADK & Controle de Consenso** | Evolução de `core/agent.py` integrando `google-adk` (`LlmAgent` + `LiteLlm`), ferramentas nativas somente-leitura (`read_file`, `list_dir`, `git_diff`, `run_pytest`), protocolo de parada por consenso/pausa humana (`WAITING_HUMAN` / `CONSENSUS`), janela deslizante no `WarRoom` e empacotamento `pyproject.toml` (`agloop`). | [#4](https://github.com/yuremarketing/AgLoop/issues/4) | ✅ **Concluído (Turno 4)** |
 | **M4** | **Plugin Oficial Claude Code & Antigravity + Camada MCP** | Empacotamento `.claude-plugin/plugin.json`, Slash Commands (`/agloop:vigia`, `/agloop:status`, `/agloop:debate`), servidor MCP (`read_war_room`, `post_war_room_message`, `get_lock_status`) e Hooks de sincronização. | [#2](https://github.com/yuremarketing/AgLoop/issues/2) | ✅ **Concluído (Turno 6)** |
-| **M5** | **Gate de PR+CI Antes do Merge na Main** | Branch de feature por turno técnico, workflow de CI (GitHub Actions) rodando `pytest` em cada PR, aprovação do Tech Lead via `gh pr review --approve` só com CI verde — port do padrão de rigor já validado no Sysoft. | [#5](https://github.com/yuremarketing/AgLoop/issues/5) | 📋 **Planejado** |
+| **M5** | **Gate de PR+CI Antes do Merge na Main** | Branch de feature por turno técnico, workflow de CI (GitHub Actions) rodando `pytest` em cada PR na matriz 3.10/3.11/3.12, aprovação do Tech Lead via `gh pr review --approve` só com CI verde — port do padrão de rigor já validado no Sysoft. | [#5](https://github.com/yuremarketing/AgLoop/issues/5) | ✅ **Concluído (Turno 7, PR #7)** |
 
 ---
 
@@ -40,3 +40,9 @@ Cronograma orientado a marcos estratégicos (sem datas rígidas de longo prazo, 
 - [x] Manifesto `.claude-plugin/plugin.json`, `.mcp.json`, hooks e slash commands (`commands/{vigia,status,debate}.md`).
 - [x] Servidor MCP `core/mcp_server.py` (`read_war_room`, `post_war_room_message`, `get_lock_status`) com allowlist estrita (`LGPD-03`).
 - [x] Subcomando `agloop audit --privacy` (`LGPD-04`) em `main.py` retrocompatível com `--name` e 56 testes verdes.
+
+### M5 — Gate de PR+CI Antes do Merge na Main (Concluído em 2026-11-05 — Turno 7, PR #7)
+- [x] Workflow `.github/workflows/ci.yml` executando `pytest` em matriz Python 3.10/3.11/3.12 em todo PR e push contra a `main`.
+- [x] Port do padrão Sysoft: branch de feature (`feat/issue-5-pr-ci-gate`) + PR real + CI 100% verde antes do merge.
+- [x] Atualização da governança canônica no `.claude/skills/vigilia/SKILL.md` (v1.2.0, Seção 6 e novo `STATUS: PR_ABERTO`).
+- [x] Squash merge do PR #7 com branches deletadas e histórico linear preservado.
