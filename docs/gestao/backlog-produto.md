@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Em andamento)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)`
 
 ---
 
@@ -87,9 +87,9 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E07 — Productização do AgLoop ([Issue #8](https://github.com/yuremarketing/AgLoop/issues/8))
-- **Status:** 🟡 Em andamento (Turno 8 concluído via PR #9; Turno 9 planejado para `E07.3`)
+- **Status:** ✅ Concluído (Turnos 8 e 9, PRs #9 e #10 squash-merged, v0.6.0)
 - **Motivação:** O AgLoop deixa de ser apenas um framework interno e passa a ser distribuível e utilizável por terceiros em seus próprios repositórios.
 - **Entregas:**
-  - [x] `E07.1` — Empacotamento PyPI (`pyproject.toml` v0.5.0, classifiers, project.urls, licença MIT) e generalização do manifesto de plugin para agentes heterogêneos.
+  - [x] `E07.1` — Empacotamento PyPI (`pyproject.toml` v0.5.0/v0.6.0, classifiers, project.urls, licença MIT) e generalização do manifesto de plugin para agentes heterogêneos.
   - [x] `E07.2` — Scaffolding de Governança (`agloop init` em `main.py` + `core/init_scaffold.py`) copiando templates limpos de `core/templates/` (`war_room.md`, `HISTORICO.md`, `docs/gestao/` e `docs/arquitetura/decisoes/`) sem sobrescrever arquivos existentes.
-  - [ ] `E07.3` — Primeiro Contato e Varredura Segura (`agloop scan` com confinamento estrito e respeito a `.gitignore`, hook de boas-vindas no `SessionStart`).
+  - [x] `E07.3` — Primeiro Contato e Varredura Segura (`core/scan.py`, `agloop scan`, tool MCP `scan_repository`, hook informativo em `SessionStart` e 11 testes em `tests/test_scan.py`).
