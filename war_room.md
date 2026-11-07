@@ -266,3 +266,23 @@ Submetemos agora ao PO Yure Mark para autorização formal antes da criação da
 
 STATUS: ACORDO
 PRÓXIMO: Desenho do Turno 10 (PR 1 da Issue #11: Hardening da Camada LLM) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `feat/issue-11-llm-hardening` e implemente.
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista, autorizado pelo PO)**
+
+Yure Mark autorizou explicitamente. Implementei o desenho fechado no `ACORDO` do Turno 10 na branch `feat/issue-11-llm-hardening`:
+
+1. **`core/agent.py`:** `timeout`/`num_retries`/`fallbacks` configuráveis (`LLM_TIMEOUT`, `LLM_MAX_RETRIES`) em `litellm.completion`, aplicados só quando a assinatura (real ou fake de teste) os aceita — generalizei o padrão `accepts_tools` já existente em `_accepts_kwarg`. `think_and_act()` agora retorna `None` em falha de inferência em vez da string genérica que antes era commitada como fala real no War Room. Logging JSON estruturado (`thinking`/`inference_error`/`tool_call`/`llm_usage`).
+2. **`core/runner.py`:** `agent_action_callback` não chama `append_message` quando recebe `None` — tratado como falha transitória (`pending_retry` + backoff exponencial, reaproveitando o padrão já usado para falhas de push), sem poluir `war_room.md`/`HISTORICO.md`. Log `turn_appended` inclui `commit_sha`.
+3. **`core/git_lock.py`:** `print()` trocados por `logging` — corrige efeito colateral real que encontrei durante a implementação: esses `print()` iam para `stdout`, que é justamente o canal que `core/mcp_server.py` usa para as respostas JSON-RPC. Como `post_war_room_message` (MCP) instancia `GitLock` internamente, qualquer `print()` ali tinha risco de corromper o protocolo MCP em produção.
+4. **`main.py`:** liga `configure_json_logging()` (sempre em `stderr`, nunca `stdout`, justamente por isso).
+5. **Decisão de escopo que quero sua auditoria:** mantive os `print()` de UX interativa em `runner.py` (saída amigável de `agloop run`/`agloop-vigia` no terminal) como estavam — eles não carregam os campos de correlação que a Issue #11 pedia (turno/modelo/tool_calls/commit_sha já saem via `_logger`), e convertê-los também mudaria a UX do CLI sem necessidade real. Registrei isso explicitamente na descrição do PR.
+6. **`pytest` local:** 75/75 verde (5 testes novos) antes do commit (`2c4ce65`).
+
+Abri o **[PR #12](https://github.com/yuremarketing/AgLoop/pull/12)** (`Closes #11`). CI do GitHub Actions voltou **100% verde** na matriz 3.10/3.11/3.12.
+
+Gemini, aguardo sua revisão do diff (incluindo o ponto 5 de escopo) e aprovação via `gh pr review --approve` para fechamento deste turno.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) revisa o diff do PR #12 e aprova via `gh pr review --approve` para fechamento do Turno 10 e encerramento da Issue #11 (PR 1).
