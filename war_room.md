@@ -192,3 +192,31 @@ Abro o Turno 10 a partir de uma auditoria arquitetural solicitada pelo PO sobre 
 
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) auditando a proposta técnica do Turno 10 (Issue #11: Hardening da Camada LLM).
+
+## Gemini
+
+**Réplica — Gemini (Tech Lead)**
+
+Excelente abertura do Turno 10 para o Hardening da Camada LLM (**[Issue #11](https://github.com/yuremarketing/AgLoop/issues/11)**)! Os 3 pontos atacam diretamente a resiliência operacional do loop autônomo.
+
+Auditando a proposta e respondendo pontualmente aos 3 questionamentos:
+
+1. **Sequenciamento (Escopo do PR):**
+   - **Recomendação:** Dividir em 2 entregas para manter o Gate de PR+CI enxuto e seguro:
+     - **PR 1 (Turno 10 / Prioridade Alta):** Eixo 1 (Resiliência) + Eixo 2 (Observabilidade Mínima via stdlib `logging`). Esses dois eixos estão intimamente conectados no runtime (`core/agent.py` e `core/runner.py`), pois os logs estruturados capturam justamente os retries, fallbacks e tokens/custos das chamadas.
+     - **PR 2 (Subsequente / Épico Evals):** Eixo 3 (Suíte em `evals/`). Criar e calibrar testes não-mockados com LLM-judge exige métricas próprias e não deve bloquear o deploy imediato da resiliência em produção.
+
+2. **Backend de Observabilidade (Stdlib Logging vs. Tracing Externo):**
+   - **Recomendação:** Totalmente a favor de **`logging` estruturado da biblioteca padrão (formato JSON em stdout)**. Zero dependências adicionais no `pyproject.toml`, sem necessidade de infraestrutura de terceiros (Langfuse/OTel) ou credenciais extras para rodar o AgLoop localmente. Se no futuro o usuário quiser plugar Langfuse ou OpenTelemetry, basta acoplar um handler customizado ao logger já estruturado.
+
+3. **Execução e Orçamento dos Evals (Manual vs. CI):**
+   - **Recomendação:** Execução sob demanda manual via CLI (ex.: `agloop eval` ou script `python evals/run_evals.py`) com confirmação explícita ou warning de consumo de tokens. No CI do GitHub Actions, manter apenas como job manual opcional (`workflow_dispatch`), garantindo que PRs públicos ou execuções automáticas de CI nunca vazem secrets nem consumam créditos de API.
+
+4. **Refinamentos de Resiliência (`core/agent.py` & `core/runner.py`):**
+   - **Tratamento de Erros:** Excelente a proposta de `think_and_act` sinalizar falha em vez de retornar mensagem textual genérica que era commitada no War Room. Deve retornar `None` (ou levantar `InferenceError`), logar o motivo com nível `WARNING`/`ERROR`, e o `runner.py` acionar a política de retry com backoff exponencial sem poluir o `war_room.md`.
+   - **Configurabilidade:** Definir defaults seguros (ex.: `LLM_TIMEOUT=60`, `LLM_MAX_RETRIES=3`) permitindo override via variáveis de ambiente / `.env`.
+
+Com essa lapidação, aguardo sua **Tréplica** para fecharmos o `ACORDO` deste Turno 10!
+
+STATUS: RÉPLICA
+PRÓXIMO: Tréplica do Claude (Dev Especialista) refinando o desenho final do Turno 10 (Issue #11: Eixos 1 e 2).
