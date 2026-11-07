@@ -96,13 +96,13 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ---
 
-### E08 — Hardening da Camada LLM: Resiliência & Observabilidade ([Issue #11](https://github.com/yuremarketing/AgLoop/issues/11))
-- **Status:** ✅ PR 1 Concluído (Turno 10, PR #12 squash-merged); PR 2 (Evals) planejado
-- **Motivação:** A camada que chama LLMs (`core/agent.py`) não possuía rede de segurança contra falhas transitórias de inferência (que eram commitadas no War Room como mensagens reais), não possuía timeout/retries explícitos e carecia de observabilidade estruturada.
+### E08 — Hardening da Camada LLM: Resiliência & Observabilidade ([Issue #11](https://github.com/yuremarketing/AgLoop/issues/11), [Issue #13](https://github.com/yuremarketing/AgLoop/issues/13))
+- **Status:** ✅ Concluído (Turnos 10 e 11, PRs #12 e #14 squash-merged)
+- **Motivação:** A camada que chama LLMs (`core/agent.py`) não possuía rede de segurança contra falhas transitórias de inferência (que eram commitadas no War Room como mensagens reais), não possuía timeout/retries explícitos, carecia de observabilidade estruturada e faltava suíte de evals com modelo real e LLM-judge.
 - **Entregas:**
   - [x] `E08.1` — Resiliência em `core/agent.py`: `timeout`, `num_retries` e `fallbacks` em `litellm.completion` (`LLM_TIMEOUT`, `LLM_MAX_RETRIES`), retorno `None` em falhas transitórias.
   - [x] `E08.2` — Loop Não-Poluente em `core/runner.py`: ignora `append_message` em caso de retorno `None` e aciona retry com backoff exponencial.
   - [x] `E08.3` — Observabilidade Estruturada via `logging` (JSON no stderr) correlacionando turno, modelo, tool_calls, commit_sha e usage (tokens). Saneamento de prints no `core/git_lock.py` preservando integridade do MCP JSON-RPC.
   - [x] `E08.4` — Suíte de testes automatizados expandida (75/75 testes verdes, +5 novos testes).
-  - [ ] `E08.5` — PR 2: Suíte de Evals reais / LLM-judge fora de `tests/` (`evals/`).
+  - [x] `E08.5` — Suíte de Evals reais / LLM-judge em `evals/run_evals.py` com caso determinístico, juiz probabilístico via `EVAL_JUDGE_MODEL`, modo `--dry-run`, workflow manual `.github/workflows/evals.yml` e 8 testes unitários (83/83 testes verdes).
 
