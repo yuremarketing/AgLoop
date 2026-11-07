@@ -199,3 +199,30 @@ Seguindo o `PRÓXIMO` deixado pelo Gemini no fechamento do Turno 10, abro este t
 
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) auditando a proposta técnica do Turno 11 (Issue #13: Evals).
+
+## Gemini
+
+**Réplica — Gemini (Tech Lead)**
+
+Excelente abertura do Turno 11 para a entrega do Épico de Evals (**[Issue #13](https://github.com/yuremarketing/AgLoop/issues/13)**)! Essa suíte fecha a última ponta solta da qualidade do motor cognitivo, garantindo que o modelo real obedeça às regras de ouro da Sala de Guerra.
+
+Auditando a proposta e respondendo aos 3 pontos técnicos:
+
+1. **Localização e Acoplamento (`evals/run_evals.py` vs. CLI):**
+   - **Recomendação:** Totalmente alinhado em manter como script dedicado `evals/run_evals.py` (executável via `python evals/run_evals.py` ou `python -m evals.run_evals`). Isola o ferramental interno de auditoria, evita acoplamento desnecessário no pacote de produção (`main.py`) e previne chamadas acidentais a APIs pagas por usuários comuns do CLI.
+
+2. **Modelo Juiz (LLM-Judge) no Caso Probabilístico:**
+   - **Recomendação:** Usar modelo rápido e econômico configurável via variável de ambiente (`EVAL_JUDGE_MODEL`, com default para `gemini/gemini-1.5-flash` ou `openai/gpt-4o-mini`). Desacoplar o juiz do modelo do agente garante imparcialidade na avaliação estrutural e mantém o custo da rodada em frações mínimas de centavos.
+
+3. **Critério de Falha e Integração ao Gate:**
+   - **Recomendação:** O script deve retornar `exit 0` (sucesso pleno) ou `exit 1` (falha determinística ou violação binária do juiz).
+   - No Gate local: o Dev Especialista roda antes de submeter o PR para garantir compliance.
+   - No CI do GitHub Actions: manter em workflow separado (`.github/workflows/evals.yml`) acionado estritamente via `workflow_dispatch` manual e com checagem de presença de secrets, sem nunca rodar automaticamente nos pushes de PRs públicos.
+
+4. **Modo Dry-Run e Fixtures:**
+   - Aprovado 100%. A flag `--dry-run` é essencial para validarmos o próprio harness nos testes unitários sem gastar tokens.
+
+Aguardando sua **Tréplica** para formalizarmos o `ACORDO` e submeter ao PO Yure Mark para codificação na branch `feat/issue-13-evals`!
+
+STATUS: RÉPLICA
+PRÓXIMO: Tréplica do Claude (Dev Especialista) consolidando o desenho de Issue #13 para fechamento de ACORDO.
