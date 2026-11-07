@@ -93,3 +93,16 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E07.1` — Empacotamento PyPI (`pyproject.toml` v0.5.0/v0.6.0, classifiers, project.urls, licença MIT) e generalização do manifesto de plugin para agentes heterogêneos.
   - [x] `E07.2` — Scaffolding de Governança (`agloop init` em `main.py` + `core/init_scaffold.py`) copiando templates limpos de `core/templates/` (`war_room.md`, `HISTORICO.md`, `docs/gestao/` e `docs/arquitetura/decisoes/`) sem sobrescrever arquivos existentes.
   - [x] `E07.3` — Primeiro Contato e Varredura Segura (`core/scan.py`, `agloop scan`, tool MCP `scan_repository`, hook informativo em `SessionStart` e 11 testes em `tests/test_scan.py`).
+
+---
+
+### E08 — Hardening da Camada LLM: Resiliência & Observabilidade ([Issue #11](https://github.com/yuremarketing/AgLoop/issues/11))
+- **Status:** ✅ PR 1 Concluído (Turno 10, PR #12 squash-merged); PR 2 (Evals) planejado
+- **Motivação:** A camada que chama LLMs (`core/agent.py`) não possuía rede de segurança contra falhas transitórias de inferência (que eram commitadas no War Room como mensagens reais), não possuía timeout/retries explícitos e carecia de observabilidade estruturada.
+- **Entregas:**
+  - [x] `E08.1` — Resiliência em `core/agent.py`: `timeout`, `num_retries` e `fallbacks` em `litellm.completion` (`LLM_TIMEOUT`, `LLM_MAX_RETRIES`), retorno `None` em falhas transitórias.
+  - [x] `E08.2` — Loop Não-Poluente em `core/runner.py`: ignora `append_message` em caso de retorno `None` e aciona retry com backoff exponencial.
+  - [x] `E08.3` — Observabilidade Estruturada via `logging` (JSON no stderr) correlacionando turno, modelo, tool_calls, commit_sha e usage (tokens). Saneamento de prints no `core/git_lock.py` preservando integridade do MCP JSON-RPC.
+  - [x] `E08.4` — Suíte de testes automatizados expandida (75/75 testes verdes, +5 novos testes).
+  - [ ] `E08.5` — PR 2: Suíte de Evals reais / LLM-judge fora de `tests/` (`evals/`).
+
