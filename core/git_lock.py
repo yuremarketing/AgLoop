@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import shutil
@@ -9,6 +10,8 @@ from typing import Iterable, Optional
 
 from git import Repo
 from git.exc import GitCommandError
+
+_logger = logging.getLogger("agloop.git_lock")
 
 # Markers git prints when a push is rejected because the remote moved ahead
 # (i.e. another agent won the race). Anything else (network, auth...) is
@@ -106,7 +109,7 @@ class GitLock:
         except OSError:
             return
         shutil.rmtree(tomb, ignore_errors=True)
-        print("[AgLoop] Stale local lock recovered.")
+        _logger.warning("stale local lock recovered", extra={"event": "stale_lock_recovered"})
 
     def _acquire_local_lock(self) -> bool:
         """Uses atomic directory creation as a local lock."""
@@ -137,7 +140,7 @@ class GitLock:
     def _warn_once(self, key: str, msg: str):
         if key not in self._warned:
             self._warned.add(key)
-            print(msg)
+            _logger.warning(msg, extra={"event": f"git_{key}_warning"})
 
     def _branch(self) -> str:
         try:
@@ -193,7 +196,11 @@ class GitLock:
             self.repo.git.rebase("--autostash", self._remote_ref())
             return True
         except GitCommandError as e:
-            print(f"[AgLoop] Rebase onto remote failed: {e.stderr.strip() if e.stderr else e}")
+            _logger.warning(
+                "rebase onto remote failed: %s",
+                e.stderr.strip() if e.stderr else e,
+                extra={"event": "rebase_failed"},
+            )
             try:
                 self.repo.git.rebase("--abort")
             except GitCommandError:
@@ -226,7 +233,7 @@ class GitLock:
                     if os.path.exists(os.path.join(self.repo_path, p)):
                         os.remove(os.path.join(self.repo_path, p))
         except GitCommandError as e:
-            print(f"[AgLoop] Could not drop local room changes: {e}")
+            _logger.error("could not drop local room changes: %s", e, extra={"event": "lost_race_recovery_failed"})
             return False
         return self._rebase_onto_remote()
 
@@ -309,7 +316,7 @@ class GitLock:
                 self.repo.git.commit("-m", message, "--", *active)
             return True
         except GitCommandError as e:
-            print(f"[AgLoop] Git commit error: {e}")
+            _logger.error("git commit error: %s", e, extra={"event": "commit_failed"})
             return False
 
     def push(self, paths: Iterable[str] = ()) -> bool:
@@ -331,10 +338,19 @@ class GitLock:
             except GitCommandError as e:
                 err = (e.stderr or str(e)).lower()
                 if not any(m in err for m in _REJECTION_MARKERS):
-                    print(f"[AgLoop] Push failed (kept locally, will retry): {e.stderr.strip() if e.stderr else e}")
+                    _logger.warning(
+                        "push failed (kept locally, will retry): %s",
+                        e.stderr.strip() if e.stderr else e,
+                        extra={"event": "push_failed"},
+                    )
                     self.last_status = "push_failed"
                     return False
-                print(f"[AgLoop] Push rejected, another agent pushed first (attempt {attempt}/{self.push_retries}).")
+                _logger.info(
+                    "push rejected, another agent pushed first (attempt %d/%d)",
+                    attempt,
+                    self.push_retries,
+                    extra={"event": "push_rejected"},
+                )
                 if not self._fetch():
                     self.last_status = "push_failed"
                     return False

@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from dotenv import load_dotenv
-from core.agent import Agent
+from core.agent import Agent, configure_json_logging
 from core.init_scaffold import run_init
 from core.privacy_audit import run_privacy_audit
 from core.runner import run_agent_loop
@@ -10,6 +10,10 @@ from core.scan import run_scan
 
 # Load environment variables
 load_dotenv()
+
+# Structured JSON logs on stderr (Issue #11) — never stdout, so `agloop-mcp` (which
+# writes JSON-RPC replies to stdout) is never corrupted even if it imports this module.
+configure_json_logging()
 
 # Define roles for our agents
 ROLES = {

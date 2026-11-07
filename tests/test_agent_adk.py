@@ -1,3 +1,4 @@
+import logging
 from types import SimpleNamespace
 
 from core import agent as agent_mod
@@ -169,4 +170,64 @@ def test_agent_executes_tool_calls_in_litellm_loop(tmp_path, monkeypatch):
     assert tool_msg["role"] == "tool"
     assert tool_msg["name"] == "read_file"
     assert "Important architecture note" in tool_msg["content"]
+
+
+# --- Issue #11: resilience (timeout/retries/fallbacks) & observability ---------------
+
+
+def test_think_and_act_returns_none_and_logs_on_inference_failure(monkeypatch, caplog):
+    """A transient provider failure must not produce the old placeholder string:
+    `core.runner` relies on `None` to avoid committing an error into war_room.md."""
+
+    def boom(model, messages, **kwargs):
+        raise RuntimeError("simulated provider outage")
+
+    monkeypatch.setattr(agent_mod.litellm, "completion", boom)
+    caplog.set_level(logging.ERROR, logger="agloop.agent")
+
+    ag = Agent(name="Gemini", role_prompt="Tech Lead", model="gemini/test", use_adk=False)
+    result = ag.think_and_act("some war room context")
+
+    assert result is None
+    assert any(
+        getattr(r, "event", "") == "inference_error" and getattr(r, "agent", "") == "Gemini"
+        for r in caplog.records
+    )
+
+
+def test_call_completion_passes_resilience_kwargs_when_supported(monkeypatch):
+    captured = {}
+
+    def fake_completion(model, messages, timeout=None, num_retries=None, fallbacks=None, tools=None, **kwargs):
+        captured.update(timeout=timeout, num_retries=num_retries, fallbacks=fallbacks)
+        return SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content="ok", tool_calls=None))]
+        )
+
+    monkeypatch.setattr(agent_mod.litellm, "completion", fake_completion)
+    ag = Agent(
+        name="Gemini",
+        role_prompt="Tech Lead",
+        model="gemini/test",
+        use_adk=False,
+        timeout=15,
+        max_retries=1,
+        fallbacks=["openai/gpt-4o-mini"],
+    )
+    out = ag.think_and_act("hello")
+
+    assert out == "ok"
+    assert captured["timeout"] == 15
+    assert captured["num_retries"] == 1
+    assert captured["fallbacks"] == ["openai/gpt-4o-mini"]
+
+
+def test_agent_resilience_defaults_from_env(monkeypatch):
+    monkeypatch.setenv("LLM_TIMEOUT", "15")
+    monkeypatch.setenv("LLM_MAX_RETRIES", "1")
+
+    ag = Agent(name="X", role_prompt="y", model="m", use_adk=False)
+
+    assert ag.timeout == 15.0
+    assert ag.max_retries == 1
 

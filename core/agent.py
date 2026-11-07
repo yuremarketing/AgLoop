@@ -2,6 +2,7 @@ import asyncio
 import fnmatch
 import inspect
 import json
+import logging
 import os
 import re
 import subprocess
@@ -21,6 +22,52 @@ except ImportError:
     LiteLlm = None  # type: ignore
     InMemoryRunner = None  # type: ignore
     ADK_AVAILABLE = False
+
+_logger = logging.getLogger("agloop.agent")
+
+_STRUCTURED_LOG_FIELDS = ("event", "agent", "model", "tool_calls", "commit_sha", "usage")
+
+
+class _JsonLogFormatter(logging.Formatter):
+    """Renders one JSON object per line, carrying only the AgLoop structured fields present."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            "ts": self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        for field in _STRUCTURED_LOG_FIELDS:
+            value = getattr(record, field, None)
+            if value is not None:
+                payload[field] = value
+        return json.dumps(payload, ensure_ascii=False)
+
+
+def configure_json_logging(level: int = logging.INFO) -> None:
+    """
+    Configures the `agloop` logger tree to emit one JSON object per line on stderr
+    (never stdout, so it never corrupts the MCP server's JSON-RPC stdout stream).
+    """
+    handler = logging.StreamHandler()
+    handler.setFormatter(_JsonLogFormatter())
+    root = logging.getLogger("agloop")
+    root.handlers = [handler]
+    root.setLevel(level)
+    root.propagate = False
+
+
+def _accepts_kwarg(fn: Callable, name: str) -> bool:
+    """True if `fn` declares `name` or accepts arbitrary `**kwargs`."""
+    try:
+        sig = inspect.signature(fn)
+    except (TypeError, ValueError):
+        return True
+    return name in sig.parameters or any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+    )
+
 
 SENSITIVE_PATTERNS = (
     ".env",
@@ -258,6 +305,9 @@ class Agent:
         tools: Optional[Sequence[Callable]] = None,
         use_adk: bool = True,
         max_tool_rounds: int = 4,
+        timeout: Optional[float] = None,
+        max_retries: Optional[int] = None,
+        fallbacks: Optional[Sequence[str]] = None,
     ):
         self.name = name
         self.role_prompt = role_prompt
@@ -267,6 +317,13 @@ class Agent:
         self.max_tool_rounds = max_tool_rounds
         self.use_adk = bool(use_adk and ADK_AVAILABLE)
         self.adk_agent = self._build_adk_agent() if self.use_adk else None
+
+        # Resilience defaults (Issue #11): read at construction time, not import
+        # time, so `load_dotenv()` called by the CLI before building the Agent
+        # is honored even though `core.agent` is imported earlier in main.py.
+        self.timeout = float(timeout if timeout is not None else os.getenv("LLM_TIMEOUT", "60"))
+        self.max_retries = int(max_retries if max_retries is not None else os.getenv("LLM_MAX_RETRIES", "3"))
+        self.fallbacks: Optional[List[str]] = list(fallbacks) if fallbacks else None
 
     def _system_instruction(self) -> str:
         return (
@@ -334,21 +391,40 @@ class Agent:
                 schemas.append(_TOOL_SCHEMAS[name])
         return schemas
 
+    def _resilience_kwargs(self) -> Dict[str, Any]:
+        """Timeout/retry/fallback kwargs for `litellm.completion`, added only if the
+        installed `litellm` version (or a test fake) actually accepts them."""
+        kwargs: Dict[str, Any] = {}
+        if _accepts_kwarg(litellm.completion, "timeout"):
+            kwargs["timeout"] = self.timeout
+        if _accepts_kwarg(litellm.completion, "num_retries"):
+            kwargs["num_retries"] = self.max_retries
+        if self.fallbacks and _accepts_kwarg(litellm.completion, "fallbacks"):
+            kwargs["fallbacks"] = self.fallbacks
+        return kwargs
+
+    def _log_usage(self, response: Any) -> None:
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            _logger.info(
+                "completion usage",
+                extra={"event": "llm_usage", "agent": self.name, "model": self.model, "usage": str(usage)},
+            )
+
     def _call_completion(self, messages: List[Dict[str, Any]]):
         schemas = self._litellm_tool_schemas()
-        if schemas:
-            try:
-                sig = inspect.signature(litellm.completion)
-                accepts_tools = "tools" in sig.parameters or any(
-                    p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
-                )
-            except (TypeError, ValueError):
-                accepts_tools = True
-            if accepts_tools:
-                return litellm.completion(model=self.model, messages=messages, tools=schemas)
-        return litellm.completion(model=self.model, messages=messages)
+        kwargs = self._resilience_kwargs()
+        if schemas and _accepts_kwarg(litellm.completion, "tools"):
+            kwargs["tools"] = schemas
+        response = litellm.completion(model=self.model, messages=messages, **kwargs)
+        self._log_usage(response)
+        return response
 
     def _execute_tool_call(self, tool_name: str, raw_args: Any) -> str:
+        _logger.info(
+            "tool call",
+            extra={"event": "tool_call", "agent": self.name, "model": self.model, "tool_calls": tool_name},
+        )
         fn = self._tool_map.get(tool_name)
         if fn is None:
             return f"Error: unknown or unauthorized tool '{tool_name}'."
@@ -405,20 +481,26 @@ class Agent:
                     }
                 )
 
-        final_resp = litellm.completion(model=self.model, messages=conversation)
+        final_resp = litellm.completion(model=self.model, messages=conversation, **self._resilience_kwargs())
+        self._log_usage(final_resp)
         return (final_resp.choices[0].message.content or "").strip()
 
-    def think_and_act(self, war_room_context: str) -> str:
+    def think_and_act(self, war_room_context: str) -> Optional[str]:
         """
         Sanitizes the War Room context (LGPD-02) and invokes the cognitive engine:
           1. Google ADK (`self.adk_agent` via `InMemoryRunner`) when enabled and installed;
           2. Otherwise `litellm.completion` with multi-round safe tool execution (`read_file`,
              `list_dir`, `git_diff`, `run_pytest`).
+
+        Returns `None` on inference failure (timeout, provider outage, etc.) instead of a
+        placeholder string — the caller (`core.runner`) must not treat `None` as a real
+        message to commit into `war_room.md` (Issue #11: a transient LLM error must not
+        become a permanent entry in the governance history).
         """
         sanitized_context = sanitize_prompt_pii(war_room_context)
         user_prompt = f"WAR ROOM CONTEXT:\n{sanitized_context}\n\nWhat is your next message?"
 
-        print(f"[{self.name}] Thinking...")
+        _logger.info("thinking", extra={"event": "thinking", "agent": self.name, "model": self.model})
         try:
             if self.use_adk and self.adk_agent is not None:
                 return self._run_adk(user_prompt)
@@ -429,9 +511,13 @@ class Agent:
             ]
             return self._run_litellm_with_tools(messages)
         except Exception as e:
-            print(f"[{self.name}] LLM Error: {e}")
-            return "I encountered an error trying to think of my next response."
+            _logger.error(
+                "inference failed",
+                extra={"event": "inference_error", "agent": self.name, "model": self.model},
+                exc_info=e,
+            )
+            return None
 
-    def generate_response(self, war_room_context: str) -> str:
+    def generate_response(self, war_room_context: str) -> Optional[str]:
         """Alias for `think_and_act` (ADR 0005 compatibility)."""
         return self.think_and_act(war_room_context)

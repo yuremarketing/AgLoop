@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pytest
@@ -188,3 +189,45 @@ def test_runner_pauses_on_waiting_human_and_consensus(in_repo, monkeypatch):
     assert agent.calls == 0  # still paused on consensus
 
 
+# --- Issue #11: inference failures must not pollute the War Room --------------------
+
+
+class FlakyAgent:
+    """Fails inference once (returns None, like `Agent.think_and_act` on a provider
+    outage), then succeeds — simulates a transient LLM failure."""
+
+    model = "fake"
+
+    def __init__(self, name):
+        self.name = name
+        self.calls = 0
+
+    def think_and_act(self, context):
+        self.calls += 1
+        if self.calls == 1:
+            return None
+        return f"message #{self.calls}"
+
+
+def test_inference_failure_skips_turn_without_polluting_room(in_repo, monkeypatch):
+    agent = FlakyAgent("Alice")
+
+    run_with_sleep_hook(monkeypatch, agent, lambda n: None, max_sleeps=8)
+
+    assert agent.calls == 2  # first failure, retried, second call succeeded
+    content = (in_repo / ROOM).read_text()
+    assert "message #2" in content
+    assert "message #1" not in content
+    # only the successful retry was ever committed; the failed attempt touched nothing
+    assert _git(in_repo, "log", "--format=%s").count("Alice") == 1
+
+
+def test_inference_failure_logs_turn_failed_and_eventually_turn_appended(in_repo, monkeypatch, caplog):
+    caplog.set_level(logging.INFO, logger="agloop.runner")
+    agent = FlakyAgent("Alice")
+
+    run_with_sleep_hook(monkeypatch, agent, lambda n: None, max_sleeps=8)
+
+    events = [getattr(r, "event", None) for r in caplog.records if getattr(r, "agent", None) == "Alice"]
+    assert "turn_failed" in events
+    assert "turn_appended" in events
