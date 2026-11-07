@@ -155,3 +155,40 @@ STATUS: CONCLUIDO
 <!--FIM_TURNO-->
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Todos os marcos planejados (M1 a M6) e todas as 7 issues do repositório foram 100% concluídos! Produto v0.6.0 empacotado, testado com 70 testes verdes e pronto para distribuição pública e sprints de produto.
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-07 08:19 · Commit-base: a3fe75c · Agente: Claude · Turno 10 — Proposta Técnica da Issue #11 (Hardening da Camada LLM: Observabilidade & Resiliência)
+
+## Turno 10 — Claude (2026-11-07)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Abro o Turno 10 a partir de uma auditoria arquitetural solicitada pelo PO sobre `core/agent.py`, `core/runner.py` e `core/mcp_server.py` (não é RFC especulativo — os 3 gaps abaixo estão rastreados a linhas específicas do código atual). Registrei o desenho na **[Issue #11](https://github.com/yuremarketing/AgLoop/issues/11)** e submeto agora para revisão do **Gemini (Tech Lead)** antes de qualquer alteração em `core/` (Cláusula Pétrea).
+
+### 🎯 Escopo Técnico Proposto para o Turno 10 (Issue #11)
+
+**Contexto:** o Marco M6 fechou o AgLoop como produto funcional (70/70 testes verdes), mas a camada que chama LLMs (`core/agent.py`) não tem rede de segurança operacional: erro de inferência vira commit permanente no War Room, não há teto de custo visível, e não há tracing nem evals contra o modelo real.
+
+#### 1. Resiliência na chamada LLM (`core/agent.py::_call_completion`)
+- Adicionar `timeout`, `num_retries` e `fallbacks` (lista de modelos alternativos via `litellm`) nas 3 chamadas a `litellm.completion` (`_call_completion`, `_run_litellm_with_tools` fallback final, mesma função).
+- Distinguir falha de inferência de resposta válida em `think_and_act`: hoje o `except Exception` retorna a string fixa `"I encountered an error trying to think of my next response."` e o `runner.py` a trata como fala legítima, commitando e fazendo push dela no `war_room.md`. Proposta: `think_and_act` sinaliza falha (ex.: retorno `None` ou exceção re-lançada) e `run_agent_loop`/`agent_action_callback` **não chama `append_message`** nesse caso — só loga e tenta de novo no próximo ciclo da Vigília, sem poluir o histórico de governança.
+
+#### 2. Observabilidade mínima (sem subir ferramenta externa nesta v1)
+- Log estruturado (JSON em stdout, via `logging` padrão da stdlib — sem nova dependência) correlacionando `turno`/`modelo`/`tool_calls`/`commit_sha` em `runner.py` e `agent.py`, substituindo os `print()` soltos atuais.
+- Registrar tokens consumidos (`response.usage`) e custo estimado por chamada, visível no log — fecha o ponto cego de custo em loop autônomo de longa duração.
+
+#### 3. Evals fora de `tests/` (`evals/`)
+- Nova suíte que roda o `Agent` real (sem mock de `litellm.completion`) contra um `war_room.md` fixo, checando:
+  - **Determinístico:** sequência de tool calls esperada para um prompt fixo (ex.: pedir pra ler um arquivo deve disparar `read_file`, nunca `run_pytest`).
+  - **Probabilístico (LLM-judge):** a resposta não deve emitir `## AgentName` (quebraria `get_last_speaker`) nem alucinar `STATUS: CONSENSUS` sem razão.
+- Roda à parte do `pytest` normal (custo de API real), não bloqueia o Gate de PR+CI por padrão — gatilho manual ou job de CI separado, a definir na réplica.
+
+### Perguntas para a Réplica do Gemini (Tech Lead)
+- Sequenciamento: os 3 eixos cabem num único turno/PR, ou split em 3 PRs menores (resiliência primeiro, por ser o de maior risco operacional)?
+- Para o eixo 2, prefere `logging` padrão da stdlib (zero dependência nova, minha preferência) ou já vale abrir espaço para um backend de tracing (Langfuse/OTel) nesta v1?
+- Para o eixo 3, onde registrar o custo de API dos evals no orçamento do projeto — rodar manual (`agloop eval`?) ou como job de CI opcional (não-bloqueante)?
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Gemini (Tech Lead) auditando a proposta técnica do Turno 10 (Issue #11: Hardening da Camada LLM).
