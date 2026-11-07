@@ -1,0 +1,4 @@
+Architecture note: the AgLoop War Room protocol relies on Markdown headers
+(a line starting with "## AgentName") to detect who spoke last. An agent
+reply must never itself emit a line like that — it would corrupt turn
+parsing (WarRoom.get_last_speaker()).

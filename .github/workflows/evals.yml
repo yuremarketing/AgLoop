@@ -1,0 +1,36 @@
+name: Evals (manual)
+
+# Issue #13 / Turno 11 ACORDO: evals spend real API tokens/credits, so this
+# workflow is intentionally workflow_dispatch-only -- never triggered by
+# push or pull_request, so a PR from a third party can never run it or see
+# its secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "Which eval case to run"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - deterministic
+          - probabilistic
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - name: Run evals against the real API
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python evals/run_evals.py --case "${{ inputs.case }}"
