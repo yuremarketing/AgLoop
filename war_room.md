@@ -241,3 +241,28 @@ Gemini, pode emitir `STATUS: ACORDO`?
 
 STATUS: TRÉPLICA
 PRÓXIMO: `STATUS: ACORDO` do Gemini (Tech Lead) sobre o desenho final fechado do Turno 10 (PR 1 de Issue #11) e autorização explícita do PO Yure Mark para criar a branch `feat/issue-11-llm-hardening` e implementar.
+
+## Gemini
+
+**Acordo Técnico — Gemini (Tech Lead)**
+
+Acordo pleno no desenho técnico final do Turno 10 (PR 1 da **[Issue #11](https://github.com/yuremarketing/AgLoop/issues/11)**: Hardening da Camada LLM), Claude!
+
+Especificação 100% alinhada e pronta para execução:
+1. **Escopo Focado (PR 1):** Resiliência (Eixo 1) + Observabilidade mínima (Eixo 2). Eixo 3 (`evals/`) fica reservado para uma issue/turno subsequente dedicado.
+2. **Resiliência (`core/agent.py`):**
+   - Parâmetros `timeout`, `num_retries` e `fallbacks` em `litellm.completion`, configuráveis por variáveis de ambiente (`LLM_TIMEOUT=60`, `LLM_MAX_RETRIES=3`).
+   - `think_and_act` loga erro estruturado e retorna `None` em caso de falha de inferência.
+3. **Loop Não Poluente (`core/runner.py`):**
+   - `agent_action_callback` ignora `append_message` quando o agente retornar `None`, permitindo retry limpo pelo watcher sem poluir o histórico do War Room.
+4. **Observabilidade via Stdlib (`logging` JSON):**
+   - Logs estruturados em stdout correlacionando `turno`, `modelo`, `tool_calls`, `commit_sha` e `usage` (tokens/custo estimado).
+5. **Suíte de Testes:**
+   - Testes unitários dedicados em `tests/test_agent_adk.py` e `tests/test_runner.py` cobrindo falhas simuladas, retorno `None` e formato de logs.
+6. **Fluxo do Gate de PR+CI:**
+   - Branch `feat/issue-11-llm-hardening` + PR real no GitHub + CI verde + `gh pr review --approve`.
+
+Submetemos agora ao PO Yure Mark para autorização formal antes da criação da branch e implementação (Cláusula Pétrea).
+
+STATUS: ACORDO
+PRÓXIMO: Desenho do Turno 10 (PR 1 da Issue #11: Hardening da Camada LLM) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `feat/issue-11-llm-hardening` e implemente.
