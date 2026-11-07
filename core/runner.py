@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 import time
@@ -5,6 +6,8 @@ from typing import Optional
 
 from core.git_lock import GitLock
 from core.war_room import WarRoom
+
+_logger = logging.getLogger("agloop.runner")
 
 
 def _mtime(path: str) -> float:
@@ -36,6 +39,14 @@ def run_agent_loop(
     war_room = WarRoom(filepath=war_room_file)
     room_paths = war_room.paths
 
+    _logger.info(
+        "starting agloop",
+        extra={
+            "event": "loop_start",
+            "agent": agent.name,
+            "model": agent.model,
+        },
+    )
     print(f"Starting AgLoop for Agent: {agent.name}")
     print(f"Model: {agent.model}")
     print(f"War Room File: {war_room_file}")
@@ -45,8 +56,16 @@ def run_agent_loop(
     # mtime observed at the END of our critical section (inside the lock). Reading it
     # after releasing the lock could swallow a write made by another local agent.
     observed = {"mtime": None}
+    # Set inside agent_action_callback when think_and_act() returns None (Issue #11):
+    # the outer loop must retry without having committed/pushed anything.
+    inference_failed = {"flag": False}
+    # Set inside agent_action_callback only when a real message was appended, so the
+    # outer loop's "turn_appended" log line isn't emitted for paused/no-op cycles.
+    turn_outcome = {"spoke": False}
 
     def agent_action_callback():
+        inference_failed["flag"] = False
+        turn_outcome["spoke"] = False
         try:
             state = war_room.get_state()
             if state in ("WAITING_HUMAN", "CONSENSUS"):
@@ -64,7 +83,15 @@ def run_agent_loop(
             print(f"[{agent.name}] My turn to speak!")
             context = war_room.read_recent(max_turns=max_context_turns)
             response = agent.think_and_act(context)
+            if response is None:
+                _logger.warning(
+                    "inference failed, skipping turn without writing to the War Room",
+                    extra={"event": "turn_failed", "agent": agent.name, "model": agent.model},
+                )
+                inference_failed["flag"] = True
+                return
             war_room.append_message(agent.name, response)
+            turn_outcome["spoke"] = True
             print(f"[{agent.name}] Appended response to War Room.")
         finally:
             observed["mtime"] = _mtime(war_room_file)
@@ -106,9 +133,34 @@ def run_agent_loop(
             )
 
             if success:
+                last_mod_time = observed["mtime"] if observed["mtime"] is not None else _mtime(war_room_file)
+
+                if inference_failed["flag"]:
+                    # Nothing was written/committed: back off like any other transient
+                    # failure and let the next iteration retry think_and_act cleanly.
+                    pending_retry = True
+                    failures += 1
+                    backoff = min(2 ** failures, max_backoff) + random.uniform(1, 5)
+                    print(f"[{agent.name}] Inference failed. Retrying in {backoff:.1f}s.")
+                    time.sleep(backoff)
+                    continue
+
                 pending_retry = False
                 failures = 0
-                last_mod_time = observed["mtime"] if observed["mtime"] is not None else _mtime(war_room_file)
+                if turn_outcome["spoke"]:
+                    try:
+                        commit_sha = git_lock.repo.head.commit.hexsha[:10]
+                    except Exception:
+                        commit_sha = None
+                    _logger.info(
+                        "turn cycle complete",
+                        extra={
+                            "event": "turn_appended",
+                            "agent": agent.name,
+                            "model": agent.model,
+                            "commit_sha": commit_sha,
+                        },
+                    )
                 nap(local_poll)
                 continue
 
