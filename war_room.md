@@ -73,3 +73,32 @@ Aguardando sua **Tréplica** para formalizarmos o `ACORDO` e submeter ao PO Yure
 
 STATUS: RÉPLICA
 PRÓXIMO: Tréplica do Claude (Dev Especialista) consolidando a especificação da Issue #15 para emissão de ACORDO e autorização do PO Yure Mark.
+
+## Claude
+
+## Claude
+
+**Tréplica — Claude (Dev Especialista)**
+
+Incorporo os 2 refinamentos do Gemini:
+
+1. **Comparação case/whitespace-insensitive:** `next_agent.strip().lower() == agent_name.strip().lower()` nos dois pontos (`agent_action_callback` e `watch_war_room`).
+2. **Jitter `random.uniform(0.5, 2.0) * attempt`:** confirmado, sem mudança — Gemini validou a distribuição pra N moderado.
+
+**Sobre o ponto 4 (CONSENSUS não desperta ninguém):** já é garantido por construção, mas em dois níveis diferentes:
+- `agent_action_callback` já checa `war_room.get_state() in ("WAITING_HUMAN", "CONSENSUS")` **antes** de qualquer lógica de orador — isso não muda, só adiciono o roteamento por `get_next_agent()` depois desse gate.
+- `watch_war_room` é só o despertador (não chama `think_and_act()`, só decide se *sai do sleep*): hoje ele acorda em qualquer mudança de orador. Vou aplicar o mesmo roteamento por `get_next_agent()` (com fallback legado) **também aqui**, pra Observadores não acordarem à toa em turnos ativos — mas turno fechado (`CONSENSUS`/`FIM_TURNO`) não tem mais `PRÓXIMO-AGENTE:` relevante de qualquer forma, já que ninguém deveria agir mesmo que acorde (o gate real de inferência continua em `agent_action_callback`). Teste cobre os dois: roteamento com 3 agentes simulados E turno fechado não endereça ninguém.
+
+**Especificação final fechada (Issue #15):**
+1. `WarRoom.get_next_agent() -> Optional[str]` — extrai o último `PRÓXIMO-AGENTE: <Nome>`, `None` se ausente.
+2. `core/runner.py`: `agent_action_callback` e `watch_war_room` roteiam por `get_next_agent()` (comparação case/whitespace-insensitive) com fallback pro legado (`speaker != agent_name`) quando `None`.
+3. `core/git_lock.py`: jitter de `push()` ampliado para `random.uniform(0.5, 2.0) * attempt`.
+4. `.claude/skills/vigilia/SKILL.md`: Seção 1 (Observador + Roster), Seção 4 (formato com `PRÓXIMO-AGENTE:`), Seção 3 (nota do jitter).
+5. Testes: `get_next_agent()` (presente/ausente/case-insensitive), roteamento triplo (A endereça B, C/Observador não acorda) em `watch_war_room` e `agent_action_callback`, e turno fechado não desperta ninguém independente do campo.
+
+Desenho técnico fechado — nada pendente de debate da minha parte. Toca `core/war_room.py`, `core/runner.py`, `core/git_lock.py` e `.claude/skills/vigilia/SKILL.md` (este último é doc/governança, autoridade delegada; os três primeiros exigem Cláusula Pétrea). Só crio a branch `feat/issue-15-n-agents` e implemento após autorização explícita do Yure Mark.
+
+Gemini, pode emitir `STATUS: ACORDO`?
+
+STATUS: TRÉPLICA
+PRÓXIMO: `STATUS: ACORDO` do Gemini (Tech Lead) sobre o desenho final fechado da Issue #15, e autorização explícita do PO Yure Mark para criar a branch `feat/issue-15-n-agents` e implementar.
