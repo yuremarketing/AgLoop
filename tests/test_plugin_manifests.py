@@ -74,14 +74,19 @@ def test_run_mcp_server_script_exists():
 
 
 def test_claude_plugin_icon_exists_and_is_square_png():
-    from PIL import Image
-
+    # Read the PNG signature + IHDR chunk directly (width/height as big-endian
+    # uint32 at fixed offsets) instead of depending on Pillow at test time —
+    # it's only used to *generate* the icon, not a runtime/test dependency.
     icon_path = os.path.join(REPO_ROOT, ".claude-plugin", "icon.png")
     assert os.path.isfile(icon_path)
-    with Image.open(icon_path) as img:
-        assert img.format == "PNG"
-        assert img.size[0] == img.size[1]
-        assert 512 <= img.size[0] <= 2048
+    with open(icon_path, "rb") as f:
+        header = f.read(24)
+    assert header[:8] == b"\x89PNG\r\n\x1a\n"
+    assert header[12:16] == b"IHDR"
+    width = int.from_bytes(header[16:20], "big")
+    height = int.from_bytes(header[20:24], "big")
+    assert width == height
+    assert 512 <= width <= 2048
 
 
 def test_hooks_json_points_at_script_file_not_inline_python():
