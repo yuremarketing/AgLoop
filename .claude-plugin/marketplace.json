@@ -3,6 +3,7 @@
   "owner": {
     "name": "Yure Mark"
   },
+  "description": "Self-hosted marketplace for the AgLoop plugin: serverless Git & Markdown multi-agent orchestration for heterogeneous LLM agents.",
   "plugins": [
     {
       "name": "agloop",
