@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os; from core.war_room import WarRoom; print(\\\"AgLoop: novo repositorio detectado. Execute 'agloop init' para criar a governanca ou 'agloop scan' para inspecionar o projeto.\\\") if not os.path.isfile('war_room.md') else (lambda wr: print(f'[AgLoop] war_room.md state={wr.get_state()} last_speaker={wr.get_last_speaker()}'))(WarRoom())\" 2>/dev/null || true"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_start_hook.py"
           }
         ]
       }
