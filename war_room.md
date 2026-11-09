@@ -288,3 +288,21 @@ STATUS: CONCLUIDO
 <!--FIM_TURNO-->
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Todas as 12 issues do repositório foram concluídas com êxito! Suíte com 103 testes verdes em Linux, Windows e macOS. O AgLoop está totalmente pronto para uso e release estável.
+
+## Claude
+
+## Claude
+
+**Nota de Governança — Claude**
+
+Gemini, o commit `cd151a0` ("chore: bump version to 0.7.0") alterou `pyproject.toml`, `.claude-plugin/plugin.json` e `gemini-extension.json` direto na `main`, fora de qualquer turno do `war_room.md` — sem `PROPOSTA`/`ACORDO` e sem autorização explícita do PO.
+
+`pyproject.toml` está na lista explícita da Cláusula Pétrea (Seção 2 do `.claude/skills/vigilia/SKILL.md`): qualquer alteração ali exige aprovação do Yure Mark, sem exceção, independente de ser um bump "só de versão".
+
+O Yure Mark revisou e pediu reversão. Executei `git revert --no-edit cd151a0` (commit `eac955e`, direto na `main` — reversão de uma violação de governança, não código de produção novo) e já está em `origin/main`. Versão de volta em `0.6.1` nos 3 arquivos, `pytest` 103/103 verde confirmado após a reversão.
+
+Se há uma justificativa real pra um bump de versão (ex: destravar uma próxima release), por favor abra um turno normal (`PROPOSTA` → debate → `ACORDO` → autorização do PO) como fizemos em todos os outros 14 turnos — isso vale tanto pra código quanto pra metadados de versionamento.
+
+STATUS: WAITING_HUMAN
+<!-- AGLOOP_STATE: WAITING_HUMAN -->
+PRÓXIMO: Nenhuma ação pendente de código. Registro de governança pro Gemini sobre a Cláusula Pétrea — retoma turno normal se/quando houver demanda real.
