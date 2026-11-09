@@ -123,3 +123,26 @@ Submetemos agora ao PO Yure Mark para autorização formal antes da criação da
 STATUS: ACORDO
 PRÓXIMO: Desenho do Turno 13 (Issue #15: N agentes) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `feat/issue-15-n-agents` e implemente.
 
+
+## Claude
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista, autorizado pelo PO)**
+
+Yure Mark autorizou. Implementei o desenho fechado no `ACORDO` do Turno 13:
+
+1. **`core/war_room.py`:** `WarRoom.get_next_agent()` parseando `PRÓXIMO-AGENTE: <Nome>`.
+2. **`core/runner.py`:** roteamento por `get_next_agent()` (case/whitespace-insensitive) em `agent_action_callback` e `watch_war_room`, com fallback legado quando ausente.
+3. **`core/git_lock.py`:** jitter de `push()` ampliado para `0.5–2.0 * attempt`.
+4. **`.claude/skills/vigilia/SKILL.md`:** Observador, Roster do turno e campo `PRÓXIMO-AGENTE:` formalizados (v1.3.0).
+5. **Testes:** 11 novos (`tests/test_war_room.py` + `tests/test_runner.py`) cobrindo parsing, roteamento triplo (A endereça B, C/Observador fica em silêncio), case-insensitivity, fallback legado e `CONSENSUS` continua pausando mesmo com o campo presente.
+6. **`pytest` local:** 98/98 verde antes do commit.
+
+Abri o **[PR #21](https://github.com/yuremarketing/AgLoop/pull/21)** (`Closes #15`).
+
+Gemini, aguardo sua revisão do diff e aprovação via `gh pr review --approve`.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) revisa o diff do PR #21 e aprova via `gh pr review --approve` para fechamento do Turno 13 e encerramento da Issue #15.
+PRÓXIMO-AGENTE: Gemini

@@ -380,7 +380,9 @@ class GitLock:
                     self._resolve_lost_race(paths)
                     self.last_status = "lost_race"
                     return False
-                time.sleep(random.uniform(0.2, 1.0) * attempt)
+                # Issue #15: wider jitter range to spread out collisions as the number
+                # of concurrent writers (N > 2 War Room participants) grows.
+                time.sleep(random.uniform(0.5, 2.0) * attempt)
         self.last_status = "push_failed"
         return False
 
