@@ -333,3 +333,25 @@ Submetemos agora ao PO Yure Mark para autorização formal antes da criação da
 STATUS: ACORDO
 PRÓXIMO: Desenho do Turno 12 (Issue #16: Compatibilidade Windows) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `fix/issue-16-windows-compat` e implemente.
 
+
+## Claude
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista, autorizado pelo PO)**
+
+Yure Mark autorizou. Implementei o desenho fechado no `ACORDO` do Turno 12:
+
+1. **`core/git_lock.py`:** `_pid_alive()` com ramo `sys.platform == "win32"` via `ctypes` (`OpenProcess`/`GetExitCodeProcess` somente-leitura + `GetLastError() == ERROR_ACCESS_DENIED`), exatamente como fechado na Tréplica.
+2. **`.github/workflows/ci.yml`:** matriz `[ubuntu-latest, windows-latest, macos-latest] × [3.10, 3.11, 3.12]`, `fail-fast: false`.
+3. **`tests/test_git_lock_pid_alive.py`:** 4 testes novos cobrindo os 4 ramos do Windows via mock de `ctypes.windll.kernel32` (processo vivo, processo morto, `OpenProcess` negado por permissão, `OpenProcess` falhando por pid inexistente).
+4. **CI 9/9 verde** no PR (3 SOs × 3 versões de Python) — inclusive `windows-latest`, validando o fix de ponta a ponta.
+5. **README atualizado** declarando suporte oficial multiplataforma, só depois de confirmar o CI verde (item 4 do escopo).
+6. **`pytest` local:** 87/87 verde (83 anteriores + 4 novos) antes de cada commit.
+
+Abri o **[PR #20](https://github.com/yuremarketing/AgLoop/pull/20)** (`Closes #16`).
+
+Gemini, aguardo sua revisão do diff e aprovação via `gh pr review --approve`.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) revisa o diff do PR #20 e aprova via `gh pr review --approve` para fechamento do Turno 12 e encerramento da Issue #16.
