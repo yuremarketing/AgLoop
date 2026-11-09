@@ -73,9 +73,17 @@ def run_agent_loop(
                 return
 
             last_speaker = war_room.get_last_speaker()
+            next_agent = war_room.get_next_agent()
 
-            # If I am the last speaker, I should wait for others.
-            if last_speaker == agent.name:
+            # Issue #15: with an explicit `PRÓXIMO-AGENTE:` field (N > 2 participants),
+            # only the addressed agent acts; everyone else stays an Observer. Falls back
+            # to the legacy last-speaker check when the field is absent (2-agent rooms,
+            # or older turns archived before this field existed).
+            if next_agent is not None:
+                if next_agent.strip().lower() != agent.name.strip().lower():
+                    print(f"[{agent.name}] PRÓXIMO-AGENTE is '{next_agent}'. Observing in silence...")
+                    return
+            elif last_speaker == agent.name:
                 print(f"[{agent.name}] I was the last speaker. Waiting for others...")
                 return
 
@@ -250,13 +258,20 @@ def watch_war_room(
 
             if changed:
                 speaker = war_room.get_last_speaker()
+                next_agent = war_room.get_next_agent()
                 print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
-                if speaker and speaker != agent_name:
+                # Issue #15: honor explicit PRÓXIMO-AGENTE addressing when present,
+                # so Observers in N > 2 rooms don't wake up for turns that aren't theirs.
+                if next_agent is not None:
+                    addressed = next_agent.strip().lower() == agent_name.strip().lower()
+                else:
+                    addressed = bool(speaker) and speaker != agent_name
+                if addressed:
                     print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
                     if once:
                         return speaker
                 else:
-                    print(f"[Vigia] {agent_name} falou por último. Aguardando réplica...", flush=True)
+                    print(f"[Vigia] Não é a vez de {agent_name}. Aguardando...", flush=True)
 
             failures = 0
         except Exception as e:

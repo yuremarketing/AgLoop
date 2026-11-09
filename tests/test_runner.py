@@ -222,6 +222,95 @@ def test_inference_failure_skips_turn_without_polluting_room(in_repo, monkeypatc
     assert _git(in_repo, "log", "--format=%s").count("Alice") == 1
 
 
+# --- Issue #15: explicit PRÓXIMO-AGENTE addressing for N > 2 participants -----------
+
+
+def test_next_agent_field_silences_unaddressed_observer(in_repo, monkeypatch):
+    append(in_repo, "Alice", "proposal\n\nPRÓXIMO-AGENTE: Bob")
+    _git(in_repo, "commit", "-qam", "alice addresses bob")
+
+    carol = FakeAgent("Carol")  # Observer: not addressed, must stay silent
+    run_with_sleep_hook(monkeypatch, carol, lambda n: None, max_sleeps=3)
+    assert carol.calls == 0
+    assert "## Carol" not in (in_repo / ROOM).read_text()
+
+
+def test_next_agent_field_wakes_addressed_agent(in_repo, monkeypatch):
+    append(in_repo, "Alice", "proposal\n\nPRÓXIMO-AGENTE: Bob")
+    _git(in_repo, "commit", "-qam", "alice addresses bob")
+
+    bob = FakeAgent("Bob")
+    run_with_sleep_hook(monkeypatch, bob, lambda n: None, max_sleeps=3)
+    assert bob.calls == 1
+    assert "## Bob" in (in_repo / ROOM).read_text()
+
+
+def test_next_agent_field_matches_case_and_whitespace_insensitively(in_repo, monkeypatch):
+    append(in_repo, "Alice", "proposal\n\nPRÓXIMO-AGENTE:   bob  ")
+    _git(in_repo, "commit", "-qam", "alice addresses bob (lowercase, padded)")
+
+    bob = FakeAgent("Bob")
+    run_with_sleep_hook(monkeypatch, bob, lambda n: None, max_sleeps=3)
+    assert bob.calls == 1
+
+
+def test_next_agent_field_does_not_override_consensus_pause(in_repo, monkeypatch):
+    from core.war_room import WarRoom
+
+    wr = WarRoom(ROOM)
+    wr.append_message("Bob", "All agreed\n\nPRÓXIMO-AGENTE: Alice\n\n<!-- AGLOOP_STATE: CONSENSUS -->")
+    _git(in_repo, "commit", "-qam", "consensus with next agent field")
+
+    alice = FakeAgent("Alice")
+    run_with_sleep_hook(monkeypatch, alice, lambda n: None, max_sleeps=3)
+    assert alice.calls == 0  # CONSENSUS gate wins even though explicitly addressed
+
+
+def test_absent_next_agent_field_falls_back_to_legacy_last_speaker_check(in_repo, monkeypatch):
+    """No PRÓXIMO-AGENTE anywhere in the room: 2-agent rooms and archived turns
+    keep working exactly as before Issue #15."""
+    append(in_repo, "Alice", "no structured addressing here")
+    _git(in_repo, "commit", "-qam", "alice spoke, no next-agent field")
+
+    bob = FakeAgent("Bob")
+    run_with_sleep_hook(monkeypatch, bob, lambda n: None, max_sleeps=3)
+    assert bob.calls == 1  # legacy rule: last speaker wasn't Bob, so it's Bob's turn
+
+
+def test_watch_war_room_once_respects_next_agent_field(in_repo, monkeypatch):
+    append(in_repo, "Alice", "proposal\n\nPRÓXIMO-AGENTE: Bob")
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        # Bob replies, but still doesn't address Carol: she must never wake.
+        append(in_repo, "Bob", "reply\n\nPRÓXIMO-AGENTE: Alice")
+        st = os.stat(in_repo / ROOM)
+        os.utime(in_repo / ROOM, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+        raise KeyboardInterrupt  # bound the test: watch_war_room must not have returned by now
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    with pytest.raises(KeyboardInterrupt):
+        runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Carol", local_poll=0, once=True)
+    assert counter["n"] == 1
+
+
+def test_watch_war_room_once_wakes_addressed_agent(in_repo, monkeypatch):
+    append(in_repo, "Alice", "proposal\n\nPRÓXIMO-AGENTE: Bob")
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        if counter["n"] == 1:
+            append(in_repo, "Bob", "reply\n\nPRÓXIMO-AGENTE: Alice")
+            st = os.stat(in_repo / ROOM)
+            os.utime(in_repo / ROOM, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    speaker = runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Alice", local_poll=0, once=True)
+    assert speaker == "Bob"
+
+
 def test_inference_failure_logs_turn_failed_and_eventually_turn_appended(in_repo, monkeypatch, caplog):
     caplog.set_level(logging.INFO, logger="agloop.runner")
     agent = FlakyAgent("Alice")

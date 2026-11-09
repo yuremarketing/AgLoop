@@ -1,9 +1,9 @@
 ---
 name: vigilia
-description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity): inversão de papéis por turno (Dev Especialista / Tech Lead), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), vigília híbrida one-shot e fechamento atômico."
+description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -18,6 +18,14 @@ O canal de comunicação entre agentes (IPC) é o arquivo `war_room.md` na raiz 
 Não existe papel fixo para nenhuma das LLMs. Em cada turno aberto no `war_room.md`:
 - **Dev Especialista (quem abre o turno com `<!--INICIANDO_TURNO-->`):** Analisa a demanda, publica a `PROPOSTA` detalhada, aguarda a revisão, executa a implementação/documentação acordada e submete para auditoria.
 - **Tech Lead (a LLM colega daquele turno):** Audita a proposta (máx. 3 rodadas: `PROPOSTA` → `RÉPLICA` → `TRÉPLICA`), revisa o diff real (`git diff`/`git show`), valida a suíte de testes (`pytest`) e aprova (`STATUS: ACORDO`) antes do fechamento (`<!--FIM_TURNO-->`).
+- **Observador (Issue #15 — salas com N > 2 participantes):** Qualquer agente além do par ativo do turno. Herda a Regra de Silêncio abaixo e nunca abre `PROPOSTA`/`RÉPLICA`/`TRÉPLICA` nem vota em `STATUS: ACORDO` — só se manifesta se endereçado explicitamente em `PRÓXIMO-AGENTE:` (Seção 4) ou chamado diretamente pelo PO. Se discordar fortemente do rumo de um turno em andamento, levanta a mão para ser o Tech Lead do **próximo** turno — não reabre o turno corrente.
+
+### Roster do Turno
+Turnos em salas com 3+ participantes declaram o roster logo após o cabeçalho `<!--INICIANDO_TURNO-->`, deixando explícito quem está ativo e quem está observando:
+```
+Roster do Turno N: Claude (Dev Especialista) · Gemini (Tech Lead) · GPT, Llama (Observadores)
+```
+A rotação Dev Especialista/Tech Lead entre turnos segue round-robin simples, como já acontece hoje entre Claude/Gemini.
 
 ### Regra de Silêncio do Tech Lead (Economia de Tokens)
 Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o passo a passo intermediário do turno do colega. Só se manifeste na tela por dois motivos:
@@ -45,6 +53,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - **Regra de Ouro:** Nunca utilize cron/schedule de LLM que dispare inferências periódicas em ociosidade.
 - **Mecanismo Passivo One-Shot:** O monitor em background (`scripts/vigia.py --agent <Nome> --once`) observa o `mtime` local de `war_room.md` (a cada `2s`, custo zero) e realiza `git fetch` periódico (a cada `30s`).
 - **Despertar por Evento:** O processo do monitor só encerra (`exit 0`) quando detecta que o último orador no `war_room.md` mudou para o agente colega, acordando a sessão automaticamente via conclusão da task em background.
+- **Endereçamento Explícito em Salas com N > 2 (Issue #15):** Quando o turno declara `PRÓXIMO-AGENTE: <Nome>` (Seção 4), só o agente citado desperta — os demais Observadores permanecem na Vigília sem gastar ciclo, mesmo vendo a mudança de orador. Na ausência do campo (turnos antigos ou salas de 2 agentes), o monitor cai no comportamento legado: desperta sempre que o último orador não é ele mesmo.
 
 ---
 
@@ -55,6 +64,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 Início: AAAA-MM-DD HH:MM · Commit-base: <hash> · Agente: <Claude|Gemini> · <Título curto>
 
 ## Turno N — <Agente> (AAAA-MM-DD)
+Roster do Turno N: <Dev Especialista> (Dev Especialista) · <Tech Lead> (Tech Lead) · <demais> (Observadores)
 
 ## <Agente>
 
@@ -62,10 +72,13 @@ Início: AAAA-MM-DD HH:MM · Commit-base: <hash> · Agente: <Claude|Gemini> · <
 ...
 STATUS: PROPOSTA | RÉPLICA | TRÉPLICA | ACORDO | FEITO | PR_ABERTO | CONCLUIDO
 PRÓXIMO: <próximo passo claro>
+PRÓXIMO-AGENTE: <Nome do agente endereçado>
 
 <!--FIM_TURNO-->
 Fim: AAAA-MM-DD HH:MM · Commit: <hash> · Agente: <Agente>
 ```
+
+`PRÓXIMO-AGENTE:` (Issue #15) é o campo estruturado que a Vigília Híbrida (`core/runner.py`) parseia via `WarRoom.get_next_agent()` para decidir quem desperta — complementa o `PRÓXIMO:` em texto livre, não o substitui. Em salas de 2 agentes (Claude/Gemini) é opcional: na ausência, o despertar cai no comportamento legado (último orador diferente de mim). Em salas com 3+ participantes é obrigatório em todo turno, pra Observadores não acordarem por turnos que não são deles. A linha `Roster do Turno N:` é só documental (não parseada por código).
 
 Quando o turno toca `core/`, `scripts/`, `main.py`, `pyproject.toml` ou `requirements.txt`, o `STATUS: FEITO` não comita direto na `main`: o Dev Especialista abre PR (ver Seção 6) e usa `STATUS: PR_ABERTO` referenciando o número do PR, aguardando `gh pr checks` verde + `STATUS: ACORDO` de fechamento do Tech Lead via `gh pr review --approve`.
 
@@ -74,6 +87,7 @@ Quando o turno toca `core/`, `scripts/`, `main.py`, `pyproject.toml` ou `require
 2. **Proibição Absoluta de `reset --hard`:** Em caso de perda de corrida de push (`lost_race`), a reversão é cirúrgica (`git reset --soft HEAD~1` + `git checkout HEAD -- <paths>`), preservando qualquer trabalho não commitado na working tree.
 3. **Autoria Isolada por Agente:** Cada commit registra `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL` e `GIT_COMMITTER_NAME`/`GIT_COMMITTER_EMAIL` escopados ao subprocesso do agente ativo, sem vazar variáveis para o ambiente global.
 4. **Fechamento e Arquivamento Atômico:** Ao fechar um turno (`<!--FIM_TURNO-->` / `CONSENSUS`), o arquivamento de turnos antigos em `HISTORICO.md` ocorre no mesmo commit/push atômico.
+5. **Jitter de Backoff Ampliado (Issue #15):** Em `push()`, o backoff entre tentativas após rejeição usa `random.uniform(0.5, 2.0) * attempt` — faixa ampliada em relação à v1 (`0.2–1.0`) para diluir colisões à medida que o número de agentes escritores concorrentes cresce além de 2.
 
 ---
 

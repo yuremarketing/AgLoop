@@ -194,3 +194,16 @@ class WarRoom:
             return matches[-1].strip()
         return None
 
+    def get_next_agent(self) -> Optional[str]:
+        """
+        Parses the file for an explicit `PRÓXIMO-AGENTE: <Name>` field (Issue #15),
+        used to address a specific agent in rooms with N > 2 participants.
+        Returns the last occurrence's name, or `None` if the field is absent
+        (callers should fall back to legacy last-speaker-based turn detection).
+        """
+        content = self.read_all()
+        matches = re.findall(r"^PRÓXIMO-AGENTE:\s*(.+)$", content, flags=re.MULTILINE)
+        if matches:
+            return matches[-1].strip()
+        return None
+
