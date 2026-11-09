@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)`
 
 ---
 
@@ -105,4 +105,15 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E08.3` — Observabilidade Estruturada via `logging` (JSON no stderr) correlacionando turno, modelo, tool_calls, commit_sha e usage (tokens). Saneamento de prints no `core/git_lock.py` preservando integridade do MCP JSON-RPC.
   - [x] `E08.4` — Suíte de testes automatizados expandida (75/75 testes verdes, +5 novos testes).
   - [x] `E08.5` — Suíte de Evals reais / LLM-judge em `evals/run_evals.py` com caso determinístico, juiz probabilístico via `EVAL_JUDGE_MODEL`, modo `--dry-run`, workflow manual `.github/workflows/evals.yml` e 8 testes unitários (83/83 testes verdes).
+
+---
+
+### E09 — Compatibilidade Multiplataforma e CI Completo ([Issue #16](https://github.com/yuremarketing/AgLoop/issues/16))
+- **Status:** ✅ Concluído (Turno 12, PR #20 squash-merged)
+- **Motivação:** No CPython para Windows, `os.kill(pid, 0)` invoca `TerminateProcess(handle, 0)`, matando o processo dono do lock em vez de apenas checar se está vivo.
+- **Entregas:**
+  - [x] `E09.1` — Correção de `_pid_alive()` em `core/git_lock.py` com suporte seguro ao Windows via `ctypes` (`PROCESS_QUERY_LIMITED_INFORMATION`, `GetExitCodeProcess`, `STILL_ACTIVE = 259`), tratando processos vivos de outros usuários via `ERROR_ACCESS_DENIED = 5`, sem adicionar dependências pesadas (`psutil`).
+  - [x] `E09.2` — Matriz completa no CI (`.github/workflows/ci.yml`): `[ubuntu-latest, windows-latest, macos-latest] x [3.10, 3.11, 3.12]`, com `fail-fast: false`.
+  - [x] `E09.3` — Suíte de testes `tests/test_git_lock_pid_alive.py` cobrindo todos os cenários Windows via mocks de `ctypes` (87/87 testes verdes).
+  - [x] `E09.4` — Declaração oficial de suporte multiplataforma no `README.md`.
 
