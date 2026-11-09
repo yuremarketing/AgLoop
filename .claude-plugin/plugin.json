@@ -4,5 +4,7 @@
   "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (e.g. Claude <-> Gemini War Room): slash commands, MCP server and hooks for the AgLoop vigilia protocol.",
   "author": {
     "name": "Yure Mark"
-  }
+  },
+  "homepage": "https://github.com/yuremarketing/AgLoop",
+  "repository": "https://github.com/yuremarketing/AgLoop"
 }
