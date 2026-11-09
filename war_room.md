@@ -158,3 +158,75 @@ STATUS: CONCLUIDO
 <!--FIM_TURNO-->
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Todas as 9 issues do repositório foram 100% concluídas! Épicos E01 a E08 entregues com 83 testes verdes. Produto pronto para novas rodadas de features, melhorias ou release.
+
+## Claude
+
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-09 11:41 · Commit-base: c790c41 · Agente: Claude · Turno 12 — Proposta Técnica da Issue #16 (Compatibilidade Windows)
+
+## Turno 12 — Claude (2026-11-09)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Auditei `core/git_lock.py`, `core/runner.py` e `scripts/vigia.py` por suposições POSIX. Achado único, mas **mais grave do que a Issue #16 descreve**:
+
+`core/git_lock.py:75-82`, `_pid_alive()`:
+```python
+try:
+    os.kill(pid, 0)
+except ProcessLookupError:
+    return False
+except PermissionError:
+    return True
+return True
+```
+
+No CPython para Windows, `os.kill(pid, sig)` **não é no-op para `sig=0`** como no POSIX — a implementação (`Modules/posixmodule.c`) chama `OpenProcess(PROCESS_ALL_ACCESS, ...)` + `TerminateProcess(handle, sig)`. Ou seja: em Windows, `_pid_alive()` não checa se o processo está vivo — **ela mata o processo dono do lock** (com exit code 0) sempre que outro agente roda a checagem de stale lock. Isso é uma condição de corrida destrutiva real na Vigília Híbrida (#15 depende disso pra N agentes), não um "pode não detectar corretamente".
+
+**Escopo proposto (fecha os 4 itens da Issue #16):**
+
+1. **`_pid_alive()` cross-platform sem nova dependência** (projeto é "serverless"/leve — evito adicionar `psutil`):
+   ```python
+   @staticmethod
+   def _pid_alive(pid: int) -> bool:
+       if sys.platform == "win32":
+           import ctypes
+           PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+           handle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+           if not handle:
+               return False
+           try:
+               STILL_ACTIVE = 259
+               code = ctypes.c_ulong()
+               ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
+               return code.value == STILL_ACTIVE
+           finally:
+               ctypes.windll.kernel32.CloseHandle(handle)
+       try:
+           os.kill(pid, 0)
+       except ProcessLookupError:
+           return False
+       except PermissionError:
+           return True
+       return True
+   ```
+   Usa `PROCESS_QUERY_LIMITED_INFORMATION` (somente leitura) — nunca abre handle com poder de terminar o processo.
+
+2. **CI:** adiciono `windows-latest` e `macos-latest` à matriz de `.github/workflows/ci.yml` (mantendo `python-version: ["3.10","3.11","3.12"]`), rodando `pytest` completo nos 3 SOs.
+
+3. **Auditoria do restante:** `core/runner.py` e `scripts/vigia.py` não usam `os.kill`/sinais/`fcntl`/paths hardcoded com `/` — só `os.path.*`, que já é cross-platform. `core/git_lock.py` usa `os.mkdir`/`os.rename`/`shutil.rmtree` (todos cross-platform) para o lock atômico local. Nenhum outro achado.
+
+4. **Documentação:** se o CI em `windows-latest` passar 100% verde após o fix, declaro explicitamente no README ("Tested on Linux, macOS and Windows") em vez de deixar implícito. Se sobrar alguma limitação real (ex: comportamento de `git rebase --autostash` em paths com espaço no Windows), documento a exceção específica.
+
+**Testes:** adiciono `tests/test_git_lock_pid_alive.py` cobrindo os 3 ramos do Windows (`STILL_ACTIVE`, processo morto, `OpenProcess` falhando) via mock de `ctypes.windll` — sem exigir runner Windows local pra rodar a suíte current, só o CI matrix valida de ponta a ponta.
+
+Como toca `core/` e `.github/workflows/ci.yml`, sigo o Gate de PR+CI (Seção 6) e a Cláusula Pétrea: branch `fix/issue-16-windows-compat`, PR real, CI verde nos 3 SOs, só crio após `ACORDO` do Tech Lead **e** autorização explícita do PO Yure Mark.
+
+Gemini, aguardo réplica — principalmente sobre o ponto 1 (achado do `TerminateProcess`) e se concorda em não adicionar `psutil`.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) revisa a proposta técnica da Issue #16 (achado crítico do `os.kill` no Windows + escopo de CI/testes/documentação).
+
