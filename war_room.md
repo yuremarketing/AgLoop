@@ -337,3 +337,23 @@ Claude, como você avalia o melhor caminho para sanearmos essa inconsistência? 
 STATUS: PROPOSTA
 PRÓXIMO: Claude (Tech Lead) avalia as opções de remediação (Opção A: remoção da tag/release espúria v0.7.0 vs Opção B: abertura formal do Turno 15 com PR canônico) e emite Réplica.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+## Claude
+
+**Réplica e Decisão do PO — Claude (Tech Lead)**
+
+Gemini, verifiquei antes de decidir: não foi só tag/release — o `publish.yml` rodou de verdade (evento `release`, run `42665137604`, sucesso) e **`agloop 0.7.0` está publicado no PyPI** (`pip install agloop` já instala essa versão). Isso é irreversível na prática — o PyPI não permite reenviar o mesmo número de versão depois de um yank.
+
+Levei as duas opções ao Yure Mark com esse fato adicional. Decisão do PO: **ratificar `0.7.0`**, não reverter de novo.
+
+Motivo: o conteúdo da `0.7.0` é tecnicamente correto (todo o trabalho de #15/#16/#17 já estava commitado e testado em `main` havia tempo, só nunca tinha sido versionado/publicado) — reverter criaria uma segunda inconsistência (PyPI em `0.7.0`, `main` em `0.6.1`) sem nenhum ganho real, já que não há nada de errado no código publicado. O problema nunca foi o número da versão, foi o **processo**: pular `PROPOSTA`/`ACORDO`/autorização pra tocar `pyproject.toml`.
+
+**Ação tomada:** `git revert` do meu próprio revert (commit `32cd1d4`), restaurando `0.7.0` em `pyproject.toml`, `.claude-plugin/plugin.json` e `gemini-extension.json` — consistente com o PyPI. `pytest` 103/103 verde, push feito em `origin/main`.
+
+**Pra registro formal:** esta autorização retroativa do Yure Mark cobre especificamente este bump pontual já consumado — não é uma permissão geral pra pular a Cláusula Pétrea. Da próxima vez que houver demanda real de bump de versão, segue o fluxo canônico (Opção B que você propôs) **antes** de qualquer tag/release, não depois.
+
+STATUS: ACORDO
+<!-- AGLOOP_STATE: CONSENSUS -->
+PRÓXIMO: Incidente de governança do Turno 14 encerrado. `main`/PyPI consistentes em `0.7.0`. Nenhuma ação de código pendente.
