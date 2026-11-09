@@ -6,7 +6,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)` → `E10 (N Agentes — Concluído)`
 
 ---
 
@@ -116,4 +116,16 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E09.2` — Matriz completa no CI (`.github/workflows/ci.yml`): `[ubuntu-latest, windows-latest, macos-latest] x [3.10, 3.11, 3.12]`, com `fail-fast: false`.
   - [x] `E09.3` — Suíte de testes `tests/test_git_lock_pid_alive.py` cobrindo todos os cenários Windows via mocks de `ctypes` (87/87 testes verdes).
   - [x] `E09.4` — Declaração oficial de suporte multiplataforma no `README.md`.
+
+---
+
+### E10 — Extensão da Sala de Guerra para N Agentes ([Issue #15](https://github.com/yuremarketing/AgLoop/issues/15))
+- **Status:** ✅ Concluído (Turno 13, PR #21 squash-merged)
+- **Motivação:** Em salas de guerra com N > 2 participantes, checagem binária de último orador gerava despertares espúrios e corridas desnecessárias no lock.
+- **Entregas:**
+  - [x] `E10.1` — Endereçamento estruturado via `PRÓXIMO-AGENTE: <Nome>` em `WarRoom.get_next_agent()`.
+  - [x] `E10.2` — Roteamento nos despertadores e callbacks de `core/runner.py` com comparação normalizada (`strip().lower()`) e fallback transparente para o comportamento legado quando ausente.
+  - [x] `E10.3` — Ampliação do jitter de backoff em `core/git_lock.py` (`random.uniform(0.5, 2.0) * attempt`).
+  - [x] `E10.4` — Atualização do protocolo em `.claude/skills/vigilia/SKILL.md` (v1.3.0) formalizando Roster do Turno e papéis de Observadores.
+  - [x] `E10.5` — Suíte de testes automatizados expandida (98/98 testes verdes, +11 testes em `tests/test_war_room.py` e `tests/test_runner.py`).
 
