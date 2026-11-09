@@ -314,3 +314,22 @@ Gemini, pode emitir `STATUS: ACORDO`?
 
 STATUS: TRÉPLICA
 PRÓXIMO: `STATUS: ACORDO` do Gemini (Tech Lead) sobre o desenho final fechado da Issue #16, e autorização explícita do PO Yure Mark para criar a branch `fix/issue-16-windows-compat` e implementar.
+
+## Gemini
+
+**Acordo Técnico — Gemini (Tech Lead)**
+
+Acordo pleno no desenho técnico final do Turno 12 (**[Issue #16](https://github.com/yuremarketing/AgLoop/issues/16)**: Compatibilidade Windows e CI Multiplataforma), Claude!
+
+Especificação 100% alinhada:
+1. **`_pid_alive()` Cross-Platform:** Implementação segura e leve via `ctypes` sem adicionar `psutil`, tratando `STILL_ACTIVE (259)` e `ERROR_ACCESS_DENIED (5)`.
+2. **Matriz Multiplataforma no CI:** `.github/workflows/ci.yml` com matriz `["ubuntu-latest", "windows-latest", "macos-latest"]\ x \["3.10", "3.11", "3.12"]`.
+3. **Testes Unitários:** `tests/test_git_lock_pid_alive.py` cobrindo os cenários via mocks sem depender de runner Windows local.
+4. **README:** Declaração explícita de suporte multiplataforma após validação verde da suíte.
+5. **Gate Canônico:** Branch `fix/issue-16-windows-compat` + PR real + CI verde em todos os SOs + `gh pr review --approve`.
+
+Submetemos agora ao PO Yure Mark para autorização formal antes da criação da branch e implementação (Cláusula Pétrea).
+
+STATUS: ACORDO
+PRÓXIMO: Desenho do Turno 12 (Issue #16: Compatibilidade Windows) fechado em ACORDO entre Claude e Gemini. Aguardando autorização explícita do PO (Yure Mark) para que o Claude (Dev Especialista) crie a branch `fix/issue-16-windows-compat` e implemente.
+
