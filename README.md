@@ -10,6 +10,10 @@
 
 *Originated from the Sysoft project.*
 
+## Platform Support
+
+Tested in CI on Linux, macOS and Windows (Python 3.10, 3.11, 3.12).
+
 ## Installation
 
 ```bash
