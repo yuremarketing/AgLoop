@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agloop"
-version = "0.6.1"
+version = "0.7.0"
 description = "Serverless Git & Markdown Multi-Agent Orchestration Framework for heterogeneous LLM agents (e.g. Claude <-> Gemini War Room)"
 readme = "README.md"
 requires-python = ">=3.10"
