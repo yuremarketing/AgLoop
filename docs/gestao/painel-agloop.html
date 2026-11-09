@@ -175,7 +175,7 @@
       <h1>AgLoop</h1>
       <div class="masthead-meta">
         <span><b>6</b>/6 marcos concluídos</span>
-        <span><b>13</b>/13 issues fechadas</span>
+        <span><b>15</b>/15 issues fechadas</span>
         <span><b>10</b>/10 riscos mitigados</span>
         <span><b>109</b>/109 testes verdes</span>
       </div>
@@ -200,7 +200,7 @@
       <div class="live-next">
         <span class="live-label">Próxima pauta</span>
         <span class="who">Em aberto</span>
-        <span class="what">Todas as 13 issues concluídas! Backlog 100% entregue com 109 testes verdes</span>
+        <span class="what">Todas as 15 issues concluídas! Backlog 100% entregue com 109 testes verdes. agloop v0.7.0 publicado no PyPI</span>
       </div>
     </div>
 
@@ -279,7 +279,7 @@
 
     <p class="doc-group-label">Protocolo &amp; Resumos de Sessão</p>
     <div class="doc-grid">
-      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/.claude/skills/vigilia/SKILL.md">SKILL.md <span class="status-chip chip-good" style="margin-left:6px">v1.2.0</span><span class="path">.claude/skills/vigilia/</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/.claude/skills/vigilia/SKILL.md">SKILL.md <span class="status-chip chip-good" style="margin-left:6px">v1.3.0</span><span class="path">.claude/skills/vigilia/</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/CLAUDE.md">CLAUDE.md<span class="path">raiz</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/GEMINI.md">GEMINI.md<span class="path">raiz</span></a>
     </div>
@@ -294,13 +294,17 @@
         <li>E05 — Gate de PR+CI <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
         <li>E06 — Painel de Gestão Portável <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
         <li>E07 — Productização do AgLoop <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E08 — Hardening da Camada LLM (Resiliência, Observabilidade &amp; Evals) <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E09 — Compatibilidade Multiplataforma e CI Completo <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E10 — Extensão da Sala de Guerra para N Agentes <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
+        <li>E11 — Distribuição Nativa em Marketplaces <span class="status-chip chip-good" style="margin-left:6px">Concluído</span></li>
       </ul>
     </div>
   </div>
 
   <div class="tabpanel" id="panel-hist" role="tabpanel" aria-labelledby="tab-hist">
     <div class="panel">
-      <div class="section-head"><h2>Histórico por issue</h2><span class="count">6 issues</span></div>
+      <div class="section-head"><h2>Histórico por issue</h2><span class="count">15 issues</span></div>
       <div class="issue-row"><span><span class="id">#1</span>Hardening do loop: lock híbrido + vigília híbrida</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#2</span>RFC — Empacotar o AgLoop como plugin oficial</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#3</span>Governança &amp; DRY — SSOT e fechamento atômico</span><span class="status-chip chip-good">Closed</span></div>
@@ -313,6 +317,9 @@
       <div class="issue-row"><span><span class="id">#15</span>Extensão da Sala de Guerra para N agentes (PRÓXIMO-AGENTE:)</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#16</span>Compatibilidade Windows (fix os.kill) e CI Multiplataforma</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#17</span>Distribuição nativa nos marketplaces (Claude Code + Gemini CLI)</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#18</span>Publicar agloop de fato no PyPI via Trusted Publishing</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#23</span>Submeter AgLoop ao Directory oficial da Anthropic</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#25</span>Achados do validador do Claude Directory (hook/MCP/ícone)</span><span class="status-chip chip-good">Closed</span></div>
     </div>
 
     <div class="panel">
@@ -333,7 +340,9 @@
         <div class="log-row"><span class="date">2026-11-09</span><span>Turno 12 — Compatibilidade Windows: fix de _pid_alive() via ctypes sem psutil, CI multiplataforma 3 SOs x 3 Pythons (PR #20, 87 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-09</span><span>Turno 13 — N Agentes: endereçamento estruturado PRÓXIMO-AGENTE:, observadores e SKILL.md v1.3.0 (PR #21, 98 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-09</span><span>Turno 14 — Marketplaces Nativos: .claude-plugin/marketplace.json, gemini-extension.json, README e 103 testes verdes (PR #22).</span></div>
+        <div class="log-row"><span class="date">2026-11-09</span><span>Issue #18 — Publicação real no PyPI via Trusted Publishing (OIDC): publish.yml, Trusted Publisher cadastrado, releases v0.6.0/v0.6.1/v0.7.0. Executado diretamente a pedido do PO, fora de turno de debate.</span></div>
         <div class="log-row"><span class="date">2026-11-09</span><span>Turno 15 — Higiene Claude Directory: hook isolado em script, runner MCP dedicado, ícone 512x512, Directory pausado e 109 testes verdes (PR #26).</span></div>
+        <div class="log-row"><span class="date">2026-11-09</span><span>Issue #23 — Correção dos achados de claude plugin validate --strict (description/homepage/repository) a pedido direto do PO (PR #24).</span></div>
       </div>
     </div>
   </div>
