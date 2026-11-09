@@ -40,3 +40,20 @@ Other built-in commands:
 agloop scan             # read-only scan of the repo structure
 agloop audit --privacy  # LGPD-04 privacy diagnostic report
 ```
+
+## Native Extensions & Plugins
+
+Besides `pip install agloop`, the repo is natively installable inside the AI tools it orchestrates:
+
+**Claude Code** (self-hosted plugin marketplace):
+```bash
+/plugin marketplace add yuremarketing/AgLoop
+/plugin install agloop@agloop
+```
+
+**Gemini CLI** (direct extension install):
+```bash
+gemini extensions install https://github.com/yuremarketing/AgLoop
+```
+
+Both expose the same MCP server (`core/mcp_server.py`) and the War Room slash commands/hooks already shipped in `.claude-plugin/` and `gemini-extension.json`.

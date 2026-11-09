@@ -1,0 +1,13 @@
+{
+  "name": "agloop",
+  "owner": {
+    "name": "Yure Mark"
+  },
+  "plugins": [
+    {
+      "name": "agloop",
+      "source": "./",
+      "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (Claude <-> Gemini War Room)"
+    }
+  ]
+}
