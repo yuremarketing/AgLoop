@@ -132,7 +132,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E11 — Distribuição Nativa em Marketplaces ([Issue #17](https://github.com/yuremarketing/AgLoop/issues/17))
-- **Status:** ✅ Concluído (Turno 14)
+- **Status:** ✅ Concluído (Turno 14, PR #22)
 - **Motivação:** O AgLoop já é heterogêneo por design (Claude ⇄ Gemini/Antigravity, ADR 0005) — essa heterogeneidade deveria se refletir também em onde o AgLoop é descoberto/instalado, não só em `pip install`.
 - **Entregas:**
   - [x] `E11.1` — `.claude-plugin/marketplace.json`: catálogo self-hosted do Claude Code (`name`/`owner`/`plugins[]`), instalável via `/plugin marketplace add yuremarketing/AgLoop` + `/plugin install agloop@agloop`. Bump de `.claude-plugin/plugin.json` para `0.6.1`.
