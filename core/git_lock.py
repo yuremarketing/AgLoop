@@ -4,6 +4,7 @@ import os
 import random
 import shutil
 import socket
+import sys
 import time
 import warnings
 from typing import Iterable, Optional
@@ -73,6 +74,27 @@ class GitLock:
 
     @staticmethod
     def _pid_alive(pid: int) -> bool:
+        if sys.platform == "win32":
+            # os.kill(pid, 0) is NOT a no-op liveness check on Windows: CPython's
+            # implementation opens the process with full access and calls
+            # TerminateProcess(handle, 0), i.e. it would actually kill the lock
+            # owner instead of just probing it. Use a read-only WinAPI query instead.
+            import ctypes
+
+            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+            ERROR_ACCESS_DENIED = 5
+            STILL_ACTIVE = 259
+
+            handle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+            if not handle:
+                return ctypes.GetLastError() == ERROR_ACCESS_DENIED  # exists, owned by another user
+            try:
+                code = ctypes.c_ulong()
+                ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
+                return code.value == STILL_ACTIVE
+            finally:
+                ctypes.windll.kernel32.CloseHandle(handle)
+
         try:
             os.kill(pid, 0)
         except ProcessLookupError:
