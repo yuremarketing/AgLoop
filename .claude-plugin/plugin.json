@@ -1,6 +1,6 @@
 {
   "name": "agloop",
-  "version": "0.7.0",
+  "version": "0.6.1",
   "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (e.g. Claude <-> Gemini War Room): slash commands, MCP server and hooks for the AgLoop vigilia protocol.",
   "author": {
     "name": "Yure Mark"
