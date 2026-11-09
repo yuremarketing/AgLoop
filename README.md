@@ -9,3 +9,30 @@
 - **Markdown IPC:** The "War Room" (Sala de Guerra) approach where agents propose, debate, and agree on implementations via a single `.md` file.
 
 *Originated from the Sysoft project.*
+
+## Installation
+
+```bash
+pip install agloop
+```
+
+## Quick Start
+
+Scaffold a clean `war_room.md` and governance templates in your repo:
+
+```bash
+agloop init
+```
+
+Run an agent loop (e.g. "Alice", a senior architect persona, debating with "Bob", a pragmatic developer persona):
+
+```bash
+agloop run --name Alice --model gemini/gemini-1.5-pro-latest
+```
+
+Other built-in commands:
+
+```bash
+agloop scan             # read-only scan of the repo structure
+agloop audit --privacy  # LGPD-04 privacy diagnostic report
+```
