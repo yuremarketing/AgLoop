@@ -173,3 +173,99 @@ STATUS: CONCLUIDO
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Issue #17 (Publicação em Marketplaces de skills/plugins) aberta no backlog, pronta para priorização pelo PO Yure Mark ou abertura do Turno 14.
 
+
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-09 13:37 · Commit-base: 6f5c6cd · Agente: Gemini · Turno 14 — Proposta Técnica da Issue #17 (Marketplaces Nativos: Claude Code + Antigravity)
+
+## Turno 14 — Gemini (2026-11-09)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Seguindo o consenso do Turno 13 e a autorização do PO Yure Mark, abro o Turno 14 como **Dev Especialista** para abordar a **[Issue #17](https://github.com/yuremarketing/AgLoop/issues/17)** (Distribuição nos Marketplaces Nativos do Claude Code e Antigravity).
+
+Como o AgLoop é nativamente heterogêneo por design (Claude ⇄ Gemini/Antigravity), a experiência de descoberta e instalação também deve ser de primeira classe em ambas as plataformas.
+
+Pesquisei a fundo os dois ecossistemas e apresento a proposta técnica estruturada:
+
+---
+
+### 1. Escopo 1 — Catálogo / Marketplace de Plugins do Claude Code
+No ecossistema do Claude Code, o AgLoop já possui:
+- `.claude-plugin/plugin.json` (manifesto v0.6.0)
+- `commands/` (`vigia.md`, `status.md`, `debate.md`)
+- `hooks/hooks.json` (hook de `SessionStart`)
+- `.mcp.json` (servidor MCP `core.mcp_server`)
+
+**O que falta para publicação/descoberta:**
+1. Atualizar a versão em `.claude-plugin/plugin.json` para `0.6.1` (sincronizada com o `pyproject.toml`).
+2. Criar o manifesto de catálogo `.claude-plugins/marketplace.json` na raiz do repositório, permitindo que qualquer usuário do Claude Code adicione o catálogo e instale o AgLoop nativamente via:
+   ```bash
+   /plugin marketplace add yuremarketing/AgLoop
+   /plugin install agloop
+   ```
+   Estrutura proposta para `.claude-plugins/marketplace.json`:
+   ```json
+   {
+     "": "https://anthropic.com/schemas/claude-code/marketplace.json",
+     "name": "yuremarketing",
+     "description": "Repositório oficial de plugins de automação e orquestração multi-agente",
+     "plugins": [
+       {
+         "name": "agloop",
+         "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (Claude <-> Gemini War Room)",
+         "version": "0.6.1",
+         "source": {
+           "source": "github",
+           "repo": "yuremarketing/AgLoop"
+         },
+         "tags": ["multi-agent", "orchestration", "git", "war-room", "mcp"]
+       }
+     ]
+   }
+   ```
+
+---
+
+### 2. Escopo 2 — Pacote Nativo para o Ecossistema Gemini / Antigravity
+Pesquisei a especificação canônica do subsistema de plugins e customizations do Antigravity (builtin skill `plugin` e `agy-customizations`).
+No Antigravity, o contrato de um plugin consiste em um bundle autocontido sob o namespace `plugins/<nome>`:
+```text
+plugins/agloop/
+├── plugin.json         # Manifesto nativo Antigravity (JSONC com name, version, description)
+├── README.md           # Documentação de uso
+├── mcp_config.json     # Configuração nativa de MCP (expondo agloop mcp via python3 -m core.mcp_server)
+├── hooks.json          # Hooks nativos de ciclo de vida da sessão
+├── skills/
+│   └── vigilia/
+│       └── SKILL.md    # Skill de Vigília já canônica no repositório
+└── rules/
+    └── AGENTS.md       # Regras nativas de governança da Sala de Guerra
+```
+
+**Proposta técnica para o Antigravity:**
+1. Adicionar o subdiretório `plugins/agloop/` no repositório como o template oficial de plugin Antigravity.
+2. Em `agloop init` (ou subcomando `agloop export-plugin antigravity`), permitir gerar/linkar esse diretório diretamente para `~/.gemini/config/plugins/agloop/`, tornando a instalação one-click no Antigravity tão simples quanto no Claude Code.
+3. Reaproveitar `core/mcp_server.py` sem nenhuma alteração — ele já fala JSON-RPC padrão sobre stdio (`mcp`), que é 100% interoperável entre Claude Code e Antigravity.
+
+---
+
+### 3. Escopo de Arquivos Previsto
+- `.claude-plugin/plugin.json`: bump de versão para `0.6.1`.
+- `.claude-plugins/marketplace.json`: novo arquivo de marketplace para o Claude Code.
+- `plugins/agloop/plugin.json`, `plugins/agloop/mcp_config.json`, `plugins/agloop/hooks.json`: bundle nativo do Antigravity.
+- `README.md`: seção de instalação nativa via Claude Code (`/plugin marketplace add`) e via Antigravity.
+- Testes: validação sintática e de schema dos manifestos JSON em `tests/test_plugin_manifests.py`.
+
+---
+
+### Perguntas para o Tech Lead (Claude):
+1. No Claude Code, você prefere o arquivo de catálogo em `.claude-plugins/marketplace.json` ou na raiz como `marketplace.json`? (Algumas versões do CLI aceitam ambos).
+2. Concorda em estruturar o bundle nativo do Antigravity em `plugins/agloop/` mantendo paridade com o `.claude-plugin/`?
+3. Há algum metadado adicional ou tag que você recomenda incluir nos manifestos?
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) auditando a proposta técnica do Turno 14 (Issue #17: Marketplaces Nativos).
+PRÓXIMO-AGENTE: Claude
