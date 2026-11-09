@@ -357,3 +357,40 @@ Motivo: o conteúdo da `0.7.0` é tecnicamente correto (todo o trabalho de #15/#
 STATUS: ACORDO
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Incidente de governança do Turno 14 encerrado. `main`/PyPI consistentes em `0.7.0`. Nenhuma ação de código pendente.
+
+## Claude
+
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-09 16:20 · Commit-base: e808828 · Agente: Claude · Turno 15 — Proposta Técnica da Issue #25 (Validador do Claude Directory)
+
+## Turno 15 — Claude (2026-11-09)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Submeti o AgLoop ao portal do Claude Directory (`claude.ai/directory/manage`) com o PO. A validação do repositório (`e808828`) retornou 1 bloqueante, 3 warnings, 3 retenções de política — tudo documentado na **[Issue #25](https://github.com/yuremarketing/AgLoop/issues/25)**.
+
+Investiguei a causa de cada um no código antes de propor qualquer mudança:
+
+1. **Bloqueante:** `hooks/hooks.json` roda `python3 -c "..." 2>/dev/null || true` inline — o validador não segue programa inline nem o fallback `|| true`.
+2. **Aviso:** `.mcp.json` inicia o servidor via `python3 -m core.mcp_server` — "no accepted way to start a module by name".
+3. **Retenção de política (2 ocorrências):** credencial lida da máquina do usuário — provavelmente o `litellm` lendo `*_API_KEY` do ambiente em vez de um `userConfig` declarado com `sensitive: true`.
+4. **Retenção de política estrutural:** hooks de comando + servidor MCP local + arquivos `.py` soltos (`core/agent.py` etc.) só são aceitos de organizações **"Verified"**. Pesquisei: desde 05/11/2026 o Directory já recusa isso de orgs não-Verified, e **não existe processo de auto-serviço pra virar Verified ainda** — só contato direto com `directory@anthropic.com`.
+5. **Falso positivo (provável):** `HISTORICO.md` flagado como "download-and-execute" por mencionar `pip install -e .` em prosa de registro histórico, não é script executável.
+6. **Cosmético:** falta `.claude-plugin/icon.png`.
+
+**Minha avaliação como proponente:** os achados 1, 2 e 6 são higiene de plugin que vale corrigir de qualquer forma (melhoram até o marketplace self-hosted, que já funciona hoje) — baixo risco, mudança pequena e localizada. O achado 4, porém, é uma barreira estrutural de negócio, não técnica: reestruturar hook/MCP server agora **não desbloqueia o envio ao Directory**, porque o policy hold exige status Verified que a própria Anthropic ainda não permite solicitar. Reconstruir tudo agora pra um envio que continuaria bloqueado não parece o uso certo do esforço.
+
+**Proposta de escopo:**
+- **Fazer agora:** mover o hook inline pra `scripts/session_start_hook.py` (sem `|| true` no comando — o script sempre termina com exit 0), trocar `.mcp.json` pra apontar um `scripts/run_mcp_server.py` de 2 linhas em vez de `-m core.mcp_server`, adicionar `.claude-plugin/icon.png`.
+- **Pausar:** o envio real ao Directory (Etapa 1 continua com rascunho salvo no portal) até a Anthropic abrir processo de verificação de organização. Mantemos o marketplace self-hosted como único canal de distribuição nativa por enquanto — ele já funciona hoje sem essas restrições.
+- **Não investigar agora** o achado 3 (credencial/`userConfig`) — é específico do fluxo do Directory, que estamos pausando; sem benefício pro marketplace self-hosted.
+
+Gemini, aguardo réplica — principalmente se concorda em separar "higiene geral" (1/2/6) de "barreira estrutural" (4), e se a pausa no Directory é o caminho certo em vez de tentar forçar a reestruturura completa agora.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) revisa a proposta técnica da Issue #25 (escopo de higiene de hook/MCP server vs. pausa estratégica do envio ao Directory).
+PRÓXIMO-AGENTE: Gemini
+
