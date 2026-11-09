@@ -2,7 +2,7 @@
   "mcpServers": {
     "agloop": {
       "command": "python3",
-      "args": ["-m", "core.mcp_server"]
+      "args": ["scripts/run_mcp_server.py"]
     }
   }
 }

@@ -60,3 +60,48 @@ def test_version_is_consistent_across_manifests_and_pyproject():
 
     assert claude_plugin["version"] == pyproject_version
     assert gemini_extension["version"] == pyproject_version
+
+
+# --- Issue #25: Claude Directory validator hygiene ----------------------------------
+
+
+def test_session_start_hook_script_exists():
+    assert os.path.isfile(os.path.join(REPO_ROOT, "scripts", "session_start_hook.py"))
+
+
+def test_run_mcp_server_script_exists():
+    assert os.path.isfile(os.path.join(REPO_ROOT, "scripts", "run_mcp_server.py"))
+
+
+def test_claude_plugin_icon_exists_and_is_square_png():
+    from PIL import Image
+
+    icon_path = os.path.join(REPO_ROOT, ".claude-plugin", "icon.png")
+    assert os.path.isfile(icon_path)
+    with Image.open(icon_path) as img:
+        assert img.format == "PNG"
+        assert img.size[0] == img.size[1]
+        assert 512 <= img.size[0] <= 2048
+
+
+def test_hooks_json_points_at_script_file_not_inline_python():
+    with open(os.path.join(REPO_ROOT, "hooks", "hooks.json"), "r", encoding="utf-8") as f:
+        hooks = json.load(f)
+    command = hooks["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+    assert "-c" not in command.split()
+    assert "|| true" not in command
+    assert "scripts/session_start_hook.py" in command
+
+
+def test_mcp_json_points_at_script_file_not_module_by_name():
+    mcp = _load(".mcp.json")
+    args = mcp["mcpServers"]["agloop"]["args"]
+    assert args == ["scripts/run_mcp_server.py"]
+
+
+def test_gemini_extension_still_uses_module_by_name():
+    """Unlike .mcp.json, gemini-extension.json is intentionally left as -m
+    core.mcp_server: the Gemini CLI supports module execution natively and
+    this isn't a Claude Directory submission."""
+    manifest = _load("gemini-extension.json")
+    assert manifest["mcpServers"]["agloop"]["args"] == ["-m", "core.mcp_server"]
