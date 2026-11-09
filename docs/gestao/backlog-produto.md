@@ -129,3 +129,15 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E10.4` — Atualização do protocolo em `.claude/skills/vigilia/SKILL.md` (v1.3.0) formalizando Roster do Turno e papéis de Observadores.
   - [x] `E10.5` — Suíte de testes automatizados expandida (98/98 testes verdes, +11 testes em `tests/test_war_room.py` e `tests/test_runner.py`).
 
+---
+
+### E11 — Distribuição Nativa em Marketplaces ([Issue #17](https://github.com/yuremarketing/AgLoop/issues/17))
+- **Status:** ✅ Concluído (Turno 14, PR #22)
+- **Motivação:** O AgLoop já é heterogêneo por design (Claude ⇄ Gemini/Antigravity, ADR 0005) — essa heterogeneidade deveria se refletir também em onde o AgLoop é descoberto/instalado, não só em `pip install`.
+- **Entregas:**
+  - [x] `E11.1` — `.claude-plugin/marketplace.json`: catálogo self-hosted do Claude Code (`name`/`owner`/`plugins[]`), instalável via `/plugin marketplace add yuremarketing/AgLoop` + `/plugin install agloop@agloop`. Bump de `.claude-plugin/plugin.json` para `0.6.1`.
+  - [x] `E11.2` — `gemini-extension.json` na raiz do repositório, reaproveitando `core/mcp_server.py` sem alteração de código (`gemini extensions install <repo-url>`).
+  - [x] `E11.3` — Achado de pesquisa documentado: o marketplace oficial do **Antigravity** (`antigravity-plugins-official`) é **curado/centralizado** — a submissão exige formulário do Google e revisão, diferente do modelo self-hosted do Claude Code. Fica registrado como ação manual futura do PO, sem dependência de código novo em `main.py`. O **Gemini CLI**, por sua vez, não possui conceito de marketplace/catálogo documentado — só instalação direta via URL/path.
+  - [x] `E11.4` — Seção "Native Extensions & Plugins" no `README.md` com os comandos reais de instalação em cada ecossistema.
+  - [x] `E11.5` — `tests/test_plugin_manifests.py`: validação sintática e de campos obrigatórios dos 3 manifestos, com checagem cruzada de consistência de versão (`0.6.1`).
+

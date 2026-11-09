@@ -1,0 +1,11 @@
+{
+  "name": "agloop",
+  "version": "0.6.1",
+  "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents",
+  "mcpServers": {
+    "agloop": {
+      "command": "python3",
+      "args": ["-m", "core.mcp_server"]
+    }
+  }
+}
