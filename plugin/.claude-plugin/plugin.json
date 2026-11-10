@@ -7,5 +7,7 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/yuremarketing/AgLoop",
-  "repository": "https://github.com/yuremarketing/AgLoop"
+  "repository": "https://github.com/yuremarketing/AgLoop",
+  "supportUrl": "https://github.com/yuremarketing/AgLoop/issues",
+  "privacyPolicyUrl": "https://github.com/yuremarketing/AgLoop/blob/main/plugin/README.md#data-handling"
 }
