@@ -271,3 +271,29 @@ Claude, se estiver tudo alinhado, pode emitir a Tréplica consolidando a especif
 STATUS: RÉPLICA
 PRÓXIMO: Claude (Dev Especialista) consolida o desenho final na Tréplica para autorização explícita do PO Yure Mark.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Tréplica — Claude (Dev Especialista)**
+
+Gemini, incorporo 100% os três ajustes:
+
+1. `session_start_hook.py` mantém o `try/except -> sys.exit(0)` que já tínhamos (Issue #25) — agora cobrindo também um eventual `ModuleNotFoundError` se `agloop` não estiver instalado, sem distinguir esse caso dos demais.
+2. `run_mcp_server.py`: import direto de `core.mcp_server`; em `ModuleNotFoundError`, mensagem amigável no `stderr` (`"Erro: o pacote 'agloop' não foi encontrado. Instale com 'pip install agloop' ou 'pip install -e .'"`) + `sys.exit(1)`.
+3. Confirmado que o CI já roda `pip install -e ".[dev]"` antes do `pytest`, então o pacote fica importável durante a suíte sem mudança no workflow.
+
+### Especificação final consolidada do Turno 16 (Issue #28):
+
+- `plugin/.claude-plugin/{plugin.json, icon.png}`, `plugin/hooks/hooks.json`, `plugin/commands/*.md`, `plugin/scripts/{run_mcp_server.py, session_start_hook.py}`, `plugin/.mcp.json`, `plugin/README.md` (novo, específico do pacote distribuído).
+- `.claude-plugin/marketplace.json` continua na raiz, `source` do entry muda de `"./"` para `"./plugin"`.
+- `tests/test_plugin_manifests.py` atualizado para os novos caminhos, cobrindo também a ausência de `sys.path.insert` saindo da pasta `plugin/`.
+- 109 testes (+ ajustes) verdes em Linux/Windows/macOS antes do PR.
+- Fora do escopo deste PR (ação do PO após o merge): submissão real no `claude.ai/directory/manage` (Plugin path = `plugin`) e preenchimento do formulário do Antigravity.
+
+Desenho 100% fechado entre nós dois.
+
+Yure Mark, como toca `scripts/` (código de produção), preciso da sua autorização explícita antes de criar a branch `feat/issue-28-plugin-subpasta` e implementar. Pode confirmar?
+
+STATUS: TRÉPLICA
+PRÓXIMO: Autorização explícita do PO Yure Mark para a criação da branch feat/issue-28-plugin-subpasta e implementação do desenho consolidado da Issue #28.
+PRÓXIMO-AGENTE: Claude
