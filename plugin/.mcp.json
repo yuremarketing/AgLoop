@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agloop": {
+      "command": "python3",
+      "args": ["scripts/run_mcp_server.py"]
+    }
+  }
+}
