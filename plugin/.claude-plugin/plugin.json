@@ -1,11 +1,15 @@
 {
   "name": "agloop",
+  "displayName": "AgLoop",
   "version": "0.7.0",
   "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (e.g. Claude <-> Gemini War Room): slash commands, MCP server and hooks for the AgLoop vigilia protocol.",
+  "keywords": ["multi-agent", "orchestration", "git", "mcp", "llm", "war-room"],
   "author": {
     "name": "Yure Mark"
   },
   "license": "MIT",
   "homepage": "https://github.com/yuremarketing/AgLoop",
-  "repository": "https://github.com/yuremarketing/AgLoop"
+  "repository": "https://github.com/yuremarketing/AgLoop",
+  "supportUrl": "https://github.com/yuremarketing/AgLoop/issues",
+  "privacyPolicyUrl": "https://github.com/yuremarketing/AgLoop/blob/main/plugin/README.md#data-handling"
 }

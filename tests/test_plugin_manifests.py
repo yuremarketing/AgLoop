@@ -25,6 +25,24 @@ def test_claude_plugin_json_has_required_fields():
     assert manifest["license"]
 
 
+def test_claude_plugin_json_has_directory_links():
+    # Claude Directory submission (Issue #28 follow-up): supportUrl and
+    # privacyPolicyUrl are optional but were flagged as missing in the
+    # listing review ("Links: 3 of 6 filled in"). termsOfServiceUrl is left
+    # unset on purpose: there's no real ToS behind an MIT-licensed project.
+    manifest = _load(".claude-plugin/plugin.json", base=PLUGIN_ROOT)
+    assert manifest["supportUrl"] == "https://github.com/yuremarketing/AgLoop/issues"
+    assert manifest["privacyPolicyUrl"].startswith("https://github.com/yuremarketing/AgLoop/blob/main/plugin/README.md")
+
+
+def test_claude_plugin_json_has_display_name_and_keywords():
+    # Listing review also flagged displayName as auto-filled from the GitHub
+    # repo name ("Agloop", losing AgLoop's capitalization) and keywords unset.
+    manifest = _load(".claude-plugin/plugin.json", base=PLUGIN_ROOT)
+    assert manifest["displayName"] == "AgLoop"
+    assert isinstance(manifest["keywords"], list) and len(manifest["keywords"]) >= 1
+
+
 def test_claude_marketplace_json_has_required_fields_and_matches_plugin():
     marketplace = _load(".claude-plugin/marketplace.json")
     assert marketplace["name"]

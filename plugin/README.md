@@ -13,6 +13,7 @@
 - Runs entirely locally. It reads and writes only `war_room.md` and `HISTORICO.md` inside the active project's working directory.
 - No data is sent to any server other than the LLM API you're already using in your session.
 - PII (emails, CPFs) is sanitized before being included in any LLM prompt by the agent-side code (`core.agent.sanitize_prompt_pii`), not by this plugin itself.
+- These two files may contain personal data in plain text: names of people participating in the War Room debate, and Git author/committer identity on each commit. This data stays inside the installing user's own repository — read and written locally by this plugin, never transmitted to or retained by any AgLoop-operated service (there is none).
 
 ## Requirements
 
