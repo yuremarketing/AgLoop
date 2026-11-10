@@ -64,6 +64,7 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 - [`estudo-campo-e-governanca-agloop.md`](../estudo-campo-e-governanca-agloop.md) — Estudo de Campo, Benchmarking Competitivo (Iguais, Parecidos e Melhores) e Matriz Comparativa Estrutural.
 - [`auditoria-governanca-agloop.md`](../auditoria-governanca-agloop.md) — Diagnóstico Estrutural de Maturidade de Governança (Nível 3.8 / 5.0), análise de *blind spots* e plano de hardening para M3/M4.
 - [`lgpd-conformidade-agloop.md`](../lgpd-conformidade-agloop.md) — Relatório de Mapeamento de Conformidade LGPD (Lei nº 13.709/2018), governança de dados, privacidade (`R06`, `R09`, `R10`) e requisitos `LGPD-01` a `LGPD-04`.
+- [`gdpr-conformidade-agloop.md`](../gdpr-conformidade-agloop.md) — Relatório de Mapeamento de Conformidade GDPR (Regulamento (UE) 2016/679), bases legais (Art. 6º), transferência internacional (Art. 44–49), direitos em Git e Privacy by Design.
 - [`painel-agloop.html`](../painel-agloop.html) — Painel visual de gestão autocontido e portável entre agentes (Marcos, Issues, Riscos, KPIs e status da Sala de Guerra — Issue #6 / Épico `E06`).
 
 ### 3.2 Decisões de Arquitetura (`docs/arquitetura/decisoes/`)
@@ -90,3 +91,4 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 | 2026-11-01 | [Issue #4](https://github.com/yuremarketing/AgLoop/issues/4) | Aberta RFC para evoluir `core/agent.py` com Google ADK (`LlmAgent` + `LiteLlm`), tools nativas seguras, marcadores de consenso/pausa humana e janela deslizante. |
 | 2026-11-01 | `war_room.md` (Turno 1) | Abertura formal do Turno 1 por ordem do PO Yure Mark para implantar toda a camada de governança padrão Sysoft (`docs/gestao/`, Matriz de Riscos, ADRs 0001–0005, `SKILL.md`, `CLAUDE.md`, `GEMINI.md`) antes de codificar as mudanças de `core/` das Issues #3, #4 e #2. |
 | 2026-11-03 | `war_room.md` (Turno 2) / `docs/gestao/` | Conclusão e auditoria do Turno 2 (`E02.5`–`E02.8`) e incorporação dos 3 estudos gerados via NotebookLM (`estudo-campo-e-governanca-agloop.md`, `auditoria-governanca-agloop.md` e `lgpd-conformidade-agloop.md`) à governança oficial em `docs/gestao/`. |
+| 2026-11-10 | [Issue #27](https://github.com/yuremarketing/AgLoop/issues/27) / `war_room.md` (Turno 18) | Formalização do Mapeamento de Conformidade GDPR (`gdpr-conformidade-agloop.md`), governança internacional de dados pessoais, transferência via SCCs/sanitização e SOP para direitos do titular em histórico Git. |
