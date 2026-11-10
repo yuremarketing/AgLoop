@@ -95,10 +95,14 @@ def test_claude_plugin_icon_exists_and_is_square_png():
 def test_hooks_json_points_at_script_file_not_inline_python():
     with open(os.path.join(PLUGIN_ROOT, "hooks", "hooks.json"), "r", encoding="utf-8") as f:
         hooks = json.load(f)
-    command = hooks["hooks"]["SessionStart"][0]["hooks"][0]["command"]
-    assert "-c" not in command.split()
-    assert "|| true" not in command
-    assert "scripts/session_start_hook.py" in command
+    hook = hooks["hooks"]["SessionStart"][0]["hooks"][0]
+    # Issue #28 (Directory validator): the interpreter belongs in `command`
+    # and the script path in `args`, not combined in a single command string.
+    assert hook["command"] == "python3"
+    args = hook["args"]
+    assert "-c" not in args
+    assert "|| true" not in " ".join(args)
+    assert args[0] == "${CLAUDE_PLUGIN_ROOT}/scripts/session_start_hook.py"
 
 
 def test_mcp_json_points_at_script_file_not_module_by_name():
