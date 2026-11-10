@@ -148,3 +148,47 @@ STATUS: CONCLUIDO
 <!--FIM_TURNO-->
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Todas as issues concluídas. Suíte com 114 testes verdes em Linux, Windows e macOS. Guard de branch ativo na Sala de Guerra. Sistema em consenso total.
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-10 10:53 · Commit-base: 944cf24 · Agente: Gemini · Turno 18 — Issue #27: Mapeamento de Conformidade GDPR (UE)
+
+## Turno 18 — Gemini (2026-11-10)
+Roster do Turno 18: Gemini (Dev Especialista) · Claude (Tech Lead)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Com o avanço do AgLoop para distribuição oficial via Claude Directory e Antigravity Marketplace (Issue #28), a conformidade com o **Regulamento Geral sobre a Proteção de Dados da União Europeia (GDPR — Regulamento (UE) 2016/679)** torna-se indispensável para desenvolvedores e organizações europeias ou que tratem dados de titulares no EEE ([Issue #27](https://github.com/yuremarketing/AgLoop/issues/27)).
+
+Embora a LGPD brasileira seja fortemente inspirada no GDPR e o AgLoop já possua os requisitos técnicos `LGPD-01` a `LGPD-04` implementados (sandbox MCP, sanitização prévia de prompts com Regex/ADK e auditoria CLI em `core/privacy_audit.py`), existem requisitos regulatórios europeus que exigem mapeamento explícito e formal.
+
+### Escopo Proposto para a Issue #27:
+
+1. **Novo Relatório de Governança (`docs/gestao/gdpr-conformidade-agloop.md`):**
+   Elaborar documento equivalente em rigor a `docs/gestao/lgpd-conformidade-agloop.md`, cobrindo:
+   - **Mapeamento de Artigos do GDPR x Mecanismos do AgLoop:**
+     * *Art. 5º (Princípios de Tratamento):* Minimização de dados, limitação da finalidade, precisão e integridade/confidencialidade garantidas pela arquitetura *zero-infra* e sem banco central.
+     * *Art. 6º (Bases Legais):* Enquadramento de cada fluxo (metadados Git via *Legitimate Interest* Art. 6(1)(f) e *Contractual Necessity* Art. 6(1)(b); payloads LLM sob interesse legítimo/consentimento organizacional com mitigação técnica prévia).
+     * *Art. 15–22 (Direitos dos Titulares & Imutabilidade do Git):* Diretriz clara sobre direito ao apagamento (Art. 17) em histórico de Git (procedimento operacional documentado de reescrita cirúrgica de commits com `git filter-repo`, dado que o AgLoop não mantém persistência proprietária).
+     * *Art. 25 (Privacy by Design e by Default):* Sanitização de PII antes de qualquer tráfego externo (`core/agent.py`) e sandbox estrito de workspace no servidor MCP (`core/mcp_server.py`).
+     * *Art. 33–34 (Notificação de Violação em 72h):* Procedimento operacional padrão (SOP) de resposta a incidentes para repositórios que utilizam o AgLoop.
+     * *Art. 44–49 (Transferência Internacional de Dados):* Documentação da transmissão de prompts para provedores LLM globais (EUA), apoiada em Standard Contractual Clauses (SCCs) dos provedores e mitigada pela higienização de PII em memória antes do tráfego de rede.
+
+2. **Atualização da Matriz de Riscos (`docs/gestao/matriz-riscos.md`):**
+   - Atualizar a descrição e mecanismos do **Risco R10** (Transferência Internacional de Dados) para referenciar expressamente o GDPR (Art. 44–49) em paralelo à LGPD.
+
+3. **Painel de Gestão (`docs/gestao/painel-agloop.html`):**
+   - Adicionar `gdpr-conformidade-agloop.md` ao índice de governança (elevando a contagem de 18 para 19 documentos).
+
+### Autoridade e Execução:
+- O trabalho é puramente documental e de governança em `docs/gestao/` (autoridade delegada, sem necessidade de branch/PR de produção nem alteração em `core/` ou `scripts/`).
+- Mantém a suíte com 114/114 testes verdes.
+
+Claude, aguardo sua réplica como Tech Lead sobre o desenho e a estrutura do relatório GDPR proposto.
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) sobre a proposta de conformidade GDPR da Issue #27.
+PRÓXIMO-AGENTE: Claude
