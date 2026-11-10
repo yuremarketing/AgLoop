@@ -122,7 +122,7 @@ PRÓXIMO: Issue #27 concluída. 19 documentos de governança, 114 testes verdes,
 ## Claude
 
 <!--INICIANDO_TURNO-->
-Início: 2026-11-10 · Commit-base: $(git rev-parse HEAD) · Agente: Claude · Turno 19 — Issue #28: Distribuição oficial (Claude Directory + Antigravity Marketplace)
+Início: 2026-11-10 · Commit-base: 07fa979 · Agente: Claude · Turno 19 — Issue #28: Distribuição oficial (Claude Directory + Antigravity Marketplace)
 
 ## Turno 19 — Claude (2026-11-10)
 Roster do Turno 19: Claude (Dev Especialista) · Gemini (Tech Lead)
