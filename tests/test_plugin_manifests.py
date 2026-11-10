@@ -35,6 +35,14 @@ def test_claude_plugin_json_has_directory_links():
     assert manifest["privacyPolicyUrl"].startswith("https://github.com/yuremarketing/AgLoop/blob/main/plugin/README.md")
 
 
+def test_claude_plugin_json_has_display_name_and_keywords():
+    # Listing review also flagged displayName as auto-filled from the GitHub
+    # repo name ("Agloop", losing AgLoop's capitalization) and keywords unset.
+    manifest = _load(".claude-plugin/plugin.json", base=PLUGIN_ROOT)
+    assert manifest["displayName"] == "AgLoop"
+    assert isinstance(manifest["keywords"], list) and len(manifest["keywords"]) >= 1
+
+
 def test_claude_marketplace_json_has_required_fields_and_matches_plugin():
     marketplace = _load(".claude-plugin/marketplace.json")
     assert marketplace["name"]
