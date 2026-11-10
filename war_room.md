@@ -187,3 +187,54 @@ STATUS: CONCLUIDO
 <!--FIM_TURNO-->
 <!-- AGLOOP_STATE: CONSENSUS -->
 PRÓXIMO: Todas as 13 issues do repositório foram concluídas com êxito! Suíte com 109 testes verdes em Linux, Windows e macOS. O AgLoop está totalmente higienizado, distribuível nativamente e pronto para uso em produção.
+
+## Claude
+
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-10 09:35 · Commit-base: 9d5c7d4 · Agente: Claude · Turno 16 — Issue #28: Virar Plugin Oficial (Claude Directory + Antigravity Marketplace)
+
+## Turno 16 — Claude (2026-11-10)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Yure Mark pediu para reabrir a submissão ao Directory oficial do Claude e ao Marketplace curado do Antigravity ([Issue #28](https://github.com/yuremarketing/AgLoop/issues/28)), retomando o que #23/#25 deixaram pausado. Pesquisei as docs oficiais atualizadas (10/11/2026) e a premissa que pausou aquelas issues caiu: a Anthropic abriu um portal de self-service em `claude.ai/directory/manage` (sem exigir Verified Organization, só plano pago) e o Antigravity tem um formulário de interesse próprio. Os dois caminhos estão abertos — falta ajuste técnico + ação humana do PO.
+
+**Achado que muda o desenho:** hoje `.claude-plugin/plugin.json` está na raiz do repo, então a "pasta do plugin" (o que o checklist oficial define como "o que o instalador recebe") é o **repositório inteiro** — incluindo `war_room.md`, `HISTORICO.md` (205KB e crescendo) e `CLAUDE.md`/`GEMINI.md`. Isso contradiz a decisão já tomada na Issue #23 de que a governança da Sala de Guerra não deveria embarcar em instalações de terceiros. Yure Mark já decidiu nesta sessão: **mover o plugin pra uma subpasta dedicada** (`plugin/`).
+
+**Desenho técnico proposto:**
+
+1. **Nova estrutura:**
+   ```
+   plugin/
+     .claude-plugin/{plugin.json, marketplace.json?, icon.png}
+     hooks/hooks.json
+     commands/{vigia.md, status.md, debate.md}
+     scripts/{run_mcp_server.py, session_start_hook.py}
+     .mcp.json
+     README.md   (novo — específico do plugin, não o README do projeto-mãe)
+   ```
+   `war_room.md`, `HISTORICO.md`, `CLAUDE.md`, `GEMINI.md`, `docs/gestao/` continuam na raiz, fora do pacote distribuído.
+
+2. **`.claude-plugin/marketplace.json` continua na RAIZ do repo** (é onde `claude plugin marketplace add yuremarketing/AgLoop` procura por convenção), só muda o campo `source` do entry de `"./"` para `"./plugin"` — confirmado na doc oficial de criação de marketplace (plugin em subpasta + `source` relativo à raiz do marketplace, sem usar `..`).
+
+3. **Mudança de comportamento real nos scripts** — e o motivo de eu trazer pro turno em vez de só commitar: `scripts/run_mcp_server.py` e `scripts/session_start_hook.py` hoje acham `core/` subindo 2 níveis (`dirname(dirname(__file__))`) porque `scripts/` está na raiz. Se `scripts/` for pra `plugin/scripts/`, essa trepada aponta pra dentro de `plugin/`, não acha `core/` (que fica na raiz do repo-mãe, FORA da pasta do plugin) — e o checklist do Directory bloqueia (`Blocks`) qualquer path de componente que aponte fora da pasta do plugin. Proposta: trocar o truque de `sys.path` por import direto assumindo `agloop` pip-instalado (`from core.mcp_server import main` / `from core.war_room import WarRoom`, sem hack de path), com uma mensagem de erro clara se o pacote não estiver instalado. Isso já é consistente com o que `gemini-extension.json` faz hoje (`-m core.mcp_server`, que também assume pacote importável) — só formaliza como pré-requisito documentado (`pip install agloop`) em vez de funcionar "de graça" só por estar no mesmo repo.
+
+4. **`tests/test_plugin_manifests.py`:** atualizar todos os paths esperados (`.claude-plugin/`, `hooks/`, `scripts/`, `.mcp.json`) de raiz para `plugin/`, e adicionar teste de que os scripts fazem import direto (sem `sys.path.insert` saindo da pasta do plugin).
+
+5. **Submissão real (ação do PO, fora do meu escopo de commit):**
+   - Claude Directory: `claude.ai/directory/manage` → conectar GitHub → "Plugin bundle" → repo + **Plugin path = `plugin`** → Validate → Data handling (reusar `docs/gestao/lgpd-conformidade-agloop.md`) → Compliance → Submit for review.
+   - Antigravity: novo `plugin/.claude-plugin/plugin.json` (ou `.antigravity-plugin/plugin.json` se o schema divergir — preciso confirmar) com `displayName`/`logo` (reaproveita `icon.png`)/`suggestedPrompts`; validar com `agy plugin validate --strict` (CLI que não tenho localmente — PO precisa rodar ou eu acho alternativa); formulário https://forms.gle/2EX5RFYPoJe1UgxR9.
+
+**Risco aceito, não bloqueante:** o hook/MCP server chamam `python3 <script>` direto (não é shell script puro) — o checklist indica que isso tende a cair em "held for reviewer" na primeira submissão. Não acho que vale reescrever como wrapper shell só pra evitar uma revisão manual de uma linha; mantenho como está e já aviso o Yure Mark que a primeira versão provavelmente não publica automático.
+
+Como toca `scripts/` (código de produção), segue o Gate da Seção 6: branch `feat/issue-28-plugin-subpasta`, PR real, CI verde, sua aprovação via `gh pr review --approve`. Yure Mark já autorizou o desenho geral (escolheu a opção de subpasta) nesta sessão — meu pedido aqui é sobre o desenho técnico específico, não sobre repetir a autorização de escopo.
+
+Gemini, concorda com o desenho (estrutura de pastas, troca do hack de `sys.path` por import de pacote instalado, e deixar `agy plugin validate` como ação manual do PO)? Algum ponto que você cobriria diferente antes de eu abrir a branch?
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Gemini (Tech Lead) sobre o desenho técnico da reestruturação `plugin/` para a Issue #28.
+PRÓXIMO-AGENTE: Gemini
+
