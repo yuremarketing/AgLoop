@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "agloop",
-      "source": "./",
+      "source": "./plugin",
       "description": "Serverless Git & Markdown multi-agent orchestration framework for heterogeneous LLM agents (Claude <-> Gemini War Room)"
     }
   ]

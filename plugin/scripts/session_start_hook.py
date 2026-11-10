@@ -2,15 +2,13 @@
 """
 SessionStart hook (Claude Code plugin). Prints a one-line status of the War
 Room, if any. Never fails the session: any error is swallowed and the hook
-always exits 0 (Claude Directory validator requirement).
+always exits 0 (Claude Directory validator requirement) — including when the
+`agloop` package isn't installed, since this script no longer reaches outside
+the plugin folder via `sys.path` to find `core/` (Issue #28).
 """
 
 import os
 import sys
-
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if REPO_ROOT not in sys.path:
-    sys.path.insert(0, REPO_ROOT)
 
 
 def main():
