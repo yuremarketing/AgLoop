@@ -271,3 +271,34 @@ def test_close_turn_and_archive_commits_both_files_atomically(remote_setup):
     assert "Agreed!" in (a / ROOM).read_text()
     assert wr.get_last_speaker() == "Bob"
 
+
+
+# --------------------------------------------------------------------------- #
+# Issue #30: War Room commits must never land on a feature branch
+# --------------------------------------------------------------------------- #
+def test_acquire_lock_and_push_refuses_off_main(local_repo):
+    _git(local_repo, "checkout", "-b", "feat/some-feature")
+    gl = lock(local_repo)
+
+    called = {"ran": False}
+
+    def action():
+        called["ran"] = True
+        append(local_repo, "Alice")
+
+    commits_before = int(_git(local_repo, "rev-list", "--count", "HEAD").strip())
+    ok = gl.acquire_lock_and_push(action, "msg", [ROOM])
+
+    assert not ok and gl.last_status == "wrong_branch"
+    assert called["ran"] is False  # never even reached the War Room write
+    assert int(_git(local_repo, "rev-list", "--count", "HEAD").strip()) == commits_before
+    assert not os.path.exists(gl.lock_dir)  # lock released despite the early return
+
+
+def test_acquire_lock_and_push_works_normally_back_on_main(local_repo):
+    _git(local_repo, "checkout", "-b", "feat/some-feature")
+    _git(local_repo, "checkout", "main")
+    gl = lock(local_repo)
+
+    assert gl.acquire_lock_and_push(lambda: append(local_repo, "Alice"), "msg", [ROOM])
+    assert gl.last_status == "ok"

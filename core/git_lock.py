@@ -396,12 +396,18 @@ class GitLock:
     ) -> bool:
         """
         1. acquire local lock (always)
-        2. sync with remote only if it has news
-        3. action_callback() modifies the War Room
-        4. commit only `paths` (with optional isolated per-agent Git author/committer)
-        5. push any unpushed commit (including leftovers from earlier failures)
-        6. release local lock
-        Check `self.last_status` for the reason of a False return.
+        2. refuse if the working tree isn't on `main` (Issue #30: the working
+           directory can be shared with a feature branch mid-implementation;
+           committing War Room paths there would only reach `main` later, as
+           a side effect of that branch's own PR merge, instead of landing
+           directly as its own commit)
+        3. sync with remote only if it has news
+        4. action_callback() modifies the War Room
+        5. commit only `paths` (with optional isolated per-agent Git author/committer)
+        6. push any unpushed commit (including leftovers from earlier failures)
+        7. release local lock
+        Check `self.last_status` for the reason of a False return
+        (`locked | wrong_branch | sync_failed | commit_failed | push_failed | lost_race`).
         """
         paths = list(paths)
         if not self._acquire_local_lock():
@@ -409,6 +415,10 @@ class GitLock:
             return False
 
         try:
+            if self._branch() != "main":
+                self.last_status = "wrong_branch"
+                return False
+
             if not self.sync_if_needed(paths):
                 self.last_status = "sync_failed"
                 return False
