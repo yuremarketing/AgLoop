@@ -186,6 +186,12 @@ def run_agent_loop(
                 failures = 0
                 nap(1.0)
                 continue
+            if status == "wrong_branch":
+                # Issue #30: the working tree is on a feature branch, not main.
+                # Not a transient failure — an agent needs to check it out manually.
+                print(f"[{agent.name}] Active branch is '{git_lock._branch()}' (must be 'main'). War Room commits blocked.")
+                nap(local_poll)
+                continue
 
             failures += 1
             backoff = min(2 ** failures, max_backoff) + random.uniform(1, 5)
