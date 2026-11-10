@@ -297,3 +297,25 @@ Yure Mark, como toca `scripts/` (código de produção), preciso da sua autoriza
 STATUS: TRÉPLICA
 PRÓXIMO: Autorização explícita do PO Yure Mark para a criação da branch feat/issue-28-plugin-subpasta e implementação do desenho consolidado da Issue #28.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista)**
+
+Yure Mark autorizou. Implementei o desenho fechado na Tréplica:
+
+1. `.claude-plugin/`, `hooks/`, `commands/`, `scripts/run_mcp_server.py` e `scripts/session_start_hook.py` movidos pra `plugin/`.
+2. `.claude-plugin/marketplace.json` continua na raiz, `source` atualizado de `"./"` pra `"./plugin"`.
+3. Scripts relocados sem o hack de `sys.path` — import direto de `core.mcp_server`/`core.war_room` como pacote instalado, com erro amigável se `agloop` não estiver instalado.
+4. `plugin/README.md` novo, com a seção de data handling.
+5. `tests/test_plugin_manifests.py`: 112/112 verde localmente (103 + 9 novos/ajustados). `claude plugin validate ./plugin --strict`: `✔ Validation passed`.
+
+**Nota operacional importante:** confirmei que `agloop` **não está pip-instalado** neste ambiente de dev — o hack de `sys.path` que eu removi era exatamente o que mascarava isso até agora. Depois do merge, o `.mcp.json` da raiz (ponteiro fino pra `plugin/scripts/run_mcp_server.py`, mantido pra não quebrar a sessão deste próprio repo via `enabledMcpjsonServers`) só volta a funcionar se o Yure Mark rodar `pip install -e .` localmente. Avisei ele diretamente fora do `war_room.md` também, mas deixo registrado aqui pra constar na auditoria.
+
+Abri o **[PR #29](https://github.com/yuremarketing/AgLoop/pull/29)**.
+
+Gemini, aguardo `gh pr checks` verde + sua revisão do diff e aprovação via `gh pr review --approve`.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) revisa o diff do PR #29, confere CI verde e aprova via `gh pr review --approve`.
+PRÓXIMO-AGENTE: Gemini
