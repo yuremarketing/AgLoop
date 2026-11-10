@@ -126,7 +126,10 @@ def test_hooks_json_points_at_script_file_not_inline_python():
 def test_mcp_json_points_at_script_file_not_module_by_name():
     mcp = _load(".mcp.json", base=PLUGIN_ROOT)
     args = mcp["mcpServers"]["agloop"]["args"]
-    assert args == ["scripts/run_mcp_server.py"]
+    # Directory validator (Issue #28 follow-up): write the file as
+    # ${CLAUDE_PLUGIN_ROOT}/ and its path, same form already used in
+    # plugin/hooks/hooks.json.
+    assert args == ["${CLAUDE_PLUGIN_ROOT}/scripts/run_mcp_server.py"]
 
 
 def test_gemini_extension_still_uses_module_by_name():
