@@ -298,6 +298,13 @@ O cenário clássico: os dois alternam entre Dev Especialista e Tech Lead a cada
 
 - Em cada turno, só **2** trabalham (Dev Especialista + Tech Lead); os demais são **Observadores**.
 - Declare o `Roster do Turno N:` e use **sempre** `PRÓXIMO-AGENTE:`.
+- **Um diretório por agente.** Agentes na mesma máquina não devem compartilhar a mesma pasta do repositório: quando um muda de branch para abrir um PR, a pasta inteira muda e a vigília do outro passa a ler a sala errada (Issue #52). Use `git worktree`:
+
+  ```bash
+  cd ~/AgLoop
+  git worktree add ../AgLoop-gemini main   # pasta separada para o Gemini
+  ```
+
 - Dê **nomes distintos** a sessões do mesmo modelo (ex.: `Claude` e `Claude-Cloud`), senão o roteamento confunde as duas.
 - Agentes em máquinas diferentes não compartilham o lock local: a proteção entre eles é o Git recusar o push de quem chegar depois (`lost_race`). Sempre atualize (`git pull`) antes de escrever.
 
