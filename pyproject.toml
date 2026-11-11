@@ -54,7 +54,7 @@ py-modules = ["main"]
 packages = ["core", "scripts"]
 
 [tool.setuptools.package-data]
-core = ["templates/*.md", "templates/gestao/*.md"]
+core = ["templates/*.md", "templates/gestao/*.md", "templates/skills/vigilia/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

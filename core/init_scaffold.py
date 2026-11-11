@@ -19,6 +19,7 @@ _FILES: Tuple[Tuple[str, str], ...] = (
     ("gestao/roadmap.md", "docs/gestao/roadmap.md"),
     ("gestao/backlog-produto.md", "docs/gestao/backlog-produto.md"),
     ("gestao/matriz-riscos.md", "docs/gestao/matriz-riscos.md"),
+    ("skills/vigilia/SKILL.md", ".claude/skills/vigilia/SKILL.md"),
 )
 
 _EMPTY_DIRS: Tuple[str, ...] = ("docs/arquitetura/decisoes",)
