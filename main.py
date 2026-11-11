@@ -35,7 +35,8 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_parser = subparsers.add_parser("audit", help="Run local diagnostics (no LLM calls).")
     audit_parser.add_argument("--privacy", action="store_true", help="Run the LGPD-04 privacy diagnostic report.")
 
-    subparsers.add_parser("init", help="Scaffold a clean war_room.md and governance templates in this repo.")
+    init_parser = subparsers.add_parser("init", help="Scaffold a clean war_room.md and governance templates in this repo.")
+    init_parser.add_argument("-q", "--quiet", action="store_true", help="Suppress onboarding message and next steps.")
 
     subparsers.add_parser("scan", help="Read-only scan of the repository structure and known stack manifests.")
 
@@ -64,7 +65,7 @@ def main():
         return
 
     if args.command == "init":
-        print(run_init(repo_root="."))
+        print(run_init(repo_root=".", quiet=getattr(args, "quiet", False)))
         return
 
     if args.command == "scan":

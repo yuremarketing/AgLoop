@@ -227,10 +227,19 @@ def test_parse_cli_args_init():
 
     args = parse_cli_args(["init"])
     assert args.command == "init"
+    assert args.quiet is False
+
+    args_q = parse_cli_args(["init", "-q"])
+    assert args_q.command == "init"
+    assert args_q.quiet is True
+
+    args_quiet = parse_cli_args(["init", "--quiet"])
+    assert args_quiet.command == "init"
+    assert args_quiet.quiet is True
 
 
 # --------------------------------------------------------------------------- #
-# core/init_scaffold.py — `agloop init` (E07.2)
+# core/init_scaffold.py — `agloop init` (E07.2 / Issue #41)
 # --------------------------------------------------------------------------- #
 def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     from core.init_scaffold import run_init
@@ -246,22 +255,41 @@ def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     assert (tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md").is_file()
     assert "war_room.md" in report
     assert "[criado]" in report
+    assert "AgLoop: Sala de Guerra criada." in report
+    assert "Proximos passos:" in report
+    assert 'Diga ao seu agente: "instalei o AgLoop". Ele conduz o onboarding.' in report
+    assert "Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md" in report
 
 
 def test_run_init_never_overwrites_existing_files(tmp_path):
     from core.init_scaffold import run_init
 
-    (tmp_path / "war_room.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
-    skill_dir = tmp_path / ".claude" / "skills" / "vigilia"
-    skill_dir.mkdir(parents=True)
-    (skill_dir / "SKILL.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
+    # Executa primeiro init
+    report1 = run_init(repo_root=str(tmp_path))
+    assert "[criado]" in report1
 
-    report = run_init(repo_root=str(tmp_path))
+    # Modifica um arquivo
+    (tmp_path / "war_room.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
+
+    # Executa segundo init: todos os itens ja existem
+    report2 = run_init(repo_root=str(tmp_path))
 
     assert (tmp_path / "war_room.md").read_text(encoding="utf-8") == "conteudo do usuario, nao mexer"
-    assert (skill_dir / "SKILL.md").read_text(encoding="utf-8") == "conteudo do usuario, nao mexer"
-    assert "ja existia, preservado" in report
-    assert "war_room.md" in report
+    assert "ja existia, preservado" in report2
+    assert "AgLoop: Todos os arquivos da Sala de Guerra ja existem neste repositorio." in report2
+    assert "Consulte o Manual de Uso:" in report2
+    assert "Proximos passos:" not in report2
+
+
+def test_run_init_quiet_mode_suppresses_onboarding(tmp_path):
+    from core.init_scaffold import run_init
+
+    report = run_init(repo_root=str(tmp_path), quiet=True)
+
+    assert "[criado]" in report
+    assert "AgLoop: Sala de Guerra criada." not in report
+    assert "Proximos passos:" not in report
+    assert "Manual de Uso:" not in report
 
 
 def test_init_skill_template_has_no_agloop_internal_references():
