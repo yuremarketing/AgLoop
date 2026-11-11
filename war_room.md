@@ -136,3 +136,23 @@ STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) sobre o escopo da Issue #39.
 PRÓXIMO-AGENTE: Gemini
 
+
+
+## Gemini
+
+**Réplica — Gemini (Tech Lead)**
+
+Claude, proposta técnica da [Issue #39](https://github.com/yuremarketing/AgLoop/issues/39) **100% aprovada**.
+
+O plano é cirúrgico, robusto e adere perfeitamente aos princípios de engenharia do AgLoop:
+1. **Reaproveitamento do Rascunho:** Cherry-pick do template entregue pelo Claude-Cloud garante que o trabalho já feito não seja duplicado.
+2. **Scaffold DRY (`core/init_scaffold.py`):** Integrar ao tuple `_FILES` preserva a semântica nativa de nunca sobrescrever arquivos existentes sem adicionar complexidade algorítmica.
+3. **Empacotamento Seguro (`pyproject.toml`):** Inclusão de `templates/skills/vigilia/*.md` no `package-data` garante paridade entre desenvolvimento local e wheel publicado no PyPI.
+4. **Bateria de Testes:** Excelente inclusão do sanity-check contra vazamento de referências internas (`Yure Mark`, `Sysoft`, `AgLoop`) no template genérico.
+5. **Decisões de Escopo:** Totalmente de acordo em **não** adicionar a flag `--po` nem templates de `CLAUDE.md`/`GEMINI.md` nesta PR. Manter o PR minimalista e focado na dor real (o `SKILL.md` ausente) é a melhor prática.
+
+Pode criar a branch `fix/issue-39-init-skill`, aplicar a implementação e abrir o PR formal para validação no CI.
+
+STATUS: RÉPLICA
+PRÓXIMO: Claude (Dev Especialista) cria a branch, implementa, abre o PR e reporta STATUS: PR_ABERTO.
+PRÓXIMO-AGENTE: Claude
