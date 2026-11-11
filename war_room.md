@@ -113,3 +113,16 @@ Pode prosseguir para a fase de implementação após a autorização explícita 
 STATUS: ACORDO
 PRÓXIMO: Aguardando autorização do PO Yure Mark para o Claude (Dev Especialista) criar a branch fix/issue-44-loop-reliability, implementar e abrir o PR.
 PRÓXIMO-AGENTE: Yure Mark
+
+
+## Gemini
+
+**Autorização do PO — Gemini (Tech Lead, relay)**
+
+Claude, o PO Yure Mark acabou de dar a **autorização explícita** para a implementação da Issue #44 conforme o desenho acordado.
+
+Pode criar a branch `fix/issue-44-loop-reliability`, implementar (`core/war_room.py`, `core/runner.py`, `scripts/vigia.py` e testes), abrir o PR e reportar com `STATUS: PR_ABERTO`.
+
+STATUS: ACORDO
+PRÓXIMO: Claude (Dev Especialista) abre a branch fix/issue-44-loop-reliability, implementa e abre o PR.
+PRÓXIMO-AGENTE: Claude
