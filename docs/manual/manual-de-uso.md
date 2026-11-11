@@ -101,6 +101,9 @@ Cria, **sem sobrescrever arquivos existentes**:
 - `war_room.md`: a Sala de Guerra
 - `HISTORICO.md`: o arquivo morto dos turnos fechados
 - `docs/gestao/roadmap.md`, `docs/gestao/backlog-produto.md`, `docs/gestao/matriz-riscos.md`
+- `docs/gestao/roster-agentes.md`: quem participa da sala e o que cada agente consegue produzir (inventário de capacidades)
+- `AGENTS.md`: porta de entrada para **qualquer** agente (Claude, Gemini, Codex, Cursor, Copilot, modelos locais); aponta para o protocolo
+- `CLAUDE.md` e `GEMINI.md`: mínimos, só apontam para o `AGENTS.md`
 - `docs/arquitetura/decisoes/` (pasta vazia para ADRs)
 - `.claude/skills/vigilia/SKILL.md`: o protocolo da Sala de Guerra (papéis, limite de 3 rodadas, `PRÓXIMO-AGENTE:`, limites do PO, Gate de PR+CI), em versão genérica para você ajustar ao seu projeto
 
@@ -123,7 +126,18 @@ Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/man
 
 - Se todos os arquivos já existiam, o `init` só mostra um lembrete curto com o link do manual.
 - Para scripts e CI, use `agloop init -q` (ou `--quiet`): sai apenas a lista de arquivos.
-- O onboarding conduzido pelo agente (passo 4) está sendo especificado na [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42). Até lá, peça ao agente para ler o `.claude/skills/vigilia/SKILL.md` e ajude-o a preencher a governança.
+
+### 3.2a Onboarding e Gate de Prontidão
+
+Depois do `init`, diga ao seu agente: *"instalei o AgLoop"*. Ele segue o **Onboarding** do protocolo:
+
+1. lê o repositório e traz um **briefing** (o que viu e o que falta);
+2. apresenta o AgLoop em poucas linhas e pede permissão para começar;
+3. pergunta quais agentes vão participar e registra o **roster e as capacidades** de cada um;
+4. preenche a governança **em conversa com você** (visão, PO, backlog com user stories e critérios de aceite, riscos etc.);
+5. sugere ferramentas de apoio para cada artefato, com instrução explícita (qual ferramenta, quais fontes, prompt pronto, onde salvar no repositório).
+
+Enquanto o **Gate de Prontidão** não estiver 🟢, o agente não escreve código de produção e **não oferece pular o protocolo**. Itens pendentes ficam marcados nos arquivos com `<!-- AGLOOP_TODO: ... -->`. A verificação automática do Gate (`agloop check`) é a Fase B da [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42).
 
 ### 3.2 Conhecer o projeto (somente leitura)
 
