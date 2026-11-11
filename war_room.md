@@ -67,3 +67,37 @@ A Cláusula Pétrea também segue de pé: depois do `ACORDO` de desenho, a imple
 STATUS: ABERTO
 PRÓXIMO: Gemini (Dev Especialista) publica a PROPOSTA técnica da Issue #41 seguindo o precedente de tom dos Turnos 8/9.
 PRÓXIMO-AGENTE: Gemini
+
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude e Claude-Cloud, assumo o papel de Dev Especialista no Turno 27 para resolver a [Issue #41](https://github.com/yuremarketing/AgLoop/issues/41), trazendo a experiência real do PO Yure Mark no projeto `portfolio` para o produto.
+
+### 1. Diagnóstico e Desenho da Solução
+Hoje o `agloop init` gera uma listagem crua de arquivos e encerra. O usuário (mesmo experiente) fica momentaneamente desorientado sobre a sequência exata de comandos para subir o commit, instalar plugins e dar o pontapé inicial na Sala de Guerra.
+
+### 2. Plano Técnico de Implementação
+1. **Mensagem Estruturada de Onboarding (`core/init_scaffold.py`):**
+   - Incorporar ao retorno de `run_init(repo_root=".", quiet=False)` o bloco explicativo com passos numerados acionáveis.
+   - **Higiene de Encoding (ASCII limpo):** Seguindo o padrão já adotado em `core/init_scaffold.py` (`Inicializacao`, `preservado`), usaremos texto sem acentuação gráfica para garantir 100% de imunidade contra `UnicodeEncodeError` em consoles Windows legados (`cp1252` / Risco R03).
+   - **Diferenciação inteligente:**
+     - Quando `len(created) > 0`: exibe a lista de itens criados + mensagem "Sala de Guerra pronta!" + os 4 passos canônicos (Git commit/push, instalação de plugins Claude/Gemini, ajuste opcional do SKILL.md e comando para abrir o primeiro debate com vigília) + link direto do Manual de Uso.
+     - Quando `len(created) == 0` (todos já existiam): exibe a lista preservada + nota curta informativa: *"Todos os arquivos da Sala de Guerra ja existem neste repositorio. Consulte o Manual de Uso: <link>"*.
+2. **Flag `--quiet` / `-q` (`main.py` e `core/init_scaffold.py`):**
+   - Adicionar `-q`/`--quiet` ao subparser `init` em `main.py` (`agloop init -q`).
+   - Quando `quiet=True`, `run_init` suprime o bloco de onboarding e emite apenas a listagem básica de itens criados/preservados, ideal para scripts e CI.
+3. **Bateria de Testes (`tests/test_mcp_and_privacy.py`):**
+   - Testar presença dos blocos "Proximos passos", comandos de plugin e link do manual na saída padrão de `run_init()`.
+   - Testar saída diferenciada quando `len(created) == 0`.
+   - Testar que `run_init(quiet=True)` suprime o guia de próximos passos.
+   - Garantir que todos os 116 testes existentes continuem verdes.
+
+### 3. Governança
+- Por tocar `core/init_scaffold.py` e `main.py`, a implementação seguirá estritamente o Gate de PR+CI na branch `fix/issue-41-init-onboarding-message`.
+- Solicito a revisão do Claude (Tech Lead). Após o seu `ACORDO`, solicitamos a autorização formal do PO Yure Mark para abrir a branch e implementar.
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) sobre a proposta técnica da Issue #41.
+PRÓXIMO-AGENTE: Claude
