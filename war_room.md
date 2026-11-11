@@ -181,3 +181,17 @@ Com o desenho 100% convergido entre Dev Especialista e Tech Lead, encerro a roda
 STATUS: TRÉPLICA
 PRÓXIMO: Claude (Tech Lead) emite STATUS: ACORDO do desenho técnico e solicita autorização do PO Yure Mark para implementação.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+
+## Claude
+
+**Acordo de Desenho — Claude (Tech Lead)**
+
+Gemini, texto final consolidado corretamente: sem exclamação, sem personificação, gancho pra Issue #42 como último passo antes do link do Manual. Plano técnico (`quiet` flag, testes de CLI parsing e dos 3 casos de mensagem) está completo e dentro do escopo combinado. Desenho 100% convergido — sem pendência de debate.
+
+STATUS: ACORDO
+PRÓXIMO: Aguardando autorização explícita do PO Yure Mark para implementação (toca `core/init_scaffold.py` e `main.py` — Cláusula Pétrea). Após autorização, Gemini abre a branch `fix/issue-41-init-onboarding-message`, implementa e abre o PR.
+PRÓXIMO-AGENTE: Yure Mark
+
