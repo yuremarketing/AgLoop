@@ -175,9 +175,9 @@
       <h1>AgLoop</h1>
       <div class="masthead-meta">
         <span><b>6</b>/6 marcos concluídos</span>
-        <span><b>23</b>/25 issues fechadas</span>
+        <span><b>24</b>/25 issues fechadas</span>
         <span><b>10</b>/10 riscos mitigados</span>
-        <span><b>143</b>/143 testes verdes</span>
+        <span><b>156</b>/156 testes verdes</span>
       </div>
     </div>
     <span class="repo-badge">github.com/yuremarketing/AgLoop &middot; atualizado 2026-11-11</span>
@@ -193,14 +193,14 @@
     <div class="live-card">
       <div class="live-dot-wrap"><span class="live-dot" aria-hidden="true"></span></div>
       <div class="live-body">
-        <span class="live-label">War Room &middot; war_room.md &middot; Turno 30 (concluído)</span>
-        <h2>Onboarding &amp; Gate de Prontidão (Issue #42, Fase A) + Alertas (Issue #45)</h2>
-        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Gemini</b> &mdash; PR #49 (Fase A) e PR #50 (adendo sonoro) mergeados com sucesso (CI 9/9 verde). Templates neutros <code>AGENTS.md</code>/<code>CLAUDE.md</code>/<code>GEMINI.md</code>, seções Onboarding/Gate no <code>SKILL.md</code>, marcador <code>AGLOOP_TODO</code> e <code>play_formal_auth_alert()</code>. 143/143 testes verdes.</p>
+        <span class="live-label">War Room &middot; war_room.md &middot; Turno 32 (concluído)</span>
+        <h2>Fixação de Home Branch no GitLock &amp; Resiliência Concorrente (Issue #52)</h2>
+        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Claude</b> &mdash; PR #53 mergeado com sucesso (CI 9/9 verde). <code>GitLock</code> agora fixa <code>_home_branch</code> na construção para polling remoto (<code>has_remote_updates</code>/<code>_fetch</code>), blindando a vigília contra checkouts concorrentes em diretórios compartilhados. 156/156 testes verdes.</p>
       </div>
       <div class="live-next">
         <span class="live-label">Próxima pauta</span>
         <span class="who">Yure Mark (PO)</span>
-        <span class="what">Definição da próxima etapa (Fase B da Issue #42: comando `agloop check` determinístico e enforcement no runner).</span>
+        <span class="what">Definição da próxima prioridade (Issue #33 - MCP remoto / Claude apps, ou novos aprimoramentos).</span>
       </div>
     </div>
 
@@ -209,7 +209,7 @@
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Atingido</span><span class="label">Tokens em ociosidade (Vigília)</span><span class="target">0 tokens</span></div>
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Mitigado</span><span class="label">Watcher sobrevive a falhas atípicas (R04)</span><span class="target">Backoff exponencial + jitter</span></div>
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Formalizado</span><span class="label">Limite de rodadas por debate</span><span class="target">Máx. 3</span></div>
-      <div class="kpi-tile"><span class="status-chip chip-good">✓ 143/143</span><span class="label">Suíte de testes (pytest)</span><span class="target">100% verde</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ 156/156</span><span class="label">Suíte de testes (pytest)</span><span class="target">100% verde</span></div>
     </div>
 
     <div class="panel">
@@ -305,7 +305,7 @@
 
   <div class="tabpanel" id="panel-hist" role="tabpanel" aria-labelledby="tab-hist">
     <div class="panel">
-      <div class="section-head"><h2>Histórico por issue</h2><span class="count">22 issues catalogadas</span></div>
+      <div class="section-head"><h2>Histórico por issue</h2><span class="count">24 issues catalogadas</span></div>
       <div class="issue-row"><span><span class="id">#1</span>Hardening do loop: lock híbrido + vigília híbrida</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#2</span>RFC — Empacotar o AgLoop como plugin oficial</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#3</span>Governança &amp; DRY — SSOT e fechamento atômico</span><span class="status-chip chip-good">Closed</span></div>
@@ -328,6 +328,8 @@
       <div class="issue-row"><span><span class="id">#41</span>Onboarding e próximos passos acionáveis no agloop init</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#44</span>Confiabilidade do loop com 3 agentes (cabeçalho idempotente + stall alarm)</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#45</span>Banner visual e alerta sonoro de Autorização Formal do PO</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#42</span>Onboarding conduzido pela LLM e Gate de Prontidão (Fases A e B)</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#52</span>Fixação de home branch no GitLock contra checkouts concorrentes</span><span class="status-chip chip-good">Closed</span></div>
     </div>
 
     <div class="panel">
@@ -364,6 +366,9 @@
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 28 — Confiabilidade do loop com 3 agentes: cabeçalho idempotente e detector de stall (PR #46 merged, CI 9/9 verde, Issue #44 fechada, 125 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 29 — Banner visual de alto impacto para autorização formal do PO (PR #48 merged, CI 9/9 verde, Issue #45, 131 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 30 — Onboarding &amp; Gate de Prontidão (Fase A) + Alerta Sonoro (PR #49 e PR #50 merged, CI 9/9 verde, 143 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 31 — Gate de Prontidão: agloop check CLI determinístico e enforcement no runner (PR #51 merged, CI 9/9 verde, Issue #42, 154 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 32 — Fixação de _home_branch no GitLock contra checkouts concorrentes de múltiplos agentes locais (PR #53 merged, CI 9/9 verde, Issue #52, 156 testes).</span></div>
+
       </div>
     </div>
   </div>
