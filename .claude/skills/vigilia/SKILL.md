@@ -172,3 +172,17 @@ Gatilho: o humano diz algo como *"instalei o AgLoop"*, ou você encontra o Gate 
 - 📌 Painel de acompanhamento
 
 Se algum 🔒 estiver pendente quando o PO pedir código, responda que o Gate ainda está 🔴, liste o que falta e ofereça resolver agora, nunca contornar.
+
+---
+
+## 9. Checklist Pós-Release (ordem do PO, 2026-11-11)
+
+Todo Release do AgLoop (tag `vX.Y.Z` + publicação no PyPI, sempre com autorização explícita do PO) só termina quando **todos os lugares onde o AgLoop vive** estiverem na versão nova. Executar nesta ordem e registrar o resultado no `war_room.md`:
+
+1. **Fonte e manifestos coerentes:** `pyproject.toml`, `plugin/.claude-plugin/plugin.json`, `gemini-extension.json`, `metadata.version` do template do `SKILL.md` e o Manual de Uso com a mesma versão (o teste de consistência de manifestos deve estar verde).
+2. **Loja:** conferir que `pip index versions agloop` (ou a página do PyPI) mostra a versão nova após o workflow `publish.yml`.
+3. **Projetos que usam o AgLoop** (lista em `docs/gestao/projetos-agloop.md`): em cada um, `pip install --upgrade agloop`, `agloop update --dry-run`, mostrar o diff ao PO, aplicar com `agloop update` após o "ok" e rodar `agloop check`. Governança preenchida nunca é tocada.
+4. **Plugin e extensão:** atualizar o plugin do Claude Code pelo `/plugin` e a extensão do Gemini/Antigravity nas máquinas do PO.
+5. **Registro:** Artefato Mestre (Log de Decisões), painel e notas de versão (o que mudou desde a anterior).
+
+Quem conduz: o Dev Especialista do turno de Release, com auditoria do Tech Lead. O Claude-Cloud avisa o PO quando o checklist fechar ou travar.
