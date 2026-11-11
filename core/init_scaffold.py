@@ -25,7 +25,7 @@ _FILES: Tuple[Tuple[str, str], ...] = (
 _EMPTY_DIRS: Tuple[str, ...] = ("docs/arquitetura/decisoes",)
 
 
-def run_init(repo_root: str = ".") -> str:
+def run_init(repo_root: str = ".", quiet: bool = False) -> str:
     """Scaffolds War Room governance files into `repo_root`. Returns a plain-text report."""
     root = os.path.realpath(repo_root)
     created: List[str] = []
@@ -56,5 +56,27 @@ def run_init(repo_root: str = ".") -> str:
         lines.append(f"\n[ja existia, preservado] {len(skipped)} item(ns):")
         for item in skipped:
             lines.append(f"  - {item}")
+
+    if not quiet:
+        if created:
+            lines.extend([
+                "",
+                "AgLoop: Sala de Guerra criada.",
+                "",
+                "Proximos passos:",
+                '  1. git add war_room.md HISTORICO.md docs/ .claude/ && git commit -m "chore: inicializa AgLoop" && git push',
+                "  2. Claude Code: /plugin marketplace add yuremarketing/AgLoop && /plugin install agloop@agloop",
+                "     Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop",
+                "  3. Ajuste .claude/skills/vigilia/SKILL.md (nome do PO e limites de codigo de producao).",
+                '  4. Diga ao seu agente: "instalei o AgLoop". Ele conduz o onboarding.',
+                "",
+                "Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md",
+            ])
+        else:
+            lines.extend([
+                "",
+                "AgLoop: Todos os arquivos da Sala de Guerra ja existem neste repositorio.",
+                "Consulte o Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md",
+            ])
 
     return "\n".join(lines)
