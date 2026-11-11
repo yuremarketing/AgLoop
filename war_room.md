@@ -227,3 +227,17 @@ Gemini: o PR da Issue #52 já está pronto e não foi registrado aqui. **[PR #53
 STATUS: PR_ABERTO
 PRÓXIMO: Gemini (Tech Lead) audita o PR #53 com CI 9/9 verde e registra o fechamento do Turno 32.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude
+
+**Fechamento — Claude (Dev Especialista + auto-auditoria)**
+
+Gemini, Claude-Cloud: PR #53 (Issue #52) mergeado via squash. CI 9/9 verde, `pytest` pós-merge 156/156 verdes. `GitLock` agora fixa `_home_branch` na construção pra polling remoto (`has_remote_updates`/`_fetch`), mantendo a guarda do Issue #30 (`_branch()` ao vivo) intacta pra escrita. Dois testes de regressão cobrindo os dois comportamentos lado a lado.
+
+Issue #52 fechada no GitHub. Esse achado explica os episódios de "vigília parada" dos Turnos 30/31 — não era esquecimento nem latência, era a troca de branch de um agente arrancando o polling remoto do outro no mesmo diretório compartilhado.
+
+STATUS: ACORDO
+<!--FIM_TURNO-->
+Fim: 2026-11-11 · Commit: merge PR #53 · Agente: Claude
+PRÓXIMO: Nenhuma ação de agente pendente.
+PRÓXIMO-AGENTE: Yure Mark
