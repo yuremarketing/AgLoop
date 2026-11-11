@@ -175,9 +175,9 @@
       <h1>AgLoop</h1>
       <div class="masthead-meta">
         <span><b>6</b>/6 marcos concluídos</span>
-        <span><b>24</b>/25 issues fechadas</span>
+        <span><b>26</b>/29 issues fechadas</span>
         <span><b>10</b>/10 riscos mitigados</span>
-        <span><b>156</b>/156 testes verdes</span>
+        <span><b>177</b>/177 testes verdes</span>
       </div>
     </div>
     <span class="repo-badge">github.com/yuremarketing/AgLoop &middot; atualizado 2026-11-11</span>
@@ -193,14 +193,14 @@
     <div class="live-card">
       <div class="live-dot-wrap"><span class="live-dot" aria-hidden="true"></span></div>
       <div class="live-body">
-        <span class="live-label">War Room &middot; war_room.md &middot; Turno 32 (concluído)</span>
-        <h2>Fixação de Home Branch no GitLock &amp; Resiliência Concorrente (Issue #52)</h2>
-        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Claude</b> &mdash; PR #53 mergeado com sucesso (CI 9/9 verde). <code>GitLock</code> agora fixa <code>_home_branch</code> na construção para polling remoto (<code>has_remote_updates</code>/<code>_fetch</code>), blindando a vigília contra checkouts concorrentes em diretórios compartilhados. 156/156 testes verdes.</p>
+        <span class="live-label">War Room &middot; war_room.md &middot; Turno 36 (concluído)</span>
+        <h2>Release v0.8.0 publicado no PyPI &amp; branch <code>stable</code> (Issue #56, ADR 0006)</h2>
+        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Claude</b> &mdash; PR #59 mergeado (job <code>stable-branch</code> em <code>publish.yml</code>, fast-forward puro). Release v0.8.0 publicado no PyPI com autorização explícita do PO; <code>stable</code> criada pela primeira vez. Repositório permanece público (ADR 0006 Aceita); plugin/extensão passam a instalar de <code>#stable</code>/<code>--ref=stable</code>. 177/177 testes verdes.</p>
       </div>
       <div class="live-next">
         <span class="live-label">Próxima pauta</span>
         <span class="who">Yure Mark (PO)</span>
-        <span class="what">Definição da próxima prioridade (Issue #33 - MCP remoto / Claude apps, ou novos aprimoramentos).</span>
+        <span class="what">Atualizar o projeto Portfolio e o plugin/extensão nas próprias máquinas (Checklist Pós-Release); Issue #60 (texto do agloop init) e Issue #33 (MCP remoto) em backlog.</span>
       </div>
     </div>
 
@@ -276,11 +276,12 @@
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0003-vigilia-hibrida-mtime-local-e-fetch-remoto.md">ADR 0003<span class="path">Vigília Híbrida</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0004-governanca-dry-ssot-autoria-e-fechamento-atomico.md">ADR 0004<span class="path">Governança DRY</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0005-motor-cognitivo-google-adk-e-plugin-mcp.md">ADR 0005<span class="path">ADK &amp; Plugin/MCP</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/docs/arquitetura/decisoes/0006-distribuicao-segura-repositorio-publico-e-branch-stable.md">ADR 0006<span class="path">Público &amp; Branch Stable</span></a>
     </div>
 
     <p class="doc-group-label">Protocolo &amp; Resumos de Sessão</p>
     <div class="doc-grid">
-      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/.claude/skills/vigilia/SKILL.md">SKILL.md <span class="status-chip chip-good" style="margin-left:6px">v1.3.0</span><span class="path">.claude/skills/vigilia/</span></a>
+      <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/.claude/skills/vigilia/SKILL.md">SKILL.md <span class="status-chip chip-good" style="margin-left:6px">v1.4.1</span><span class="path">.claude/skills/vigilia/</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/CLAUDE.md">CLAUDE.md<span class="path">raiz</span></a>
       <a class="doc-item" href="https://github.com/yuremarketing/AgLoop/blob/main/GEMINI.md">GEMINI.md<span class="path">raiz</span></a>
     </div>
@@ -305,7 +306,7 @@
 
   <div class="tabpanel" id="panel-hist" role="tabpanel" aria-labelledby="tab-hist">
     <div class="panel">
-      <div class="section-head"><h2>Histórico por issue</h2><span class="count">24 issues catalogadas</span></div>
+      <div class="section-head"><h2>Histórico por issue</h2><span class="count">26 issues catalogadas</span></div>
       <div class="issue-row"><span><span class="id">#1</span>Hardening do loop: lock híbrido + vigília híbrida</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#2</span>RFC — Empacotar o AgLoop como plugin oficial</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#3</span>Governança &amp; DRY — SSOT e fechamento atômico</span><span class="status-chip chip-good">Closed</span></div>
@@ -330,6 +331,8 @@
       <div class="issue-row"><span><span class="id">#45</span>Banner visual e alerta sonoro de Autorização Formal do PO</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#42</span>Onboarding conduzido pela LLM e Gate de Prontidão (Fases A e B)</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#52</span>Fixação de home branch no GitLock contra checkouts concorrentes</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#54</span>Aviso de nova versão no PyPI + <code>agloop update</code> para os arquivos do init</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#56</span>Distribuição segura: repositório público, fim da instalação via Git e plugin por tag</span><span class="status-chip chip-good">Closed</span></div>
     </div>
 
     <div class="panel">
@@ -368,6 +371,10 @@
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 30 — Onboarding &amp; Gate de Prontidão (Fase A) + Alerta Sonoro (PR #49 e PR #50 merged, CI 9/9 verde, 143 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 31 — Gate de Prontidão: agloop check CLI determinístico e enforcement no runner (PR #51 merged, CI 9/9 verde, Issue #42, 154 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 32 — Fixação de _home_branch no GitLock contra checkouts concorrentes de múltiplos agentes locais (PR #53 merged, CI 9/9 verde, Issue #52, 156 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 33 — Aviso de versão no PyPI e <code>agloop update</code> com diff real na confirmação e detecção de customização (PR #55 merged, CI 9/9 verde, Issue #54, bump 0.8.0, 177 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 34 — Distribuição segura: repositório permanece público (ADR 0006), desenho da branch <code>stable</code>, ratificação de regras fora de turno e nova regra "protocolo só por turno" (Issue #56).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 35 — Correção de protocolo por ordem do PO: vigília religa sempre, mesmo endereçada ao PO, pra captar autorização via relay do Claude-Cloud (SKILL.md v1.4.1).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 36 — Job <code>stable-branch</code> em <code>publish.yml</code> (PR #59 merged, CI 9/9 verde) e <strong>Release v0.8.0 publicado no PyPI</strong> com autorização explícita do PO; branch <code>stable</code> criada. README/Manual atualizados; Issue #56 fechada; Issue #60 aberta (pendência em <code>agloop init</code>).</span></div>
 
       </div>
     </div>
