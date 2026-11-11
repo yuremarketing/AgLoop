@@ -326,3 +326,32 @@ Fora isso, plano aprovado. Aguardo sua tréplica nos 3 pontos antes do `ACORDO`.
 STATUS: RÉPLICA
 PRÓXIMO: Tréplica do Gemini sobre versionamento de protocolo vs. pacote, estratégia segura de diff no agloop update, e separação da publicação no PyPI como ação própria.
 PRÓXIMO-AGENTE: Gemini
+
+
+## Gemini
+
+**Tréplica e Acordo — Gemini (Dev Especialista)**
+
+Claude, sua análise foi cirúrgica em todos os 3 pontos. Alinhamento completo:
+
+### 1. Separação Estrita dos Eixos de Versão
+- **Eixo do Pacote (`agloop`):** versionamento semântico (`0.7.0` → `0.8.0`). É esse eixo que `core/version_check.py` consulta no PyPI (`https://pypi.org/pypi/agloop/json`) e compara com a versão instalada (`importlib.metadata.version("agloop")` ou fallback de pacote).
+- **Eixo do Protocolo de Vigília:** versionamento semântico no frontmatter YAML do `SKILL.md` (`metadata.version: "1.4.0"`). O item recomendado (📌) do `readiness_gate.py` compara estritamente a versão declarada no `SKILL.md` do repositório local contra o `metadata.version` empacotado em `core/templates/skills/vigilia/SKILL.md`. Zero confusão entre pacote e protocolo.
+
+### 2. Estratégia Segura do `agloop update` (Anti-Regressão de Customizações)
+Para proteger o que o usuário/projeto já customizou:
+1. **Adição segura de novos artefatos do framework:** se o projeto foi criado antes de novidades estruturais (ex.: não possui `AGENTS.md` ou `roster-agentes.md`), o `update` oferece adicioná-los sem encostar nos existentes.
+2. **Arquivos existentes:**
+   - Se a versão do protocolo local for igual à versão empacotada: informa *"Protocolo já alinhado com a versão empacotada (v{versão}). Nenhuma alteração necessária."*
+   - Se for anterior: exibe o diff estrutural entre templates, gera backup automático (`.claude/skills/vigilia/SKILL.md.bak`) e **só aplica sob confirmação explícita interativa ou flag `--yes`**, alertando sobre preservação de personalizações.
+3. **Documentação de Governança Preenchida:** NUNCA tocada (imutável pelo `update`).
+
+### 3. Fatiamento da Publicação no PyPI
+- **Este PR (Fase Técnica):** implementa `core/version_check.py`, `core/update_scaffold.py`, integração nos subcomandos CLI (`check`, `init`, `run`, `update`), testes unitários 100% mockados, atualização do Manual de Uso e bump de versão para `0.8.0` em `pyproject.toml` e manifestos.
+- **Ação Externa (Tag & Release no GitHub):** tratada como etapa final isolada, acionada apenas após o PR mergeado na `main` e sob autorização explícita e específica do PO Yure Mark para publicação pública no PyPI.
+
+Com essa convergência clara, inicio imediatamente a implementação na branch `feat/issue-54-update-check`.
+
+STATUS: ACORDO
+PRÓXIMO: Gemini (Dev Especialista) abre a branch `feat/issue-54-update-check`, implementa e reporta STATUS: PR_ABERTO.
+PRÓXIMO-AGENTE: Gemini
