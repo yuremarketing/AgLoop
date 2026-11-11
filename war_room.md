@@ -183,3 +183,57 @@ Fim: 2026-11-11 06:21 · Commit: merge PR #49 & PR #50 · Agente: Gemini
 FYI-OBSERVADORES: Fase A da Issue #42 entregue (Onboarding + Gate de Prontidão + templates neutros) e adendo sonoro da Issue #45 integrado. Suíte com 143 testes verdes. Próxima etapa técnica: Fase B da Issue #42 (agloop check CLI determinístico e enforcement no runner).
 PRÓXIMO: Nenhuma ação pendente de agente. Palavra com o PO Yure Mark.
 PRÓXIMO-AGENTE: Yure Mark
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-11 06:25 · Commit-base: 706e656 · Agente: Gemini · [Onboarding] Gate de Prontidão - Fase B: agloop check CLI determinístico e enforcement (Issue #42)
+
+## Turno 31 — Gemini (2026-11-11)
+Roster do Turno 31: Gemini (Dev Especialista) · Claude (Tech Lead) · Claude-Cloud (Observador)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude e Claude-Cloud, com a autorização formal do PO Yure Mark, abro o **Turno 31** para a **Fase B da [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42)**.
+
+### Problema
+Após a entrega da Fase A (PR #49), o framework possui o protocolo no `SKILL.md`, os templates neutros com `<!-- AGLOOP_TODO: ... -->` e as seções de Onboarding/Gate. Porém, a verificação ainda é puramente manual: não há ferramenta determinística que avalie o estado 🟢/🔴 do Gate nem bloqueio no `agloop run` para impedir que agentes ou scripts comecem a rodar código antes da prontidão (como ocorreu no caso real do `portfolio`).
+
+### Plano Técnico da Fase B
+
+1. **Módulo Determinístico `core/readiness_gate.py`:**
+   - Função pura `check_readiness(repo_root: str = ".") -> ReadinessReport`:
+     - Avalia os itens obrigatórios (🔒):
+       - Arquivos de entrada e sala: `war_room.md`, `AGENTS.md` (ou `.claude/skills/vigilia/SKILL.md`), `docs/gestao/roster-agentes.md`;
+       - Arquivos de governança: `docs/gestao/termo-abertura.md` (ou visão), `docs/gestao/backlog-produto.md`, `docs/gestao/matriz-riscos.md`;
+       - Ausência de marcadores `<!-- AGLOOP_TODO: ... -->` nos arquivos de governança obrigatórios.
+     - Avalia itens recomendados (📌) como avisos informativos (sem bloquear o Gate).
+     - Retorna `ReadinessReport(passed: bool, blocking_issues: list[str], warnings: list[str])`. Zero dependência de LLM ou chamadas externas.
+
+2. **Comando CLI `agloop check` em `main.py`:**
+   - Subcomando determinístico:
+     - Executa `check_readiness()`;
+     - Se 🟢: imprime checklist validado com status visual sóbrio, mensagem *"Gate de Prontidão 🟢. Pronto para operar."* e retorna `exit 0`;
+     - Se 🔴: lista os bloqueios pendentes, aponta os arquivos afetados, instrui a conclusão do Onboarding e retorna `exit 1`;
+     - Respeita `-q` / `--quiet` (emite apenas o status 🟢/🔴 em uma linha).
+
+3. **Enforcement no `agloop run` (`core/runner.py` / `main.py`):**
+   - Ao invocar `agloop run`, o runner executa `check_readiness()`:
+     - Se 🔴: recusa iniciar o loop, imprime o diagnóstico e instrui a resolver as pendências (conforme o protocolo do `SKILL.md`: *"Nenhuma linha de código antes do Gate 🟢"*);
+     - Suporte à flag `--force-bypass-gate` exclusivamente para cenários onde o PO ordena explicitamente contornar o gate por emergência.
+
+4. **Testes Unitários e de Integração (`tests/test_readiness_gate.py`):**
+   - Teste de `agloop init` inicial resultando em 🔴 por presença de `AGLOOP_TODO`;
+   - Teste de repositório completo resultando em 🟢;
+   - Teste de CLI `agloop check` com exit codes 0 e 1;
+   - Teste de recusa do `agloop run` em 🔴 e prosseguimento em 🟢 ou com `--force-bypass-gate`.
+
+5. **Execução:**
+   - Branch `feat/issue-42-onboarding-gate-fase-b` a partir da `main`.
+   - Gate de PR+CI multiplataforma.
+
+Claude (Tech Lead), aguardo sua revisão (`RÉPLICA`).
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) revisa a proposta da Fase B da Issue #42.
+PRÓXIMO-AGENTE: Claude
