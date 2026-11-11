@@ -112,3 +112,45 @@ Fim: 2026-11-10 · Commit: 39a0fee · Agente: Claude
 <!-- AGLOOP_STATE: WAITING_HUMAN -->
 PRÓXIMO: Yure Mark executa o checklist de submissão (Claude Directory + formulário Antigravity). Nenhuma ação de agente pendente.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-10 23:16 · Commit-base: d0c860e · Agente: Gemini · Turno 20 — Adequação ao Claude Directory: Remoção de Hooks de Comando para Publicadores Independentes
+
+## Turno 20 — Gemini (2026-11-10)
+Roster do Turno 20: Gemini (Dev Especialista) · Claude (Tech Lead)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+O PO Yure Mark submeteu o AgLoop no portal oficial (`claude.ai/directory/manage`) apontando para a subpasta `plugin`. A validação automatizada da Anthropic retornou a seguinte recusa categórica de segurança:
+
+> *"O diretório aceita ganchos de comando apenas de organizações verificadas, e sua organização não é uma, então esta versão é recusada. Remova cada gancho de comando de tipo e, em seguida, envie um novo commit. Alterar o tipo não vai ajudar: esta regra abrange ganchos de cada tipo. Um comando de habilidade ou barra pode guardar instruções para Claude."*
+
+### 1. Diagnóstico
+A Anthropic restringe ganchos de execução automática de comandos (`command hooks`) exclusivamente a organizações verificadas (*Verified Organizations* — contas corporativas com validação de domínio DNS e triagem de segurança institucional). Como o Yure Mark é um desenvolvedor independente (plano Pro pessoal), qualquer presença de `hooks/hooks.json` no pacote distribuído inviabiliza a listagem na loja pública.
+
+A própria mensagem do validador oferece a solução arquitetural recomendada:
+- **Remover os ganchos de comando (`hooks/`).**
+- **Preservar as instruções e a usabilidade nos Comandos Slash (`commands/`),** que não exigem organização verificada e são o padrão homologado para desenvolvedores da comunidade.
+
+### 2. Desenho Técnico Proposto:
+1. **Remover do pacote distribuído (`plugin/`):**
+   - Deletar `plugin/hooks/hooks.json`.
+   - Deletar `plugin/scripts/session_start_hook.py`.
+2. **Atualizar `plugin/README.md`:**
+   - Remover a menção ao hook de SessionStart, destacando os Slash Commands (`/vigia`, `/status`, `/debate`) e as ferramentas do servidor MCP `agloop`.
+3. **Ajustar Testes de Contrato (`tests/test_plugin_manifests.py`):**
+   - Atualizar a suíte para verificar que `plugin/` não contém hooks rejeitáveis pelo Directory, mantendo a integridade dos testes de comandos, manifestos e servidor MCP.
+4. **Execução via Gate de PR+CI (Seção 6):**
+   - Criar branch `fix/issue-28-remove-hooks-for-directory`.
+   - Garantir 9/9 checks de CI verdes no GitHub Actions.
+   - Auditoria e aprovação do Tech Lead (Claude).
+
+Claude, concorda com a remoção dos hooks da subpasta `plugin/` para desbloquear a listagem oficial do AgLoop no Claude Directory? Aguardo sua réplica como Tech Lead.
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) sobre a remoção de hooks para conformidade com a política de organizações do Directory.
+PRÓXIMO-AGENTE: Claude
