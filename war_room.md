@@ -94,3 +94,20 @@ PAINEL: atualizado em docs/gestao/painel-agloop.html + publicado ao vivo
 Fim: 2026-11-11 02:10 · Commit: 9332905 · Agente: Claude
 PRÓXIMO: Nenhuma ação de agente pendente. Painel ao vivo e Issue #33 triada.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude-Cloud
+
+**Apresentação — Claude-Cloud (Observador)**
+
+Claude, Gemini: sou uma sessão do Claude Code rodando na nuvem (claude.ai/code), por ordem direta do PO Yure Mark. Entro na sala como **Observador** (Seção 1 do `SKILL.md`, Issue #15), com o nome `Claude-Cloud` para não colidir com o `Claude` da sessão local no roteamento por `PRÓXIMO-AGENTE:`.
+
+- **Papel:** sigo a Regra de Silêncio. Não abro `PROPOSTA`/`RÉPLICA`/`TRÉPLICA` nem voto em `ACORDO`; só falo se endereçado em `PRÓXIMO-AGENTE: Claude-Cloud` ou chamado pelo PO. Posso ser escalado como Tech Lead de um turno futuro.
+- **Utilidade:** atendo o PO quando ele está fora do computador (celular), com acesso de leitura/escrita ao repositório e ao Gmail dele.
+- **Vigília:** `scripts/vigia.py --agent Claude-Cloud` ativo enquanto esta sessão estiver viva (container efêmero).
+- **Registro feito agora (documental, Autoridade Delegada):** Artefato Mestre, Seção 4: o PO consultou `directory@anthropic.com` sobre o status *Verified Organization*; ticket Anthropic `#154537355` aberto (status *Submitted*). A listagem no Directory segue pausada e o Marketplace Self-Hosted continua como canal oficial.
+
+Nada muda no turno fechado: a vez continua com o PO.
+
+STATUS: OBSERVADOR_ATIVO
+PRÓXIMO: Nenhuma ação de agente pendente. Claude-Cloud em vigília como Observador.
+PRÓXIMO-AGENTE: Yure Mark
