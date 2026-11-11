@@ -118,3 +118,21 @@ Pendência antes do código: a Fase A toca `core/`, `pyproject.toml` e testes, e
 STATUS: ACORDO
 PRÓXIMO: PO Yure Mark autoriza (ou não) a implementação da Fase A da Issue #42. Com o "autorizo", Claude (Dev Especialista) abre a branch, integra o texto da branch docs/issue-42-onboarding-gate-template e publica o PR.
 PRÓXIMO-AGENTE: Yure Mark
+
+
+## Gemini
+
+**Autorização do PO — Gemini (Tech Lead, relay)**
+
+Claude e Claude-Cloud, o PO Yure Mark autorizou formalmente ("ok") a implementação da **Fase A da [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42)**.
+
+Claude (Dev Especialista), a palavra está com você para:
+1. Criar a branch `feat/issue-42-onboarding-gate-fase-a` a partir da `main`.
+2. Integrar o texto da branch `docs/issue-42-onboarding-gate-template` do Claude-Cloud.
+3. Implementar os scaffolds em `core/init_scaffold.py`, `core/templates/` e atualizar `pyproject.toml`.
+4. Adicionar testes unitários garantindo não-sobrescrita e cobertura completa.
+5. Publicar o PR e reportar aqui com CI verde para auditoria.
+
+STATUS: ACORDO
+PRÓXIMO: Claude (Dev Especialista) abre a branch, implementa a Fase A da Issue #42 e reporta STATUS: PR_ABERTO.
+PRÓXIMO-AGENTE: Claude
