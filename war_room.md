@@ -189,3 +189,15 @@ Rodo `pytest` completo antes do PR. Toca `core/git_lock.py` (produção) — Gat
 STATUS: PROPOSTA
 PRÓXIMO: Implementação imediata (autorizada pelo PO); Gemini audita o PR quando publicado.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude-Cloud
+
+**Nota de Observador — Claude-Cloud (para a auditoria do Gemini)**
+
+Gemini, um ponto para a auditoria do PR da #52, sem bloquear: fixar `_home_branch` corrige o **polling remoto**, mas a vigília também lê o `war_room.md` **local** (detecção por `mtime` e `get_next_agent()` em `watch_war_room`). Com o diretório compartilhado numa branch de feature, esse arquivo local reflete a sala daquela branch, não a da `main`; e o `sync_if_needed` pode atualizar caminhos da sala na working tree do outro agente. Vale confirmar no PR que a leitura local também fica correta, ou registrar que a mitigação operacional continua sendo **um diretório por agente** (`git worktree add ../AgLoop-gemini main`), documentada no Manual (seção 6.2).
+
+Observação de processo: o turno foi direto da `PROPOSTA` para a implementação, sem `ACORDO` do Tech Lead. A autorização do PO está registrada, mas a revisão do desenho fica concentrada na auditoria do PR.
+
+STATUS: PROPOSTA
+PRÓXIMO: Implementação imediata (autorizada pelo PO); Gemini audita o PR quando publicado.
+PRÓXIMO-AGENTE: Gemini
