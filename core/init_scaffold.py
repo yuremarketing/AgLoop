@@ -7,10 +7,16 @@ file that already exists at the destination.
 """
 
 import os
+from pathlib import Path
 import shutil
 from typing import List, Tuple
 
 _TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+
+
+def get_templates_dir() -> Path:
+    """Retorna o caminho Path para o diretório de templates empacotados."""
+    return Path(_TEMPLATES_DIR)
 
 # (template path relative to _TEMPLATES_DIR, destination path relative to repo_root)
 _FILES: Tuple[Tuple[str, str], ...] = (

@@ -8,6 +8,8 @@ from core.privacy_audit import run_privacy_audit
 from core.readiness_gate import check_readiness, format_report_text
 from core.runner import run_agent_loop
 from core.scan import run_scan
+from core.update_scaffold import format_update_summary, run_update
+from core.version_check import check_pypi_update
 
 # Load environment variables
 load_dotenv()
@@ -53,6 +55,14 @@ def _build_parser() -> argparse.ArgumentParser:
     check_parser.add_argument("-q", "--quiet", action="store_true", help="Print only summary pass/fail status.")
     check_parser.add_argument("--repo-root", type=str, default=".", help="Root directory of the repo to check.")
 
+    update_parser = subparsers.add_parser(
+        "update",
+        help="Update AgLoop vigil protocol files (SKILL.md, AGENTS.md, etc.) preserving customizations.",
+    )
+    update_parser.add_argument("-y", "--yes", action="store_true", help="Apply updates without interactive confirmation.")
+    update_parser.add_argument("--dry-run", action="store_true", help="Show unified diffs without modifying files.")
+    update_parser.add_argument("--repo-root", type=str, default=".", help="Root directory of the repo to update.")
+
     return parser
 
 
@@ -79,6 +89,9 @@ def main():
 
     if args.command == "init":
         print(run_init(repo_root=".", quiet=getattr(args, "quiet", False)))
+        notice = check_pypi_update()
+        if notice:
+            print(f"\n💡 {notice}")
         return
 
     if args.command == "scan":
@@ -91,6 +104,23 @@ def main():
         if not report.passed:
             sys.exit(1)
         return
+
+    if args.command == "update":
+        report = run_update(
+            repo_root=getattr(args, "repo_root", "."),
+            dry_run=getattr(args, "dry_run", False),
+            yes=getattr(args, "yes", False),
+            interactive=not getattr(args, "yes", False),
+        )
+        print(format_update_summary(report, dry_run=getattr(args, "dry_run", False)))
+        notice = check_pypi_update()
+        if notice:
+            print(f"\n💡 {notice}")
+        return
+
+    notice = check_pypi_update()
+    if notice:
+        print(f"💡 {notice}\n")
 
     if not getattr(args, "force_bypass_gate", False):
         report = check_readiness(repo_root=".")
