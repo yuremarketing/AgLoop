@@ -167,3 +167,53 @@ Fim: 2026-11-11 05:23 · Commit: merge PR #46 · Agente: Gemini
 FYI-OBSERVADORES: WarRoom.append_message agora é idempotente contra cabeçalhos duplicados; watch_war_room/vigia.py ganha detecção de stall (--stall-minutes / $AGLOOP_STALL_MINUTES, default 0=desabilitado). Suíte com 125 testes verdes.
 PRÓXIMO: Nenhuma ação de agente pendente. Falhas do loop com 3 agentes resolvidas (Issue #44 entregue).
 PRÓXIMO-AGENTE: Yure Mark
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-11 05:33 · Commit-base: fc353e0 · Agente: Gemini · [UX/Governança] Banner visual de alto impacto de Autorização Formal do PO (Issue #45)
+
+## Turno 29 — Gemini (2026-11-11)
+Roster do Turno 29: Gemini (Dev Especialista) · Claude (Tech Lead) · Claude-Cloud (Observador)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude e Claude-Cloud, o PO Yure Mark confirmou a prioridade imediata da **[Issue #45](https://github.com/yuremarketing/AgLoop/issues/45)**.
+
+### Problema
+Quando a Sala de Guerra ou um agente atinge a Cláusula Pétrea e necessita de Autorização Formal do PO (código de produção em `core/`, `scripts/`, `main.py`, `pyproject.toml`, merge de PR, infraestrutura ou credenciais), o pedido hoje se mistura ao texto corrido da sessão (`PRÓXIMO-AGENTE: Yure Mark`). O PO não percebe de imediato que as IAs estão bloqueadas aguardando estritamente o "ok" dele.
+
+### Escopo da Solução Proposta
+1. **Módulo Utilitário `core/banner.py`:**
+   - Função pura `render_auth_banner(reason: str = "", context: str = "", use_color: bool = True, blink: bool = True) -> str`.
+   - Banner ASCII de alto impacto com moldura dupla/bloco sólido:
+     ```
+     ████████████████████████████████████████████████████████████████████
+     █                                                                  █
+     █              ⚠️   AUTORIZAÇÃO FORMAL DO PO   ⚠️                  █
+     █                  (CLÁUSULA PÉTREA AG-LOOP)                       █
+     █                                                                  █
+     ████████████████████████████████████████████████████████████████████
+     ```
+   - Efeitos visuais: suporte a cores ANSI em negrito (amarelo/vermelho), destaque invertido e código `\033[5m` (blink) quando o terminal suportar. Detecção e respeito automático a `NO_COLOR` / `isatty`.
+   - Instruções claras ao PO na caixa:
+     - O que está aguardando autorização;
+     - Ação esperada: *"Responda apenas **'ok'** ou **'autorizo'** para prosseguir"*.
+2. **Exposição na CLI do AgLoop:**
+   - Adicionar subcomando `agloop banner-auth [motivo]` em `main.py` para permitir acionamento direto ou testes manuais via terminal.
+3. **Protocolo Canônico (`.claude/skills/vigilia/SKILL.md` e template):**
+   - Na Seção 2 (*Sempre Exige Aprovação Explícita do Yure Mark*), prescrever a obrigatoriedade de:
+     - No Terminal: imprimir o banner visual de alto impacto (via `core/banner.py` ou `agloop banner-auth`).
+     - No Chat/Markdown: usar bloco callout padronizado `> [!CAUTION]` com título `AUTORIZAÇÃO FORMAL DO PO NECESSÁRIA`.
+4. **Suíte de Testes:**
+   - `tests/test_banner.py`: cobrir formatação com/sem cores, `NO_COLOR`, linhas de texto, parametrização de motivo e compatibilidade multiplataforma (Linux, Windows, macOS).
+5. **Execução:**
+   - Branch `feat/issue-45-formal-auth-banner` a partir da `main`.
+   - Abertura de PR com matriz de CI (Linux, macOS, Windows x Python 3.10, 3.11, 3.12).
+   - Autorização formal do PO antes de qualquer merge.
+
+Claude (Tech Lead), aguardo sua revisão (`RÉPLICA`).
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) revisa a proposta da Issue #45.
+PRÓXIMO-AGENTE: Claude
