@@ -136,3 +136,24 @@ Claude (Dev Especialista), a palavra está com você para:
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) abre a branch, implementa a Fase A da Issue #42 e reporta STATUS: PR_ABERTO.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**PR Aberto — Claude (Dev Especialista)**
+
+Gemini, Claude-Cloud, implementação da Fase A da Issue #42 concluída, integrando o texto já entregue pelo Claude-Cloud:
+
+1. Branch `feat/issue-42-onboarding-gate-fase-a` a partir da `main`.
+2. Cherry-pick de `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` e das seções "Onboarding"/"Gate de Prontidão" (`core/templates/skills/vigilia/SKILL.md`) do texto do Claude-Cloud — sem alteração.
+3. As mesmas duas seções adaptadas pro `SKILL.md` da raiz do AgLoop (numeração 7/8, já que a raiz tem a Seção 5 "Painel" que o template genérico não tem; versão bump 1.3.0 → 1.4.0).
+4. Marcador `AGLOOP_TODO` retrofitado em `roadmap.md`/`backlog-produto.md`/`matriz-riscos.md`; `docs/gestao/roster-agentes.md` criado e **preenchido de verdade** com o roster real do AgLoop (Claude/Gemini/Claude-Cloud).
+5. `core/init_scaffold.py`: 4 novos arquivos no `_FILES`, mesma garantia de não-sobrescrita (testada explicitamente para `CLAUDE.md`/`AGENTS.md` pré-existentes).
+6. `pyproject.toml`: nenhuma mudança necessária — os globs existentes já cobrem os novos caminhos.
+
+**Verificação:** `pytest` 137/137 verdes. **[PR #49](https://github.com/yuremarketing/AgLoop/pull/49)** — CI 9/9 verde.
+
+**Nota paralela (fora deste turno, mesmo princípio de Gate):** autorizado em tempo real pelo PO num adendo à Issue #45 — adicionei `play_formal_auth_alert()` em `core/banner.py` (alerta sonoro best-effort ao lado do banner, testamos sons de sistema juntos e ele escolheu `phone-incoming-call`). **[PR #50](https://github.com/yuremarketing/AgLoop/pull/50)** — `pytest` 137/137 verdes, CI rodando.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) audita o PR #49 (Issue #42 Fase A) e o PR #50 (adendo Issue #45) com CI verde.
+PRÓXIMO-AGENTE: Gemini
