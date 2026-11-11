@@ -256,3 +256,55 @@ Pendências registradas para o PO:
 STATUS: ACORDO
 PRÓXIMO: Nenhuma ação de agente pendente. Palavra com o PO.
 PRÓXIMO-AGENTE: Yure Mark
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-11 07:11 · Commit-base: bd3aef5 · Agente: Gemini · [Produto/Governança] Aviso de nova versão PyPI + agloop update (Issue #54)
+
+## Turno 33 — Gemini (2026-11-11)
+Roster do Turno 33: Gemini (Dev Especialista) · Claude (Tech Lead) · Claude-Cloud (Observador)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude e Claude-Cloud, o PO Yure Mark priorizou a **[Issue #54](https://github.com/yuremarketing/AgLoop/issues/54)**.
+
+### Problema
+Atualmente, quem instala o AgLoop permanece na versão baixada sem saber de novas releases e melhorias críticas de governança (como o Gate de Prontidão, o onboarding e o alarme de stall):
+1. O PyPI está na versão `0.7.0`, acumulando melhorias das Issues #39, #41, #42, #44, #45 e #52.
+2. Arquivos gerados pelo `agloop init` (`SKILL.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`) nunca são atualizados (não há sobrescrita por desenho). Quem já instalou o AgLoop em outros repositórios fica com protocolos antigos mesmo após um `pip install --upgrade agloop`.
+
+### Plano Técnico da Solução
+
+1. **Módulo `core/version_check.py` (Aviso Não-Intrusivo do PyPI):**
+   - Função pura `check_pypi_update(current_version: str, cache_dir: str | None = None, timeout: float = 2.0) -> UpdateNotice | None`:
+     - Consulta `https://pypi.org/pypi/agloop/json` via `urllib.request` (zero dependências extras);
+     - Cache local diário (24h) em `~/.cache/agloop/pypi_version.json` (ou `$XDG_CACHE_HOME`);
+     - Desligamento automático em CI (`CI=true` ou `GITHUB_ACTIONS=true`) ou via `$AGLOOP_NO_UPDATE_CHECK=1`;
+     - Timeout de 2s, fail-open totalmente silencioso em caso de offline, erro de DNS ou resposta inválida (nunca quebra nem atrasa comandos);
+     - Mensagem concisa: `AgLoop: versão X.Y.Z disponível (instalada: A.B.C). Atualize: pip install --upgrade agloop`.
+   - Exibição de uma linha nos comandos `agloop check`, `agloop init` e `agloop run`.
+   - Regra no protocolo (`SKILL.md` / `AGENTS.md`): ao abrir uma sessão, o agente deve rodar `agloop check -q` e repassar em 1 linha o aviso de atualização se houver.
+
+2. **Módulo `core/update_scaffold.py` & Subcomando `agloop update`:**
+   - Compara arquivos de protocolo (`.claude/skills/vigilia/SKILL.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`) do projeto local com os templates empacotados na versão instalada.
+   - Mostra o diff unificado (`difflib.unified_diff`) no terminal.
+   - Aplica atualizações somente com confirmação do usuário (ou flag `--yes` / `-y`).
+   - Flag `--dry-run` para apenas inspecionar diffs sem tocar no disco.
+   - **Garantia de isolamento:** Documentos de governança preenchidos (`docs/gestao/termo-abertura.md`, `backlog-produto.md`, `matriz-riscos.md`, `roster-agentes.md`, `roadmap.md`) **NUNCA** são tocados.
+   - No `core/readiness_gate.py`: adicionado item recomendado (📌) verificando se os arquivos de protocolo do repositório estão alinhados com a versão instalada.
+
+3. **Atualização da Documentação & Bump para v0.8.0:**
+   - Atualizar `docs/manual/manual-de-uso.md` documentando `agloop update` e a checagem de versão.
+   - Bump de versão para `0.8.0` em `pyproject.toml`, `plugin/.claude-plugin/plugin.json` e `gemini-extension.json`.
+   - Preparação da Release v0.8.0 para publicação no PyPI via Trusted Publishing.
+
+4. **Suíte de Testes Automatizados:**
+   - `tests/test_version_check.py`: cache diário, timeout, mock de rede, desativação por `NO_UPDATE_CHECK`/CI, comparação semântica de versões.
+   - `tests/test_update_scaffold.py`: cálculo de diffs, flag `--dry-run`, flag `--yes`, não-modificação de governança e detecção no `readiness_gate`.
+
+Claude (Tech Lead), aguardo sua revisão (`RÉPLICA`).
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) revisa a proposta da Issue #54.
+PRÓXIMO-AGENTE: Claude
