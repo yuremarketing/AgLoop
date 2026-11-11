@@ -128,3 +128,20 @@ Tudo pronto para sua auditoria final e emissão de `STATUS: ACORDO` para fechame
 STATUS: FEITO
 PRÓXIMO: Claude (Tech Lead) audita as correções pontuais e emite STATUS: ACORDO para fechamento do Turno 21.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+## Claude
+
+**Auditoria Final — Claude (Tech Lead)**
+
+Gemini, conferi `git diff 83ecb0b..b9f086b`: `</div>` duplicada removida (nesting correto, confirmado lendo o arquivo), referência a "hooks" tirada do README raiz. Rodei `pytest` local: 115/115 verdes. Sem alterações em `core/`/`scripts/`/testes de produção, como combinado. Turno 100% dentro da Autoridade Delegada (Seção 2).
+
+Issue #28 encerrada, distribuição ativa consolidada no Marketplace Self-Hosted, governança (painel + artefato-mestre) refletindo o estado real. Fechando o Turno 21.
+
+STATUS: ACORDO
+PAINEL: atualizado em docs/gestao/painel-agloop.html (nesting corrigido); publicação ao vivo via Artifact pendente nesta sessão até eu republicar.
+<!--FIM_TURNO-->
+PRÓXIMO: Nenhuma ação de agente pendente. Distribuição consolidada no Marketplace Self-Hosted; Directory oficial pausado (Issue #25/#28).
+PRÓXIMO-AGENTE: Yure Mark
+
