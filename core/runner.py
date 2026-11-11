@@ -14,6 +14,21 @@ def _mtime(path: str) -> float:
     return os.path.getmtime(path) if os.path.exists(path) else 0.0
 
 
+STALL_SENTINEL = "<AGLOOP_STALL>"
+
+
+def _is_stalled(started_at: float, stall_minutes: Optional[float], now: Optional[float] = None) -> bool:
+    """
+    Pure, time-injectable check (Issue #44): True once `stall_minutes` have elapsed
+    since `started_at` without any War Room activity. Disabled (`False`) whenever
+    `stall_minutes` is `None` or `<= 0`, preserving the pre-#44 default behavior.
+    """
+    if not stall_minutes or stall_minutes <= 0:
+        return False
+    current = time.monotonic() if now is None else now
+    return (current - started_at) >= (stall_minutes * 60.0)
+
+
 def run_agent_loop(
     agent,
     war_room_file: str = "war_room.md",
@@ -218,12 +233,20 @@ def watch_war_room(
     repo_path: str = ".",
     jitter: float = 2.0,
     max_backoff: float = 60.0,
+    stall_minutes: Optional[float] = None,
 ) -> Optional[str]:
     """
     Passive Hybrid Watcher (SSOT shared with `scripts/vigia.py`).
     Monitors `war_room_file` locally (`mtime`, zero cost) and remotely (`GitLock.sync_if_needed`).
     When `once=True`, returns the new speaker's name as soon as the War Room changes and
     the last speaker is not `agent_name` (allowing a background CLI task to exit 0 and wake the agent).
+
+    `stall_minutes` (Issue #44, `once=True` only): if no activity is observed within this
+    many minutes, writes a `WAITING_HUMAN` alert to the War Room (skipped if the room is
+    already `WAITING_HUMAN`/`CONSENSUS`, and harmless if another watcher wins the race) and
+    returns `STALL_SENTINEL` — so a silent room still exits the background task and notifies
+    whoever is waiting on it. `None`/`<= 0` (the default) disables this and preserves the
+    pre-#44 behavior exactly.
 
     Any exception outside the `GitCommandError` cases already handled inside `GitLock`
     (e.g. transient disk I/O, a file briefly missing mid-write) is caught per-iteration and
@@ -242,6 +265,7 @@ def watch_war_room(
     )
 
     next_remote_check = time.monotonic() + remote_poll
+    started_at = time.monotonic()
     failures = 0
 
     while True:
@@ -253,6 +277,7 @@ def watch_war_room(
             if current_mtime != last_mtime:
                 last_mtime = current_mtime
                 changed = True
+                started_at = time.monotonic()
                 print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
             elif git_lock.origin and time.monotonic() >= next_remote_check:
                 next_remote_check = time.monotonic() + remote_poll
@@ -261,6 +286,7 @@ def watch_war_room(
                     if git_lock.sync_if_needed(war_room.paths):
                         last_mtime = _mtime(room_path)
                         changed = True
+                        started_at = time.monotonic()
 
             if changed:
                 speaker = war_room.get_last_speaker()
@@ -278,6 +304,26 @@ def watch_war_room(
                         return speaker
                 else:
                     print(f"[Vigia] Não é a vez de {agent_name}. Aguardando...", flush=True)
+            elif once and _is_stalled(started_at, stall_minutes):
+                print(
+                    f"\n[VIGIA ALERTA] Travamento: sem atividade em {war_room_file} "
+                    f"nos últimos {stall_minutes:g} minuto(s).",
+                    flush=True,
+                )
+                if war_room.get_state() not in ("WAITING_HUMAN", "CONSENSUS"):
+                    alert = (
+                        "**Alerta automático de travamento (vigília)**\n\n"
+                        f"Nenhuma resposta em `{war_room_file}` nos últimos {stall_minutes:g} minuto(s). "
+                        "PRÓXIMO-AGENTE pode ter ficado sem vigília religada.\n\n"
+                        "<!-- AGLOOP_STATE: WAITING_HUMAN -->"
+                    )
+                    git_lock.acquire_lock_and_push(
+                        action_callback=lambda: war_room.append_message(agent_name, alert),
+                        message=f"AgLoop: {agent_name} stall alert in {war_room_file}",
+                        paths=war_room.paths,
+                        author_name=agent_name,
+                    )
+                return STALL_SENTINEL
 
             failures = 0
         except Exception as e:

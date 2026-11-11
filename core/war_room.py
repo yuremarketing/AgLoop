@@ -95,12 +95,20 @@ class WarRoom:
 
     def append_message(self, agent_name: str, message: str):
         """
-        Appends a message to the war room. If the message carries a close/consensus
-        marker (`<!--FIM_TURNO-->` or `CONSENSUS`), older turns are automatically
-        archived into `self.archive_filepath` (`HISTORICO.md`) in the same disk operation.
+        Appends a message to the war room. If `message` doesn't already start with
+        its own `## {agent_name}` header (some callers include it manually), one is
+        prepended — never duplicated (Issue #44).
+
+        If the message carries a close/consensus marker (`<!--FIM_TURNO-->` or
+        `CONSENSUS`), older turns are automatically archived into
+        `self.archive_filepath` (`HISTORICO.md`) in the same disk operation.
         """
+        header = f"## {agent_name}"
+        body = message.strip()
+        if not (body == header or body.startswith(header + "\n") or body.startswith(header + "\r\n")):
+            body = f"{header}\n\n{body}"
         with open(self.filepath, "a", encoding="utf-8") as f:
-            f.write(f"\n## {agent_name}\n\n{message}\n")
+            f.write(f"\n{body}\n")
         if self.has_close_marker(message):
             self.archive_old_turns(keep_recent=self.keep_recent_turns)
 

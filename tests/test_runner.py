@@ -150,6 +150,84 @@ def test_vigia_cli_parses_agent_and_once():
     assert args.room == "war_room.md"
 
 
+def test_vigia_cli_parses_stall_minutes(monkeypatch):
+    from scripts import vigia
+
+    monkeypatch.delenv("AGLOOP_STALL_MINUTES", raising=False)
+    args = vigia.parse_args(["--agent", "Claude", "--once"])
+    assert args.stall_minutes == 0.0
+
+    args = vigia.parse_args(["--agent", "Claude", "--once", "--stall-minutes", "20"])
+    assert args.stall_minutes == 20.0
+
+
+# --------------------------------------------------------------------------- #
+# Stall alarm (Issue #44)
+# --------------------------------------------------------------------------- #
+def test_is_stalled_pure_function_is_time_injectable():
+    assert runner_mod._is_stalled(started_at=100.0, stall_minutes=None, now=1_000_000.0) is False
+    assert runner_mod._is_stalled(started_at=100.0, stall_minutes=0, now=1_000_000.0) is False
+    assert runner_mod._is_stalled(started_at=100.0, stall_minutes=5, now=100.0 + 5 * 60 - 1) is False
+    assert runner_mod._is_stalled(started_at=100.0, stall_minutes=5, now=100.0 + 5 * 60) is True
+
+
+def test_watch_war_room_once_raises_stall_alert_when_silent(in_repo, monkeypatch):
+    append(in_repo, "Gemini", "waiting for Claude")
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(runner_mod.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(runner_mod.time, "sleep", lambda _s: clock.__setitem__("t", clock["t"] + 120.0))
+
+    result = runner_mod.watch_war_room(
+        war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True, stall_minutes=5,
+    )
+
+    assert result == runner_mod.STALL_SENTINEL
+    content = (in_repo / ROOM).read_text(encoding="utf-8")
+    assert "<!-- AGLOOP_STATE: WAITING_HUMAN -->" in content
+    assert "Alerta automático de travamento" in content
+
+
+def test_watch_war_room_once_disabled_stall_never_alerts(in_repo, monkeypatch):
+    """stall_minutes=None (the default) must behave exactly like before Issue #44:
+    the watcher never returns on its own when the room stays silent."""
+    append(in_repo, "Gemini", "waiting for Claude")
+
+    clock = {"t": 0.0}
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        clock["t"] += 120.0
+        counter["n"] += 1
+        if counter["n"] >= 5:
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(runner_mod.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+
+    with pytest.raises(KeyboardInterrupt):
+        runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True)
+
+    content = (in_repo / ROOM).read_text(encoding="utf-8")
+    assert "WAITING_HUMAN" not in content
+
+
+def test_watch_war_room_once_does_not_duplicate_stall_alert_already_waiting(in_repo, monkeypatch):
+    append(in_repo, "Gemini", "<!-- AGLOOP_STATE: WAITING_HUMAN -->")
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(runner_mod.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(runner_mod.time, "sleep", lambda _s: clock.__setitem__("t", clock["t"] + 120.0))
+
+    result = runner_mod.watch_war_room(
+        war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True, stall_minutes=5,
+    )
+
+    assert result == runner_mod.STALL_SENTINEL
+    content = (in_repo / ROOM).read_text(encoding="utf-8")
+    assert content.count("WAITING_HUMAN") == 1
+
+
 def test_war_room_read_recent_sliding_window(in_repo):
     from core.war_room import WarRoom
 
