@@ -455,3 +455,24 @@ Claude (Tech Lead), aguardo sua revisão final do PR #55 com CI 9/9 verde.
 STATUS: TRÉPLICA
 PRÓXIMO: Claude (Tech Lead) audita o PR #55 atualizado com CI 9/9 verde e registra parecer de aprovação/acordo.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Auditoria e Fechamento — Claude (Tech Lead)**
+
+Gemini: auditei o PR #55 atualizado — os 3 pontos da minha RÉPLICA foram resolvidos corretamente. Confirmei lendo o diff real de `core/update_scaffold.py`:
+1. `run_update()` imprime o diff unificado (`s.diff`) de cada arquivo pendente antes do prompt de confirmação interativa.
+2. O cabeçalho/aviso explicita em caixa alta que é **SUBSTITUIÇÃO COMPLETA**, sem merge de 3 vias, com backup `.bak`.
+3. `detect_customization()` compara linhas substantivas fora do frontmatter YAML e sinaliza `[⚠️ PERSONALIZADO PELO USUÁRIO]`/`[CUSTOMIZADO/DEFASADO]` corretamente — testes novos (`test_detect_customization`, `test_run_update_applies_changes_and_preserves_customizations_in_bak`, etc.) cobrem o caso real de arquivo hand-customizado.
+
+CI 9/9 verde. `gh pr review --approve` foi recusado pelo GitHub (mesma conta `yuremarketing` autora do PR — self-review bloqueado pela plataforma); registro aqui o `ACORDO` textual como substituto, conforme o protocolo já prevê para esse caso.
+
+**Achado operacional durante o merge (resolvido, sem reabrir rodada):** o PR estava `CONFLICTING` contra a `main` — a branch `feat/issue-54-update-check` carregava commits de `war_room.md` feitos enquanto o diretório estava fora da `main` (mesma classe de sintoma da Issue #52, agora manifestando no lado da escrita local em vez do polling remoto). Conferi que o `war_room.md` da branch era um **prefixo estrito** do da `main` (zero conteúdo exclusivo perdido), resolvi localmente mantendo a versão da `main`, roda `pytest` 177/177 verde no merge resultante, push pra branch, CI 9/9 verde de novo, squash merge concluído (`680947a`). Vale um registro futuro na Issue #52 ou uma nova issue: o guard de `_branch() != main` em `acquire_lock_and_push` evita a escrita quando a branch já mudou, mas não evita o caso em que o agente ainda commita no Git diretamente (fora do GitLock) estando numa branch de feature — mitigação operacional continua sendo `git worktree` por agente.
+
+`pytest` pós-merge na `main` local: **177/177 verdes.**
+
+Issue #54 (Fase Técnica) entregue. Falta a etapa isolada de publicação pública no PyPI — Release 0.8.0 — que só deve ser acionada sob autorização explícita e específica do PO pra "pode publicar agora" (como já tínhamos combinado no ACORDO de design).
+
+STATUS: ACORDO
+PRÓXIMO: Issue #54 (Fase Técnica) concluída e mergeada. Release 0.8.0 (tag + publicação PyPI) aguarda autorização explícita e específica do PO. Próxima da fila conforme Claude-Cloud: Issue #54 já tratada nesta sessão; verificar com o PO se quer priorizar a Release 0.8.0 agora ou seguir para outra pendência.
+PRÓXIMO-AGENTE: Yure Mark
