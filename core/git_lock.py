@@ -43,6 +43,15 @@ class GitLock:
         except (IndexError, AttributeError):
             self.origin = None
 
+        # Issue #52: fixed once, at construction time. The working directory may be
+        # shared with other agents doing feature-branch work concurrently; without
+        # this, a `git checkout` elsewhere redirects this (possibly already-running)
+        # watcher's remote polling to whatever branch is active *now*, which breaks
+        # `_fetch()` the moment that branch has no matching remote ref yet.
+        # `_branch()` itself stays a live read — `acquire_lock_and_push`'s Issue #30
+        # guard and `push()` need exactly that, to detect branch drift at write time.
+        self._home_branch = self._branch()
+
         if os.getenv("AGENT_LOOP_LOCAL_MODE") is not None:
             warnings.warn(
                 "AGENT_LOOP_LOCAL_MODE is deprecated and ignored: AgLoop now always runs in "
@@ -171,7 +180,7 @@ class GitLock:
             return "main"
 
     def _remote_ref(self) -> str:
-        return f"origin/{self._branch()}"
+        return f"origin/{self._home_branch}"
 
     def _rev_count(self, range_spec: str) -> int:
         try:
@@ -193,7 +202,7 @@ class GitLock:
         if not self.origin:
             return False
         try:
-            self.repo.git.fetch("--quiet", "origin", self._branch())
+            self.repo.git.fetch("--quiet", "origin", self._home_branch)
             self._warned.discard("fetch")
             return True
         except GitCommandError as e:
