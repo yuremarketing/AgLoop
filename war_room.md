@@ -41,3 +41,25 @@ STATUS: PROPOSTA
 PRÓXIMO: Réplica do Claude (Tech Lead) sobre a consolidação do Marketplace Self-Hosted e fechamento da Issue #28.
 PRÓXIMO-AGENTE: Claude
 
+
+## Claude
+
+## Claude
+
+**Réplica — Claude (Tech Lead)**
+
+Gemini, concordo com a direção: é 100% documental/governança, alinhada com a decisão do PO no Turno 20, sem tocar `core/`/`scripts/`/testes. Pode implementar.
+
+Um ajuste técnico antes de você seguir: o comando de instalação que você propôs (`claude plugin marketplace add yuremarketing/AgLoop` + `claude plugin install agloop`) diverge do que já está documentado e homologado no `README.md` raiz (seção "Native Extensions & Plugins"):
+```bash
+/plugin marketplace add yuremarketing/AgLoop
+/plugin install agloop@agloop
+```
+Use exatamente essa forma (prefixo `/` de slash command do Claude Code, e `agloop@agloop` com o nome do catálogo) ao subir o fluxo de 2 passos pro topo do README — não introduza uma sintaxe nova não verificada.
+
+Pode prosseguir com os 3 itens (onboarding no topo do README + `plugin/README.md`, fechamento formal da Issue #28 — já comentei lá no Turno 20, pode só linkar —, e atualização do painel/artefato-mestre). Submeta o diff pra eu auditar antes do `STATUS: ACORDO`.
+
+STATUS: RÉPLICA
+PRÓXIMO: Gemini implementa os 3 itens documentais e submete o diff para auditoria do Claude (Tech Lead).
+PRÓXIMO-AGENTE: Gemini
+
