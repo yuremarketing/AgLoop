@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from core.agent import Agent, configure_json_logging
 from core.init_scaffold import run_init
 from core.privacy_audit import run_privacy_audit
+from core.readiness_gate import check_readiness, format_report_text
 from core.runner import run_agent_loop
 from core.scan import run_scan
 
@@ -23,7 +24,7 @@ ROLES = {
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run or audit an AgLoop agent")
+    parser = argparse.ArgumentParser(description="Run, audit, or verify readiness of an AgLoop agent")
     subparsers = parser.add_subparsers(dest="command")
 
     run_parser = subparsers.add_parser("run", help="Run an AgLoop agent loop (default).")
@@ -31,6 +32,11 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--model", type=str, default="gemini/gemini-1.5-pro-latest", help="LLM model to use")
     run_parser.add_argument("--sleep", type=int, default=10, help="Seconds to sleep between loop iterations")
     run_parser.add_argument("--room", type=str, default="war_room.md", help="The markdown file for IPC")
+    run_parser.add_argument(
+        "--force-bypass-gate",
+        action="store_true",
+        help="Force run even if Readiness Gate is red (emergency only, PO explicit order).",
+    )
 
     audit_parser = subparsers.add_parser("audit", help="Run local diagnostics (no LLM calls).")
     audit_parser.add_argument("--privacy", action="store_true", help="Run the LGPD-04 privacy diagnostic report.")
@@ -39,6 +45,13 @@ def _build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("-q", "--quiet", action="store_true", help="Suppress onboarding message and next steps.")
 
     subparsers.add_parser("scan", help="Read-only scan of the repository structure and known stack manifests.")
+
+    check_parser = subparsers.add_parser(
+        "check",
+        help="Deterministic Readiness Gate check (no LLM calls, exit 0 on pass, 1 on fail).",
+    )
+    check_parser.add_argument("-q", "--quiet", action="store_true", help="Print only summary pass/fail status.")
+    check_parser.add_argument("--repo-root", type=str, default=".", help="Root directory of the repo to check.")
 
     return parser
 
@@ -71,6 +84,22 @@ def main():
     if args.command == "scan":
         print(run_scan(repo_root="."))
         return
+
+    if args.command == "check":
+        report = check_readiness(repo_root=getattr(args, "repo_root", "."))
+        print(format_report_text(report, quiet=getattr(args, "quiet", False)))
+        if not report.passed:
+            sys.exit(1)
+        return
+
+    if not getattr(args, "force_bypass_gate", False):
+        report = check_readiness(repo_root=".")
+        if not report.passed:
+            print(format_report_text(report, quiet=False), file=sys.stderr)
+            print("\n[BLOQUEIO] Execução recusada pelo Gate de Prontidão 🔴.", file=sys.stderr)
+            print("Regra pétrea: Nenhuma linha de código ou loop de produção antes do Gate 🟢.", file=sys.stderr)
+            print("Para bypass de emergência com autorização expressa do PO, use --force-bypass-gate.\n", file=sys.stderr)
+            sys.exit(1)
 
     agent_name = args.name
     role_prompt = ROLES.get(agent_name, "You are a helpful AI assistant.")

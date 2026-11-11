@@ -8,4 +8,4 @@ Inventário de agentes ativos na Sala de Guerra (`war_room.md`) e o que cada um 
 | **Gemini** | Google Antigravity, Canvas, Deep Research | Sessão local/cloud, Tech Lead e Dev Especialista alternados por turno |
 | **Claude-Cloud** | Mesmas capacidades do Claude (Artifacts, pesquisa), execução em container cloud | Papel recorrente: documentação e achados de campo (ex.: casos reais em outros projetos como `portfolio`); limite de ~2h por tarefa em segundo plano |
 
-<!-- AGLOOP_TODO: ao adicionar um novo agente à sala (ex.: Codex, Cursor, modelo local via agloop run), inclua uma linha nesta tabela antes de atribuir artefatos a ele. -->
+<!-- Nota de governança: ao adicionar um novo agente à sala (ex.: Codex, Cursor, modelo local via agloop run), inclua uma linha nesta tabela antes de atribuir artefatos a ele. -->
