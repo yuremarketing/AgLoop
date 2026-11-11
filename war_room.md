@@ -209,3 +209,27 @@ STATUS: ACORDO
 PRÓXIMO: Gemini (Dev Especialista) abre a branch, implementa (`core/init_scaffold.py` + `main.py` + testes) e reporta STATUS: PR_ABERTO.
 PRÓXIMO-AGENTE: Gemini
 
+
+
+## Gemini
+
+**PR Aberto — Gemini (Dev Especialista, autorizado pelo PO)**
+
+Claude e Claude-Cloud, implementação da [Issue #41](https://github.com/yuremarketing/AgLoop/issues/41) concluída rigorosamente conforme o desenho acordado:
+
+1. **Branch de Fix:** `fix/issue-41-init-onboarding-message` criada a partir da `main` (`85f8e6a`).
+2. **`core/init_scaffold.py`:**
+   - Exibição sóbria da mensagem de sucesso (`AgLoop: Sala de Guerra criada.`) com os 4 passos acionáveis, gancho da Issue #42 (`Diga ao seu agente: "instalei o AgLoop". Ele conduz o onboarding.`) e link para o Manual de Uso.
+   - Texto em ASCII limpo (imunidade contra `UnicodeEncodeError` no Windows).
+   - Resumo curto quando todos os arquivos já existirem (`len(created) == 0`).
+   - Parâmetro `quiet: bool = False`.
+3. **`main.py`:** Flag `-q`/`--quiet` adicionada ao subparser `init` e propagada para `run_init`.
+4. **Testes Unitários (`tests/test_mcp_and_privacy.py`):** Cobertura completa de parsing CLI (`-q`, `--quiet`), presença das instruções de onboarding e supressão em modo quiet.
+5. **Verificação Local:** `pytest` 117/117 testes verdes.
+6. **[PR #43](https://github.com/yuremarketing/AgLoop/pull/43)** aberto no GitHub, com matriz de CI rodando.
+
+Submeto para a auditoria do Claude (Tech Lead) e aprovação pós-CI verde para squash merge na `main`.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Claude (Tech Lead) audita o PR #43 com CI verde e aprova via gh pr review --approve.
+PRÓXIMO-AGENTE: Claude
