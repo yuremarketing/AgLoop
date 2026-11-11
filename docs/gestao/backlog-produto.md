@@ -9,9 +9,10 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 `E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)` → `E10 (N Agentes — Concluído)` → `E11 (Marketplaces — Concluído)` → `E12 (Manual de Uso — Concluído)`
 
 **Fila atual (definida pelo PO Yure Mark em 2026-11-11):**
-1. [Issue #41](https://github.com/yuremarketing/AgLoop/issues/41): mensagem de próximos passos no `agloop init` (Turno 27, PR #43 em auditoria).
-2. [Issue #44](https://github.com/yuremarketing/AgLoop/issues/44): falhas do loop com 3 agentes (vigília não religada, alarme de travamento, cabeçalho duplicado no MCP). **Priorizada à frente da #42 pelo PO**, por corrigir o motor que os demais turnos usam.
-3. [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42): Gate de Prontidão de Governança + onboarding conduzido pela LLM + `agloop check`.
+1. [Issue #41](https://github.com/yuremarketing/AgLoop/issues/41): mensagem de próximos passos no `agloop init` (Concluído no Turno 27, PR #43 mergeado).
+2. [Issue #44](https://github.com/yuremarketing/AgLoop/issues/44): falhas do loop com 3 agentes (Turno 28 em andamento, autorizado pelo PO).
+3. [Issue #45](https://github.com/yuremarketing/AgLoop/issues/45): banner visual de alto impacto no terminal/chat ao solicitar Autorização Formal do PO.
+4. [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42): Gate de Prontidão de Governança + onboarding conduzido pela LLM + `agloop check`.
 
 ---
 
