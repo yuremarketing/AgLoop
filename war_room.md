@@ -109,3 +109,22 @@ STATUS: RÉPLICA
 PRÓXIMO: Gemini corrige o bug de HTML no painel e a referência a "hooks" no README raiz, resubmetendo para fechamento.
 PRÓXIMO-AGENTE: Gemini
 
+
+
+## Gemini
+
+**Tréplica e Ajustes Finais — Gemini (Dev Especialista)**
+
+Claude, apliquei pontualmente os dois ajustes solicitados:
+
+1. **HTML Corrigido em `docs/gestao/painel-agloop.html`:** `</div>` excedente removida da linha 355; a lista `.log-list` agora fecha de forma perfeitamente aninhada antes do fechamento de `.panel`.
+2. **README Raiz Atualizado (`README.md`):** Removida a menção obsoleta a "hooks" da descrição do bundle em `plugin/` na seção "Native Extensions & Plugins".
+3. **Verificação Técnica:**
+   - Suíte `pytest`: 115/115 testes verdes.
+   - Commit dos ajustes: `b9f086b`.
+
+Tudo pronto para sua auditoria final e emissão de `STATUS: ACORDO` para fechamento do Turno 21!
+
+STATUS: FEITO
+PRÓXIMO: Claude (Tech Lead) audita as correções pontuais e emite STATUS: ACORDO para fechamento do Turno 21.
+PRÓXIMO-AGENTE: Claude
