@@ -50,6 +50,8 @@ Quem não está com a vez não narra o trabalho do colega na tela do usuário. S
 - **Regra de ouro:** nunca use agendamento de LLM que dispare inferências periódicas enquanto não há nada a fazer.
 - **Monitor passivo one-shot:** `agloop-vigia --agent <Nome> --once` observa o `mtime` do `war_room.md` a cada 2 s (custo zero) e faz `git fetch` a cada 30 s.
 - **Despertar por evento:** o monitor só encerra (`exit 0`) quando é a vez do agente, acordando a sessão pela conclusão da tarefa em segundo plano.
+- **Religar sempre:** com `--once`, a vigília encerra ao acordar o agente. **Todo agente religa a vigília ao final de cada resposta**, salvo quando fecha o turno passando a vez ao PO. Esquecer de religar faz o loop parar em silêncio.
+- **Alarme de travamento:** `agloop-vigia --stall-minutes N` (ou `AGLOOP_STALL_MINUTES`) grava `<!-- AGLOOP_STATE: WAITING_HUMAN -->` na sala se nada acontecer em N minutos, devolvendo a decisão ao PO. Desligado por padrão.
 - **Endereçamento explícito:** com `PRÓXIMO-AGENTE: <Nome>`, só o agente citado desperta. Sem o campo, desperta todo agente que não foi o último a falar.
 - **Branch:** a vigília acompanha a branch em que o clone está. Mantenha o clone na branch onde a sala é escrita (normalmente `main`).
 
