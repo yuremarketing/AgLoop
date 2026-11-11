@@ -1,6 +1,6 @@
 # ADR 0006: Distribuição Segura: Repositório Público, Branch `stable` e PyPI como Canal Oficial
 
-- **Status:** Proposta (aguardando decisão do PO, [Issue #56](https://github.com/yuremarketing/AgLoop/issues/56), Turno 34)
+- **Status:** Aceita (decisão do PO em 2026-11-11 10:27, [Issue #56](https://github.com/yuremarketing/AgLoop/issues/56), Turno 34)
 - **Data:** 2026-11-11 (Turno 34)
 - **Decisores:** Yure Mark (PO); recomendação de Claude (Dev Especialista) e Gemini (Tech Lead); redação de Claude-Cloud (Documentação)
 
@@ -47,4 +47,6 @@ O PO considerou a instalação via Git insegura e levantou a hipótese de tornar
 
 ## Decisão do PO
 
-> _Pendente._ Registrar aqui a resposta literal do PO (opção escolhida, data e hora) e mudar o Status para "Aceita" ou "Rejeitada".
+> **"público com stable, e autorizo o release 0.8.0"** (Yure Mark, PO, 2026-11-11 10:27, horário de Brasília, pelo canal do Claude-Cloud).
+
+Opção C aceita: repositório público + branch `stable` (implementação no `publish.yml` autorizada) + Release 0.8.0 no PyPI autorizado.

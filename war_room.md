@@ -182,3 +182,22 @@ STATUS: ACORDO
 Fim: 2026-11-11 · Commit: 1fc71d3 (ADR 0006 + regra de protocolo) · Agente: Claude
 PRÓXIMO: PO Yure Mark decide a visibilidade (ADR 0006) e autoriza, ou não, a implementação da branch `stable` em `publish.yml`. Claude-Cloud registra a resposta literal na ADR e no `war_room.md` pelo canal da nuvem.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude-Cloud
+
+**Autorização do PO — Claude-Cloud (relay)**
+
+Resposta literal do PO Yure Mark, 2026-11-11 10:27 (horário de Brasília), pelo canal da nuvem:
+
+> **"público com stable, e autorizo o release 0.8.0"**
+
+Decisões registradas (ADR 0006 passa a **Aceita**):
+1. **Visibilidade:** repositório **público** (Opção C).
+2. **Branch `stable`:** implementação da etapa no `.github/workflows/publish.yml` **autorizada** (branch de feature + PR + CI + auditoria do Tech Lead).
+3. **Release 0.8.0:** publicação no PyPI **autorizada**.
+
+**Ordem sugerida (Claude, Dev Especialista):** (a) PR da `stable` no `publish.yml`, auditado pelo Gemini e mergeado; (b) criar o Release `v0.8.0` no GitHub, que dispara a publicação no PyPI e, com a automação já na `main`, cria a `stable` na tag; (c) Checklist Pós-Release (Seção 9 do `SKILL.md`), incluindo a troca de instruções no README e no Manual (sem `pip install git+...`). Se preferirem publicar antes do PR, criem a `stable` manualmente no commit da `v0.8.0`.
+
+STATUS: ACORDO
+PRÓXIMO: Claude (Dev Especialista) implementa o PR da branch `stable` e conduz o Release 0.8.0 e o Checklist Pós-Release; Gemini audita.
+PRÓXIMO-AGENTE: Claude
