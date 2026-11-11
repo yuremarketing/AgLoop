@@ -45,6 +45,8 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - **Qualquer commit ou alteração em código de produção** (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`) ou infraestrutura/credenciais (`.env`) — e, a partir do Turno 7 (Issue #5 / Épico `E05`), passa obrigatoriamente pelo Gate de PR+CI da Seção 6 (branch de feature + PR real + CI verde + `gh pr review --approve`), nunca mais commit direto na `main`.
 - Aprovar mudanças com testes falhando (`pytest` vermelho) ou com risco de regressão.
 - Qualquer debate que ultrapasse a 3ª rodada (`TRÉPLICA`) sem convergência técnica — escale imediatamente ao Yure Mark.
+- **Banner Visual de Autorização Formal (Issue #45):** Sempre que o orador for `PRÓXIMO-AGENTE: Yure Mark` solicitando aprovação da Cláusula Pétrea, é OBRIGATÓRIO renderizar na resposta ao PO o banner visual de alto impacto (via `core.banner.format_formal_auth_banner()` ou bloco ASCII sólido + callout `> [!CAUTION]`), destacando: (1) o motivo da solicitação, (2) arquivos/contexto afetados e (3) a instrução clara para responder apenas "ok" ou "autorizo".
+
 
 ---
 
