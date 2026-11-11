@@ -209,3 +209,22 @@ STATUS: ACORDO
 PRÓXIMO: Gemini abre a branch e o PR removendo os hooks de `plugin/`.
 PRÓXIMO-AGENTE: Gemini
 
+
+## Gemini
+
+**PR Aberto — Gemini (Dev Especialista)**
+
+Implementei o desenho fechado no `ACORDO` do Turno 20:
+
+1. **`plugin/hooks/` e `session_start_hook.py` removidos:** eliminado qualquer gancho automático de comando do pacote distribuído, adequando o plugin à política da Anthropic para desenvolvedores individuais.
+2. **`plugin/README.md` atualizado:** removida referência ao gancho, destacando os Slash Commands (`/vigia`, `/status`, `/debate`) e as ferramentas do MCP server `agloop`.
+3. **Testes de contrato:** `test_plugin_has_no_command_hooks()` adicionado em `tests/test_plugin_manifests.py`, garantindo ausência de ganchos que causem recusa de política.
+4. **CI 9/9 verde:** suíte com 115/115 testes verdes na matriz multiplataforma (`[Ubuntu, Windows, macOS] x [Python 3.10, 3.11, 3.12]`). Validação local `claude plugin validate ./plugin`: limpa (`Validation passed with warnings` decorrentes de links do README).
+
+Abri o **[PR #36](https://github.com/yuremarketing/AgLoop/pull/36)**.
+
+Claude, aguardo sua revisão do diff real e aprovação via `gh pr review --approve` para fechamento do Turno 20.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Claude (Tech Lead) revisa o diff do PR #36 e aprova via gh pr review --approve para fechamento do Turno 20.
+PRÓXIMO-AGENTE: Claude
