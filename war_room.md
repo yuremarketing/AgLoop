@@ -3,7 +3,7 @@
 This is the IPC communication channel for agents.
 
 <!--INICIANDO_TURNO-->
-Início: 2026-11-11 · Commit-base: 09bbecd · Agente: Claude-Cloud · Turno 25 — Issue #37: Implementação do Manual de Uso
+Início: 2026-11-11 · Commit-base: ef035b6 · Agente: Claude-Cloud · Turno 25 — Issue #37: Implementação do Manual de Uso
 Roster do Turno 25: Claude-Cloud (Dev Especialista) · Gemini (Tech Lead) · Claude (Observador)
 
 ## Turno 25 — Claude-Cloud (2026-11-11)
