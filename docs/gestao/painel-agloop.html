@@ -175,9 +175,9 @@
       <h1>AgLoop</h1>
       <div class="masthead-meta">
         <span><b>6</b>/6 marcos concluídos</span>
-        <span><b>21</b>/22 issues fechadas</span>
+        <span><b>22</b>/25 issues fechadas</span>
         <span><b>10</b>/10 riscos mitigados</span>
-        <span><b>117</b>/117 testes verdes</span>
+        <span><b>125</b>/125 testes verdes</span>
       </div>
     </div>
     <span class="repo-badge">github.com/yuremarketing/AgLoop &middot; atualizado 2026-11-11</span>
@@ -193,14 +193,14 @@
     <div class="live-card">
       <div class="live-dot-wrap"><span class="live-dot" aria-hidden="true"></span></div>
       <div class="live-body">
-        <span class="live-label">War Room &middot; war_room.md &middot; Turno 27 (concluído)</span>
-        <h2>Onboarding e Próximos Passos no `agloop init` (Issue #41)</h2>
-        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Claude</b> &mdash; PR #43 mergeado com sucesso (CI 9/9 verde). Mensagem sóbria com 4 passos acionáveis, gancho para Issue #42 e flag --quiet implementados. 117/117 testes verdes.</p>
+        <span class="live-label">War Room &middot; war_room.md &middot; Turno 28 (concluído)</span>
+        <h2>Confiabilidade do Loop com 3 Agentes (Issue #44)</h2>
+        <p><span class="status-chip chip-good">STATUS: ACORDO</span> &nbsp; último orador: <b style="color:var(--text)">Gemini</b> &mdash; PR #46 mergeado com sucesso (CI 9/9 verde). <code>WarRoom.append_message</code> idempotente contra cabeçalhos duplicados; detector de stall (<code>--stall-minutes</code> / <code>$AGLOOP_STALL_MINUTES</code>) gravando <code>WAITING_HUMAN</code>. 125/125 testes verdes.</p>
       </div>
       <div class="live-next">
         <span class="live-label">Próxima pauta</span>
         <span class="who">Yure Mark (PO)</span>
-        <span class="what">Definição da próxima prioridade (Issue #42 - Gate de Prontidão de Governança).</span>
+        <span class="what">Definição da próxima prioridade (Issue #45 - Banner de Autorização Formal ou Issue #42 - Gate de Prontidão).</span>
       </div>
     </div>
 
@@ -209,7 +209,7 @@
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Atingido</span><span class="label">Tokens em ociosidade (Vigília)</span><span class="target">0 tokens</span></div>
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Mitigado</span><span class="label">Watcher sobrevive a falhas atípicas (R04)</span><span class="target">Backoff exponencial + jitter</span></div>
       <div class="kpi-tile"><span class="status-chip chip-good">✓ Formalizado</span><span class="label">Limite de rodadas por debate</span><span class="target">Máx. 3</span></div>
-      <div class="kpi-tile"><span class="status-chip chip-good">✓ 117/117</span><span class="label">Suíte de testes (pytest)</span><span class="target">100% verde</span></div>
+      <div class="kpi-tile"><span class="status-chip chip-good">✓ 125/125</span><span class="label">Suíte de testes (pytest)</span><span class="target">100% verde</span></div>
     </div>
 
     <div class="panel">
@@ -305,7 +305,7 @@
 
   <div class="tabpanel" id="panel-hist" role="tabpanel" aria-labelledby="tab-hist">
     <div class="panel">
-      <div class="section-head"><h2>Histórico por issue</h2><span class="count">15 issues</span></div>
+      <div class="section-head"><h2>Histórico por issue</h2><span class="count">21 issues catalogadas</span></div>
       <div class="issue-row"><span><span class="id">#1</span>Hardening do loop: lock híbrido + vigília híbrida</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#2</span>RFC — Empacotar o AgLoop como plugin oficial</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#3</span>Governança &amp; DRY — SSOT e fechamento atômico</span><span class="status-chip chip-good">Closed</span></div>
@@ -323,6 +323,10 @@
       <div class="issue-row"><span><span class="id">#25</span>Achados do validador do Claude Directory (hook/MCP/ícone)</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#27</span>Mapeamento de Conformidade GDPR para AgLoop</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#28</span>Virar plugin oficial no Claude Directory e no Antigravity Marketplace</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#37</span>Manual de Uso do AgLoop (guia completo para devs)</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#39</span>Scaffold de SKILL.md genérico no agloop init</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#41</span>Onboarding e próximos passos acionáveis no agloop init</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#44</span>Confiabilidade do loop com 3 agentes (cabeçalho idempotente + stall alarm)</span><span class="status-chip chip-good">Closed</span></div>
     </div>
 
     <div class="panel">
@@ -356,6 +360,7 @@
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 25 — Manual de Uso do AgLoop publicado em <code>docs/manual/manual-de-uso.md</code> (9 seções), link no README e Issue #37 fechada (115 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 26 — Instalação do <code>SKILL.md</code> genérico no <code>agloop init</code> (PR #40 merged, CI 9/9 verde, Issue #39 fechada, 116 testes).</span></div>
         <div class="log-row"><span class="date">2026-11-11</span><span>Turno 27 — Onboarding e próximos passos no <code>agloop init</code> (PR #43 merged, CI 9/9 verde, Issue #41 fechada, 117 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-11</span><span>Turno 28 — Confiabilidade do loop com 3 agentes: cabeçalho idempotente e detector de stall (PR #46 merged, CI 9/9 verde, Issue #44 fechada, 125 testes).</span></div>
       </div>
     </div>
   </div>
