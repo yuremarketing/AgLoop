@@ -48,6 +48,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - Aprovar mudanças com testes falhando (`pytest` vermelho) ou com risco de regressão.
 - Qualquer debate que ultrapasse a 3ª rodada (`TRÉPLICA`) sem convergência técnica — escale imediatamente ao Yure Mark.
 - **Banner Visual de Autorização Formal (Issue #45):** Sempre que o orador for `PRÓXIMO-AGENTE: Yure Mark` solicitando aprovação da Cláusula Pétrea, é OBRIGATÓRIO renderizar na resposta ao PO o banner visual de alto impacto (via `core.banner.format_formal_auth_banner()` ou bloco ASCII sólido + callout `> [!CAUTION]`), destacando: (1) o motivo da solicitação, (2) arquivos/contexto afetados e (3) a instrução clara para responder apenas "ok" ou "autorizo".
+- **Canal Oficial de Autorização do PO (ordem do PO, 2026-11-11):** pedidos de autorização (`PRÓXIMO-AGENTE: Yure Mark`) são encaminhados ao PO pelo **Claude-Cloud** (sessão em nuvem, acessível pelo celular), que o notifica com o banner. O PO responde ao Claude-Cloud, e este registra na sala uma mensagem **"Autorização do PO — Claude-Cloud (relay)"** citando a resposta literal do PO, com data e hora. Os agentes aceitam esse relay como autorização formal válida. O Claude-Cloud **nunca autoriza por conta própria**: sem resposta literal do PO, não há relay. Autorizações dadas diretamente ao PO em sessão local continuam válidas quando registradas pelo agente que as recebeu.
 
 
 ---
