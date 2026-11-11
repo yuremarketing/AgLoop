@@ -105,6 +105,25 @@ Cria, **sem sobrescrever arquivos existentes**:
 
 > O `SKILL.md` é instalado pelo `init` a partir da versão posterior à `0.7.0` (PR #40). Enquanto ela não estiver no PyPI, instale direto do GitHub: `pip install git+https://github.com/yuremarketing/AgLoop`.
 
+Ao final, o `init` mostra os próximos passos:
+
+```
+AgLoop: Sala de Guerra criada.
+
+Proximos passos:
+  1. git add war_room.md HISTORICO.md docs/ .claude/ && git commit -m "chore: inicializa AgLoop" && git push
+  2. Claude Code: /plugin marketplace add yuremarketing/AgLoop && /plugin install agloop@agloop
+     Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop
+  3. Ajuste .claude/skills/vigilia/SKILL.md (nome do PO e limites de codigo de producao).
+  4. Diga ao seu agente: "instalei o AgLoop". Ele conduz o onboarding.
+
+Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md
+```
+
+- Se todos os arquivos já existiam, o `init` só mostra um lembrete curto com o link do manual.
+- Para scripts e CI, use `agloop init -q` (ou `--quiet`): sai apenas a lista de arquivos.
+- O onboarding conduzido pelo agente (passo 4) está sendo especificado na [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42). Até lá, peça ao agente para ler o `.claude/skills/vigilia/SKILL.md` e ajude-o a preencher a governança.
+
 ### 3.2 Conhecer o projeto (somente leitura)
 
 ```bash
