@@ -101,6 +101,9 @@ Cria, **sem sobrescrever arquivos existentes**:
 - `HISTORICO.md`: o arquivo morto dos turnos fechados
 - `docs/gestao/roadmap.md`, `docs/gestao/backlog-produto.md`, `docs/gestao/matriz-riscos.md`
 - `docs/arquitetura/decisoes/` (pasta vazia para ADRs)
+- `.claude/skills/vigilia/SKILL.md`: o protocolo da Sala de Guerra (papéis, limite de 3 rodadas, `PRÓXIMO-AGENTE:`, limites do PO, Gate de PR+CI), em versão genérica para você ajustar ao seu projeto
+
+> O `SKILL.md` é instalado pelo `init` a partir da versão posterior à `0.7.0` (PR #40). Enquanto ela não estiver no PyPI, instale direto do GitHub: `pip install git+https://github.com/yuremarketing/AgLoop`.
 
 ### 3.2 Conhecer o projeto (somente leitura)
 
