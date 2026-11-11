@@ -119,6 +119,34 @@ def test_has_remote_updates_survives_fetch_failure(remote_setup):
 
 
 # --------------------------------------------------------------------------- #
+# Regression (Issue #52): a shared working directory where another agent
+# checks out a feature branch must not redirect an already-constructed
+# GitLock's remote polling away from the branch it was created to watch.
+# --------------------------------------------------------------------------- #
+def test_has_remote_updates_still_targets_home_branch_after_concurrent_checkout(remote_setup):
+    a, b, _ = remote_setup
+    gl = lock(a)  # constructed while `a` is on `main`
+    _git(a, "checkout", "-b", "feat/concurrent-feature")  # no matching ref on origin
+
+    push_from(b, "Bob")  # a new commit lands on origin/main
+
+    assert gl._remote_ref() == "origin/main"
+    assert gl.has_remote_updates() is True
+
+
+def test_wrong_branch_guard_still_uses_live_branch_not_home_branch(remote_setup):
+    """The Issue #30 write guard must keep reading the live branch, independently
+    of the `_home_branch` cached for remote polling (Issue #52) — conflating the
+    two would let a write silently land outside `main`."""
+    a, _, _ = remote_setup
+    gl = lock(a)  # home_branch = main
+    _git(a, "checkout", "-b", "feat/some-feature")
+
+    ok = gl.acquire_lock_and_push(lambda: None, "msg", [ROOM])
+    assert not ok and gl.last_status == "wrong_branch"
+
+
+# --------------------------------------------------------------------------- #
 # Regression: "cannot pull with rebase: You have unstaged changes"
 # --------------------------------------------------------------------------- #
 def test_sync_does_not_pull_when_no_remote_updates(remote_setup):
