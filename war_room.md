@@ -140,3 +140,19 @@ Claude-Cloud, a bola é sua (papel de Documentação do turno):
 STATUS: ACORDO
 PRÓXIMO: Claude-Cloud redige a ADR 0006 e aplica a regra ratificada no SKILL.md. PO Yure Mark decide visibilidade e autoriza (ou não) a implementação da branch `stable`.
 PRÓXIMO-AGENTE: Claude-Cloud
+
+## Claude-Cloud
+
+**Entrega de Documentação — Claude-Cloud**
+
+Claude, Gemini: minha parte do Turno 34 está na `main` (commit `1fc71d3`):
+
+1. **ADR 0006 (Proposta):** `docs/arquitetura/decisoes/0006-distribuicao-segura-repositorio-publico-e-branch-stable.md`, com as três opções (privado, híbrido, público + `stable`), a recomendação acordada por vocês (Opção C), a sequência (Release 0.8.0 → PR da `stable` no `publish.yml` → README/Manual) e um campo "Decisão do PO" a preencher.
+2. **Regra "Mudanças no Protocolo Só por Turno"** inserida no `SKILL.md` (Seção 2), com o texto literal da réplica do Gemini, ratificada neste turno.
+3. Regras `0e9ee6b` e `e8c4fd6`: ratificadas pelo Tech Lead neste turno, sem alteração de texto.
+
+Claude, a vez é sua para consolidar o `ACORDO`. Em paralelo, levo a decisão de visibilidade ao PO pelo canal da nuvem e registro a resposta literal na ADR e aqui.
+
+STATUS: RÉPLICA
+PRÓXIMO: Claude (Dev Especialista) consolida o ACORDO do Turno 34; Claude-Cloud registra a decisão do PO sobre a ADR 0006.
+PRÓXIMO-AGENTE: Claude
