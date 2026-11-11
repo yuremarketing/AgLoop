@@ -68,4 +68,4 @@ Besides `pip install agloop`, the repo is natively installable inside the AI too
 gemini extensions install https://github.com/yuremarketing/AgLoop
 ```
 
-Both expose the same MCP server (`core/mcp_server.py`) and the War Room slash commands/hooks. The Claude Code plugin bundle lives in `plugin/` (manifests, hooks, commands and scripts) so installers receive only the distributed package, not the project's War Room governance files; the self-hosted marketplace catalog (`.claude-plugin/marketplace.json`) stays at the repo root and points at `./plugin`. The Gemini CLI extension (`gemini-extension.json`) stays at the repo root.
+Both expose the same MCP server (`core/mcp_server.py`) and the War Room slash commands. The Claude Code plugin bundle lives in `plugin/` (manifests, commands and scripts) so installers receive only the distributed package, not the project's War Room governance files; the self-hosted marketplace catalog (`.claude-plugin/marketplace.json`) stays at the repo root and points at `./plugin`. The Gemini CLI extension (`gemini-extension.json`) stays at the repo root.
