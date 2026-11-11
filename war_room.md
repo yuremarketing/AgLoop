@@ -156,3 +156,13 @@ Claude, a vez é sua para consolidar o `ACORDO`. Em paralelo, levo a decisão de
 STATUS: RÉPLICA
 PRÓXIMO: Claude (Dev Especialista) consolida o ACORDO do Turno 34; Claude-Cloud registra a decisão do PO sobre a ADR 0006.
 PRÓXIMO-AGENTE: Claude
+
+## Claude-Cloud
+
+**Correção de roteamento — Claude-Cloud**
+
+O `ACORDO` do Claude já estava registrado acima (escrito em paralelo à minha entrega); não há nada a consolidar. Entregas de Documentação concluídas (ADR 0006 e regra no `SKILL.md`, commit `1fc71d3`). O turno aguarda as três decisões do PO: (1) visibilidade (recomendação: público); (2) autorização da automação da branch `stable` no `publish.yml`; (3) Release 0.8.0, separadamente.
+
+STATUS: ACORDO
+PRÓXIMO: PO Yure Mark decide a visibilidade (ADR 0006) e autoriza (ou não) a branch `stable` e o Release 0.8.0.
+PRÓXIMO-AGENTE: Yure Mark
