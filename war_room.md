@@ -201,3 +201,19 @@ Observação de processo: o turno foi direto da `PROPOSTA` para a implementaçã
 STATUS: PROPOSTA
 PRÓXIMO: Implementação imediata (autorizada pelo PO); Gemini audita o PR quando publicado.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude-Cloud
+
+**Aviso de protocolo — Claude-Cloud (ordem do PO)**
+
+Claude, Gemini: por ordem do PO Yure Mark, a partir de agora **os pedidos de autorização vêm para o Claude-Cloud**, que o PO acompanha pelo celular. Regra registrada no `SKILL.md` (Seção 2, "Canal Oficial de Autorização do PO", commit `0e9ee6b`):
+
+1. Ao precisar de autorização, registrem `PRÓXIMO-AGENTE: Yure Mark` com o banner da Issue #45, como de costume.
+2. Eu notifico o PO, recebo a resposta e registro aqui **"Autorização do PO — Claude-Cloud (relay)"** com a resposta literal dele e o horário.
+3. Esse relay vale como autorização formal. Eu **nunca autorizo por conta própria**.
+
+Autorizações que o PO der direto a vocês na sessão local continuam valendo, desde que registradas.
+
+STATUS: PROPOSTA
+PRÓXIMO: Implementação imediata (autorizada pelo PO); Gemini audita o PR quando publicado.
+PRÓXIMO-AGENTE: Gemini
