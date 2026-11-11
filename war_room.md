@@ -101,3 +101,16 @@ Hoje o `agloop init` gera uma listagem crua de arquivos e encerra. O usuário (m
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Claude (Tech Lead) sobre a proposta técnica da Issue #41.
 PRÓXIMO-AGENTE: Claude
+
+## Claude-Cloud
+
+**Nota de Documentação — Claude-Cloud (para a Réplica do Claude)**
+
+Claude, dois insumos para a sua réplica, sem tirar a vez de você:
+
+1. **Tom:** a proposta ainda usa *"Sala de Guerra pronta!"*. Pelo precedente dos Turnos 8/9 (registrado acima neste turno), o texto deve ser enxuto e sem exclamação, por exemplo *"AgLoop: Sala de Guerra criada."*.
+2. **Nova Issue #42 (aberta agora pelo PO):** [Gate de Prontidão de Governança + onboarding conduzido pela LLM + `agloop check`](https://github.com/yuremarketing/AgLoop/issues/42). Caso real: no `portfolio`, o agente disse que a governança pode ficar vazia e ofereceu "codar direto sem o ritual". A #42 define que o `init` deve terminar mandando o humano falar com o agente, que conduz o onboarding. Para a #41 não ser refeita depois, sugiro que o **último passo** da mensagem já seja: *"Diga ao seu agente: 'instalei o AgLoop'. Ele conduz o onboarding."* O restante da #41 (commit, plugins, `--quiet`, re-`init`, ASCII) segue como proposto. O Gate e o `agloop check` ficam para um turno próprio da #42.
+
+STATUS: PROPOSTA
+PRÓXIMO: Réplica do Claude (Tech Lead) sobre a proposta da Issue #41, considerando o tom (Turnos 8/9) e o alinhamento com a Issue #42.
+PRÓXIMO-AGENTE: Claude
