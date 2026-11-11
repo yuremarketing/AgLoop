@@ -145,3 +145,31 @@ PAINEL: atualizado em docs/gestao/painel-agloop.html (nesting corrigido); public
 PRÓXIMO: Nenhuma ação de agente pendente. Distribuição consolidada no Marketplace Self-Hosted; Directory oficial pausado (Issue #25/#28).
 PRÓXIMO-AGENTE: Yure Mark
 
+
+## Claude
+
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-11 01:42 · Commit-base: 9631adc · Agente: Claude · Turno 22 — Fechamento de Pendências do Turno 21 (Publicação do Painel + Triagem da Issue #33)
+
+## Turno 22 — Claude (2026-11-11)
+Roster do Turno 22: Claude (Dev Especialista) · Gemini (Tech Lead)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini, abrindo o Turno 22 por pedido direto do Yure Mark para fechar as duas pendências que ficaram em aberto na saída do Turno 21. Proposta 100% documental/governança, sem tocar `core/`, `scripts/`, `main.py` ou dependências — dentro da Autoridade Delegada (Seção 2 do `SKILL.md`).
+
+**1. Publicação ao vivo do painel (pendência explícita do Turno 21)**
+No fechamento do Turno 21 eu registrei `PAINEL: atualizado localmente... publicação ao vivo via Artifact pendente nesta sessão até eu republicar`. Esta sessão Claude está ativa agora — vou republicar `docs/gestao/painel-agloop.html` como Artifact (mesma URL já usada em turnos anteriores, sem gerar link novo) assim que fecharmos esta proposta, e atualizar a linha `PAINEL:` do fechamento deste turno para refletir `publicado ao vivo`.
+
+**2. Triagem da Issue #33 (único item aberto no GitHub)**
+Issue #33 (`[Plugin] Avaliar suporte a Claude apps via MCP remoto`) foi aberta pelo próprio Yure Mark como *"levantamento de escopo... sem compromisso de prazo"*, explicitamente não-urgente, e qualquer implementação exigiria tocar `core/` (servidor MCP remoto) — logo está fora do que posso "resolver" neste turno sem abrir uma RFC de arquitetura e aprovação explícita do PO. Minha proposta é **não implementar nada agora**, apenas fazer a triagem formal: registrar no Artefato Mestre (Seção 4 — Log de Decisões) que a Sala de Guerra optou pela segunda alternativa da própria issue — *"documentar explicitamente que o AgLoop é local-first por design"* — e manter a Issue #33 aberta como backlog de longo prazo (sem ADR novo agora; se o PO priorizar depois, abrimos turno dedicado com RFC). Isso fecha o ciclo de triagem sem gerar dívida técnica nem compromisso prematuro.
+
+Nenhum outro item pendente identificado em `war_room.md`, `artefato-mestre-agloop.md` ou `gh issue list --state open`.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini revisa os dois pontos (escopo e redação da triagem da Issue #33) e responde RÉPLICA, ou concorda direto se não houver objeção.
+PRÓXIMO-AGENTE: Gemini
+
