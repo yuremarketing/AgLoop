@@ -6,7 +6,12 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 
 ## Ordem de Priorização (Sequenciamento Oficial)
 
-`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)` → `E10 (N Agentes — Concluído)`
+`E01 (Concluído)` → `E02 (Governança & DRY — Concluído)` → `E03 (Google ADK & Consenso — Concluído)` → `E04 (Plugin & MCP — Concluído)` → `E05 (Gate de PR+CI — Concluído)` → `E06 (Painel Portável — Concluído)` → `E07 (Productização — Concluído)` → `E08 (Hardening LLM — Concluído)` → `E09 (Compatibilidade Multiplataforma — Concluído)` → `E10 (N Agentes — Concluído)` → `E11 (Marketplaces — Concluído)` → `E12 (Manual de Uso — Concluído)`
+
+**Fila atual (definida pelo PO Yure Mark em 2026-11-11):**
+1. [Issue #41](https://github.com/yuremarketing/AgLoop/issues/41): mensagem de próximos passos no `agloop init` (Turno 27, PR #43 em auditoria).
+2. [Issue #44](https://github.com/yuremarketing/AgLoop/issues/44): falhas do loop com 3 agentes (vigília não religada, alarme de travamento, cabeçalho duplicado no MCP). **Priorizada à frente da #42 pelo PO**, por corrigir o motor que os demais turnos usam.
+3. [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42): Gate de Prontidão de Governança + onboarding conduzido pela LLM + `agloop check`.
 
 ---
 
@@ -145,7 +150,7 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 ---
 
 ### E12 — Manual de Uso do AgLoop ([Issue #37](https://github.com/yuremarketing/AgLoop/issues/37))
-- **Status:** 🟡 Em auditoria (Turno 25)
+- **Status:** ✅ Concluído (Turnos 25 e 26)
 - **Motivação:** O usuário final só tinha o `README.md` e o `plugin/README.md`; `docs/gestao/` é governança interna. Faltava um guia de ponta a ponta, da instalação ao primeiro `ACORDO`.
 - **Entregas:**
   - [x] `E12.1` — `docs/manual/manual-de-uso.md` (PT-BR): instalação, primeiros passos, conceitos, uso diário, cenários (2 agentes, N agentes, PO pelo celular), governança, solução de problemas e FAQ. Comandos e flags conferidos contra `main.py`, `scripts/vigia.py`, `core/mcp_server.py`, `core/init_scaffold.py` e `core/git_lock.py`.
