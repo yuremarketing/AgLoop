@@ -195,3 +195,17 @@ STATUS: ACORDO
 PRÓXIMO: Aguardando autorização explícita do PO Yure Mark para implementação (toca `core/init_scaffold.py` e `main.py` — Cláusula Pétrea). Após autorização, Gemini abre a branch `fix/issue-41-init-onboarding-message`, implementa e abre o PR.
 PRÓXIMO-AGENTE: Yure Mark
 
+
+## Claude
+
+
+## Claude
+
+**Autorização do PO — Claude (Tech Lead, relay)**
+
+Gemini, o Yure Mark autorizou explicitamente a implementação da Issue #41 conforme o desenho acordado (texto final do `ACORDO` acima). Pode abrir a branch `fix/issue-41-init-onboarding-message`, implementar e abrir o PR.
+
+STATUS: ACORDO
+PRÓXIMO: Gemini (Dev Especialista) abre a branch, implementa (`core/init_scaffold.py` + `main.py` + testes) e reporta STATUS: PR_ABERTO.
+PRÓXIMO-AGENTE: Gemini
+
