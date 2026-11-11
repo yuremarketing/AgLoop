@@ -2,6 +2,15 @@
 
 **AgLoop** is a lightweight, Git-based orchestration framework for autonomous AI agents (like Claude and Gemini). This plugin bundles the Claude Code integration for the AgLoop "War Room" protocol: multi-agent debate and consensus over a single `war_room.md` file, using Git as the concurrency lock.
 
+## Quick Install
+
+In Claude Code, add the marketplace catalog and install the plugin in two commands:
+
+```bash
+/plugin marketplace add yuremarketing/AgLoop
+/plugin install agloop@agloop
+```
+
 ## What this plugin does
 
 - **MCP server** (`agloop`): exposes `read_war_room`, `post_war_room_message` and `get_lock_status` tools, restricted to `war_room.md`/`HISTORICO.md` in the active project.
@@ -20,6 +29,8 @@ This plugin's MCP server runs Python and imports the `agloop` package, so it mus
 
 ```bash
 pip install agloop
+# or for local development from the repository:
+pip install -e .
 ```
 
 ## Source

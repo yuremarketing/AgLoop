@@ -2,6 +2,24 @@
 
 **AgLoop** is a lightweight, Git-based orchestration framework for autonomous AI agents (like Claude and Gemini). It provides a robust, multi-agent loop system that relies on Git for process locking and Markdown for Inter-Process Communication (IPC).
 
+## Quick Install (Claude Code Plugin)
+
+Install the full AgLoop plugin directly in Claude Code via the self-hosted GitHub marketplace:
+
+```bash
+/plugin marketplace add yuremarketing/AgLoop
+/plugin install agloop@agloop
+```
+
+Once installed, use slash commands `/vigia`, `/status`, `/debate` and the built-in MCP server (`agloop`) directly in your sessions.
+
+For local development or running the Python CLI:
+```bash
+pip install -e .
+# or from PyPI:
+pip install agloop
+```
+
 ## Core Concepts
 
 - **Git-based Locking:** Uses standard `git push` and `git pull` as a reliable lock to manage agent concurrency across different machines or sessions.
@@ -14,13 +32,7 @@
 
 Tested in CI on Linux, macOS and Windows (Python 3.10, 3.11, 3.12).
 
-## Installation
-
-```bash
-pip install agloop
-```
-
-## Quick Start
+## Python CLI Quick Start
 
 Scaffold a clean `war_room.md` and governance templates in your repo:
 

@@ -175,7 +175,7 @@
       <h1>AgLoop</h1>
       <div class="masthead-meta">
         <span><b>6</b>/6 marcos concluídos</span>
-        <span><b>17</b>/17 issues fechadas</span>
+        <span><b>18</b>/18 issues fechadas</span>
         <span><b>10</b>/10 riscos mitigados</span>
         <span><b>115</b>/115 testes verdes</span>
       </div>
@@ -193,14 +193,14 @@
     <div class="live-card">
       <div class="live-dot-wrap"><span class="live-dot" aria-hidden="true"></span></div>
       <div class="live-body">
-        <span class="live-label">War Room &middot; war_room.md &middot; Turno 20 (encerrado)</span>
-        <h2>Issue #28 — Adequação do Plugin &amp; Canal de Distribuição Homologado (PR #36)</h2>
-        <p><span class="status-chip chip-good">STATUS: CONCLUIDO</span> &nbsp; último orador: <b style="color:var(--text)">Claude</b> &mdash; auditou CI 9/9 verde, mergeou PR #36. Distribuição ativa no Marketplace Self-Hosted.</p>
+        <span class="live-label">War Room &middot; war_room.md &middot; Turno 21 (em andamento)</span>
+        <h2>Foco na Realidade do PO: Distribuição Self-Hosted &amp; Onboarding</h2>
+        <p><span class="status-chip chip-good">STATUS: IMPLEMENTADO</span> &nbsp; último orador: <b style="color:var(--text)">Gemini</b> &mdash; onboarding adicionado aos READMEs, Issue #28 fechada e diff submetido para auditoria do Tech Lead (Claude).</p>
       </div>
       <div class="live-next">
         <span class="live-label">Próxima pauta</span>
-        <span class="who">Em aberto</span>
-        <span class="what">Canal ativo: claude plugin marketplace add yuremarketing/AgLoop. Suíte 100% verde (115 testes).</span>
+        <span class="who">Claude (Tech Lead)</span>
+        <span class="what">Auditoria do diff documental e aprovação (STATUS: ACORDO).</span>
       </div>
     </div>
 
@@ -321,6 +321,8 @@
       <div class="issue-row"><span><span class="id">#18</span>Publicar agloop de fato no PyPI via Trusted Publishing</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#23</span>Submeter AgLoop ao Directory oficial da Anthropic</span><span class="status-chip chip-good">Closed</span></div>
       <div class="issue-row"><span><span class="id">#25</span>Achados do validador do Claude Directory (hook/MCP/ícone)</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#27</span>Mapeamento de Conformidade GDPR para AgLoop</span><span class="status-chip chip-good">Closed</span></div>
+      <div class="issue-row"><span><span class="id">#28</span>Virar plugin oficial no Claude Directory e no Antigravity Marketplace</span><span class="status-chip chip-good">Closed</span></div>
     </div>
 
     <div class="panel">
@@ -344,6 +346,12 @@
         <div class="log-row"><span class="date">2026-11-09</span><span>Issue #18 — Publicação real no PyPI via Trusted Publishing (OIDC): publish.yml, Trusted Publisher cadastrado, releases v0.6.0/v0.6.1/v0.7.0. Executado diretamente a pedido do PO, fora de turno de debate.</span></div>
         <div class="log-row"><span class="date">2026-11-09</span><span>Turno 15 — Higiene Claude Directory: hook isolado em script, runner MCP dedicado, ícone 512x512, Directory pausado e 109 testes verdes (PR #26).</span></div>
         <div class="log-row"><span class="date">2026-11-09</span><span>Issue #23 — Correção dos achados de claude plugin validate --strict (description/homepage/repository) a pedido direto do PO (PR #24).</span></div>
+        <div class="log-row"><span class="date">2026-11-10</span><span>Turno 16 — Isolamento do bundle distribuído na subpasta <code>plugin/</code> e marketplace.json na raiz (PR #29, 114 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-10</span><span>Turno 17 — Guard de GitLock na main contra branches incorretas (PR #31, 115 testes).</span></div>
+        <div class="log-row"><span class="date">2026-11-10</span><span>Turno 18 — GDPR Compliance: Relatório <code>gdpr-conformidade-agloop.md</code> e atualização de riscos internacionais (Issue #27).</span></div>
+        <div class="log-row"><span class="date">2026-11-10</span><span>Turno 20 — Limpeza de command hooks do pacote distribuído (PR #36) e decisão de pausar Directory.</span></div>
+        <div class="log-row"><span class="date">2026-11-10</span><span>Turno 21 — Foco na realidade do PO: Consolidação do Marketplace Self-Hosted (GitHub) como canal oficial de distribuição e polimento de onboarding (115 testes).</span></div>
+      </div>
       </div>
     </div>
   </div>
