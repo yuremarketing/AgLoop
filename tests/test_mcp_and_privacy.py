@@ -253,6 +253,10 @@ def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     assert (tmp_path / "docs" / "gestao" / "matriz-riscos.md").is_file()
     assert (tmp_path / "docs" / "arquitetura" / "decisoes").is_dir()
     assert (tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md").is_file()
+    assert (tmp_path / "docs" / "gestao" / "roster-agentes.md").is_file()
+    assert (tmp_path / "AGENTS.md").is_file()
+    assert (tmp_path / "CLAUDE.md").is_file()
+    assert (tmp_path / "GEMINI.md").is_file()
     assert "war_room.md" in report
     assert "[criado]" in report
     assert "AgLoop: Sala de Guerra criada." in report
@@ -281,6 +285,21 @@ def test_run_init_never_overwrites_existing_files(tmp_path):
     assert "Proximos passos:" not in report2
 
 
+def test_run_init_does_not_overwrite_users_own_claude_md(tmp_path):
+    """A project that already has its own CLAUDE.md/AGENTS.md (Issue #42) must keep it untouched."""
+    from core.init_scaffold import run_init
+
+    (tmp_path / "CLAUDE.md").write_text("instrucoes reais do usuario, nao mexer", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text("AGENTS.md real do usuario, nao mexer", encoding="utf-8")
+
+    report = run_init(repo_root=str(tmp_path))
+
+    assert (tmp_path / "CLAUDE.md").read_text(encoding="utf-8") == "instrucoes reais do usuario, nao mexer"
+    assert (tmp_path / "AGENTS.md").read_text(encoding="utf-8") == "AGENTS.md real do usuario, nao mexer"
+    assert (tmp_path / "GEMINI.md").is_file()  # this one didn't exist, so it was created
+    assert "CLAUDE.md" in report and "ja existia, preservado" in report
+
+
 def test_run_init_quiet_mode_suppresses_onboarding(tmp_path):
     from core.init_scaffold import run_init
 
@@ -301,3 +320,51 @@ def test_init_skill_template_has_no_agloop_internal_references():
 
     for forbidden in ("yure mark", "sysoft"):
         assert forbidden not in content, f"template genérico nao deve citar '{forbidden}'"
+
+
+# --------------------------------------------------------------------------- #
+# Issue #42 (Fase A) — Onboarding, Gate de Prontidão e templates neutros
+# --------------------------------------------------------------------------- #
+_REPO_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+
+def test_init_skill_template_has_onboarding_and_gate_sections():
+    template_path = os.path.join(_REPO_ROOT, "core", "templates", "skills", "vigilia", "SKILL.md")
+    content = open(template_path, encoding="utf-8").read()
+
+    assert "## 6. Onboarding" in content
+    assert "## 7. Gate de Prontidão" in content
+    assert "nunca ofereça pular o protocolo" in content.lower()
+    assert "AGLOOP_TODO" in content
+
+
+def test_root_skill_has_onboarding_and_gate_sections():
+    skill_path = os.path.join(_REPO_ROOT, ".claude", "skills", "vigilia", "SKILL.md")
+    content = open(skill_path, encoding="utf-8").read()
+
+    assert "## 7. Onboarding" in content
+    assert "## 8. Gate de Prontidão" in content
+    assert "nunca ofereça pular o protocolo" in content.lower()
+
+
+def test_agents_md_template_is_provider_neutral_and_points_to_skill():
+    template_path = os.path.join(_REPO_ROOT, "core", "templates", "AGENTS.md")
+    content = open(template_path, encoding="utf-8").read()
+
+    assert ".claude/skills/vigilia/SKILL.md" in content
+    for forbidden in ("yure mark", "sysoft"):
+        assert forbidden not in content.lower()
+
+
+def test_claude_and_gemini_md_templates_point_to_agents_md_without_duplicating_rules():
+    for name in ("CLAUDE.md", "GEMINI.md"):
+        content = open(os.path.join(_REPO_ROOT, "core", "templates", name), encoding="utf-8").read()
+        assert "AGENTS.md" in content
+        # Minimal pointer file, not a full copy of the protocol
+        assert len(content) < 500
+
+
+def test_governance_templates_carry_agloop_todo_marker():
+    for rel in ("roadmap.md", "backlog-produto.md", "matriz-riscos.md", "roster-agentes.md"):
+        content = open(os.path.join(_REPO_ROOT, "core", "templates", "gestao", rel), encoding="utf-8").read()
+        assert "AGLOOP_TODO" in content, f"{rel} deveria ter o marcador AGLOOP_TODO"

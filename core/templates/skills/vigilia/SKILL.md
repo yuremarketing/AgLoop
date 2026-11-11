@@ -11,6 +11,8 @@ metadata:
 Fonte Única da Verdade (SSOT) de governança entre o **PO do projeto** (o humano responsável pelas decisões) e os agentes de IA que participam da Sala de Guerra (por exemplo, Claude e Gemini).
 O canal de comunicação entre agentes é o arquivo `war_room.md` na raiz do repositório, sincronizado via Git.
 
+> **Primeira coisa a fazer:** se o Gate de Prontidão (Seção 7) ainda não está 🟢, conduza o Onboarding (Seção 6) antes de qualquer outra tarefa.
+
 > Ajuste este arquivo à realidade do seu projeto: o nome do PO, quais pastas contam como código de produção e se há CI. O restante do protocolo funciona como está.
 
 ---
@@ -102,3 +104,53 @@ Mudanças em código de produção nunca vão direto para a branch principal:
 5. **Squash merge**, preservando um histórico linear.
 
 `war_room.md` e `HISTORICO.md` ficam fora do gate: são debate, não código de produção.
+
+---
+
+## 6. Onboarding (primeira sessão após o `agloop init`)
+
+Gatilho: o humano diz algo como *"instalei o AgLoop"*, ou você encontra o Gate de Prontidão (Seção 7) com itens pendentes (arquivos com `<!-- AGLOOP_TODO: ... -->`). Conduza nesta ordem, **em conversa com o PO**:
+
+1. **Briefing do repositório.** Leia a estrutura, os manifestos de stack, os testes, o CI e o remoto Git. Responda em poucas linhas: o que você viu e o que falta para o projeto atender o framework.
+2. **Apresentação.** Explique o AgLoop em até 5 linhas: Sala de Guerra (`war_room.md`), turnos com papéis, limite de 3 rodadas, PO com a palavra final sobre código de produção.
+3. **Plano e permissão.** Liste o que precisa ser feito agora (os itens pendentes do Gate) e pergunte: *"Posso começar?"*. Só siga com o "sim" do PO.
+4. **Roster e capacidades.** Pergunte quais agentes vão participar e com quais nomes distintos (ex.: `Claude`, `Claude-Cloud`, `Gemini`, `Codex`). Registre em `docs/gestao/roster-agentes.md` o que cada um consegue produzir e com qual ferramenta (ex.: páginas e wireframes, pesquisa aprofundada, protótipo visual, painel). Cada agente atualiza a própria linha ao entrar na sala.
+5. **Preenchimento da governança.** Item a item, pergunte, proponha um rascunho e escreva o arquivo depois da confirmação do PO. Remova o marcador `AGLOOP_TODO` só quando o item estiver de fato preenchido.
+6. **Ferramentas de apoio.** Para cada artefato, atribua o trabalho ao agente que tem a ferramenta (consultando o roster). Se ninguém na sala tiver, sugira uma ferramenta externa com **instrução explícita**: qual ferramenta, quais fontes subir, qual artefato gerar (relatório, pesquisa com fontes, mapa mental, resumo em áudio, FAQ etc.), o **prompt pronto para colar** e o **caminho de destino** no repositório (ex.: `docs/gestao/estudo-mercado.md`). O artefato volta e passa pela Sala de Guerra como qualquer documento.
+7. **Fechamento.** Faça commit da governança, confira o Gate e diga: *"Gate de Prontidão 🟢. Sala ativa. Qual é a primeira demanda?"*
+
+---
+
+## 7. Gate de Prontidão
+
+**Nenhuma linha de código de produção antes do Gate 🟢.** Não abra turno de código, não implemente e **nunca ofereça pular o protocolo** ("codar direto", "sem o ritual" e equivalentes). Pular o Gate só por ordem explícita do PO, registrada no `war_room.md` com o motivo.
+
+🔒 = obrigatório para codar · 📌 = recomendado
+
+**Ambiente**
+- 🔒 Git instalado; 🔒 Python 3.10+ e o pacote `agloop`; 🔒 remoto `origin` configurado
+- 📌 Chave de API das LLMs configurada (só o nome da variável no `.env`, nunca o valor)
+
+**Acesso e autonomia**
+- 🔒 Push no repositório; 🔒 permissão para criar issues e PRs
+- 📌 Permissão para gerenciar o Kanban (ex.: GitHub Projects); 📌 proteção da branch principal
+
+**Produto**
+- 🔒 Visão / termo de abertura (problema, público, como medir sucesso); 🔒 PO definido
+- 🔒 Backlog com pelo menos 1 user story (*"Como X, quero Y, para Z"*) e 🔒 critérios de aceite em cada story
+- 📌 Personas; 📌 wireframes (se houver interface); 📌 roadmap com marcos
+
+**Técnica**
+- 🔒 Pastas de código de produção definidas; 🔒 comando para rodar os testes
+- 📌 CI; 📌 ADRs das decisões já tomadas (stack, banco, deploy); 📌 convenção de branch e commit; 📌 Definição de Pronto (DoD)
+
+**Riscos e segurança**
+- 🔒 `.env` no `.gitignore` e nenhum segredo commitado; 🔒 matriz de riscos revisada
+- 📌 Mapa de dados pessoais (LGPD/GDPR), se o projeto lida com dados de pessoas; 📌 licença
+
+**Operação da sala**
+- 🔒 Agentes com nomes distintos, registrados no roster
+- 🔒 `AGENTS.md` (e `CLAUDE.md`/`GEMINI.md`, se usados) apontando para este arquivo
+- 📌 Painel de acompanhamento
+
+Se algum 🔒 estiver pendente quando o PO pedir código, responda que o Gate ainda está 🔴, liste o que falta e ofereça resolver agora, nunca contornar.
