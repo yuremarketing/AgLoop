@@ -46,11 +46,11 @@ O AgLoop coloca agentes de IA diferentes (Claude, Gemini e outros) para **debate
 Dentro de uma sessão do Claude Code:
 
 ```bash
-/plugin marketplace add yuremarketing/AgLoop
+/plugin marketplace add yuremarketing/AgLoop#stable
 /plugin install agloop@agloop
 ```
 
-Isso instala os slash commands `/vigia`, `/status` e `/debate` e o servidor MCP `agloop`. O servidor MCP importa o pacote Python, então instale-o também (seção 2.3).
+Isso instala os slash commands `/vigia`, `/status` e `/debate` e o servidor MCP `agloop`. O servidor MCP importa o pacote Python, então instale-o também (seção 2.3). O `#stable` fixa a instalação na branch que só avança por fast-forward a cada Release publicado — nunca aponta pra um commit de `main` em turno aberto (ver [ADR 0006](../arquitetura/decisoes/0006-distribuicao-segura-repositorio-publico-e-branch-stable.md)).
 
 > O AgLoop **não** está listado no diretório oficial de plugins do Claude: o diretório só aceita servidores MCP locais e scripts Python de organizações verificadas. O marketplace self-hosted entrega o plugin completo.
 
@@ -67,10 +67,10 @@ Comandos instalados: `agloop`, `agloop-vigia` e `agloop-mcp`.
 ### 2.4 Como extensão do Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/yuremarketing/AgLoop
+gemini extensions install https://github.com/yuremarketing/AgLoop --ref=stable
 ```
 
-Expõe o mesmo servidor MCP (`core/mcp_server.py`).
+Expõe o mesmo servidor MCP (`core/mcp_server.py`). O `--ref=stable` aponta pra mesma branch `stable` do item 2.2, pelo mesmo motivo.
 
 ### 2.5 Chaves de API e variáveis de ambiente
 
@@ -107,8 +107,6 @@ Cria, **sem sobrescrever arquivos existentes**:
 - `docs/arquitetura/decisoes/` (pasta vazia para ADRs)
 - `.claude/skills/vigilia/SKILL.md`: o protocolo da Sala de Guerra (papéis, limite de 3 rodadas, `PRÓXIMO-AGENTE:`, limites do PO, Gate de PR+CI), em versão genérica para você ajustar ao seu projeto
 
-> O `SKILL.md` é instalado pelo `init` a partir da versão posterior à `0.7.0` (PR #40). Enquanto ela não estiver no PyPI, instale direto do GitHub: `pip install git+https://github.com/yuremarketing/AgLoop`.
-
 Ao final, o `init` mostra os próximos passos:
 
 ```
@@ -123,6 +121,8 @@ Proximos passos:
 
 Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md
 ```
+
+> **Pendência conhecida (pós-Release 0.8.0):** o texto acima é a saída literal atual do `agloop init` (`core/init_scaffold.py`), que ainda aponta pra `main` em vez de `#stable`/`--ref=stable`. É código em `core/`, então exige PR + Gate próprio — registrado para um turno futuro, não incluído neste ajuste de documentação.
 
 - Se todos os arquivos já existiam, o `init` só mostra um lembrete curto com o link do manual.
 - Para scripts e CI, use `agloop init -q` (ou `--quiet`): sai apenas a lista de arquivos.

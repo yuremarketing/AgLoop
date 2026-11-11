@@ -9,7 +9,7 @@
 Install the full AgLoop plugin directly in Claude Code via the self-hosted GitHub marketplace:
 
 ```bash
-/plugin marketplace add yuremarketing/AgLoop
+/plugin marketplace add yuremarketing/AgLoop#stable
 /plugin install agloop@agloop
 ```
 
@@ -61,13 +61,13 @@ Besides `pip install agloop`, the repo is natively installable inside the AI too
 
 **Claude Code** (self-hosted plugin marketplace):
 ```bash
-/plugin marketplace add yuremarketing/AgLoop
+/plugin marketplace add yuremarketing/AgLoop#stable
 /plugin install agloop@agloop
 ```
 
 **Gemini CLI** (direct extension install):
 ```bash
-gemini extensions install https://github.com/yuremarketing/AgLoop
+gemini extensions install https://github.com/yuremarketing/AgLoop --ref=stable
 ```
 
-Both expose the same MCP server (`core/mcp_server.py`) and the War Room slash commands. The Claude Code plugin bundle lives in `plugin/` (manifests, commands and scripts) so installers receive only the distributed package, not the project's War Room governance files; the self-hosted marketplace catalog (`.claude-plugin/marketplace.json`) stays at the repo root and points at `./plugin`. The Gemini CLI extension (`gemini-extension.json`) stays at the repo root.
+Both install from the `stable` branch, which only ever advances by fast-forward when a new PyPI release ships (never from an in-progress `main` commit — see [ADR 0006](docs/arquitetura/decisoes/0006-distribuicao-segura-repositorio-publico-e-branch-stable.md)). Both expose the same MCP server (`core/mcp_server.py`) and the War Room slash commands. The Claude Code plugin bundle lives in `plugin/` (manifests, commands and scripts) so installers receive only the distributed package, not the project's War Room governance files; the self-hosted marketplace catalog (`.claude-plugin/marketplace.json`) stays at the repo root and points at `./plugin`. The Gemini CLI extension (`gemini-extension.json`) stays at the repo root.
