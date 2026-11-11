@@ -12,6 +12,7 @@ from core.update_scaffold import (
     ProtocolFileStatus,
     UpdateReport,
     check_protocol_update_status,
+    detect_customization,
     extract_protocol_version,
     format_update_summary,
     run_update,
@@ -40,15 +41,33 @@ metadata:
     assert extract_protocol_version("sem frontmatter") is None
 
 
-def test_check_protocol_update_status_detects_outdated(tmp_path):
-    # Inicializa um repositório limpo no tmp_path
+def test_detect_customization():
+    tmpl = """---
+name: vigilia
+metadata:
+  version: "1.4.0"
+---
+# Texto padrão
+"""
+    # Mesmo texto mudando apenas a versão -> não é customizado
+    local_version_only = tmpl.replace("1.4.0", "1.0.0")
+    assert detect_customization(local_version_only, tmpl) is False
+
+    # Modificação substancial no corpo (regras, PO etc.) -> customizado
+    local_customized = local_version_only + "\nRegra personalizada do PO Yure Mark\n"
+    assert detect_customization(local_customized, tmpl) is True
+
+
+def test_check_protocol_update_status_detects_outdated_and_customization(tmp_path):
     run_init(repo_root=str(tmp_path), quiet=True)
 
-    # Força versão antiga no SKILL.md local
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
-    downgraded = content.replace('version: "1.4.0"', 'version: "1.0.0"')
-    skill_path.write_text(downgraded, encoding="utf-8")
+    downgraded_and_customized = (
+        content.replace('version: "1.4.0"', 'version: "1.0.0"')
+        + "\n<!-- Customizacao local exclusiva do projeto -->\n"
+    )
+    skill_path.write_text(downgraded_and_customized, encoding="utf-8")
 
     statuses = check_protocol_update_status(repo_root=str(tmp_path))
     skill_status = next(s for s in statuses if s.rel_path == ".claude/skills/vigilia/SKILL.md")
@@ -56,6 +75,7 @@ def test_check_protocol_update_status_detects_outdated(tmp_path):
     assert skill_status.needs_update is True
     assert skill_status.local_version == "1.0.0"
     assert skill_status.template_version == "1.4.0"
+    assert skill_status.is_customized is True
     assert len(skill_status.diff) > 0
 
 
@@ -69,29 +89,47 @@ def test_run_update_dry_run_leaves_files_untouched(tmp_path):
 
     report = run_update(repo_root=str(tmp_path), dry_run=True, yes=True)
 
-    # Nenhuma alteração aplicada
     assert len(report.applied_files) == 0
     assert len(report.backup_files) == 0
-    # O arquivo local deve continuar com a versão 1.0.0
     assert extract_protocol_version(skill_path.read_text(encoding="utf-8")) == "1.0.0"
     assert not skill_path.with_name("SKILL.md.bak").exists()
 
 
-def test_run_update_applies_changes_and_creates_backup(tmp_path):
+def test_run_update_applies_changes_and_preserves_customizations_in_bak(tmp_path):
     run_init(repo_root=str(tmp_path), quiet=True)
 
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
-    downgraded = content.replace('version: "1.4.0"', 'version: "1.0.0"')
-    skill_path.write_text(downgraded, encoding="utf-8")
+    custom_content = (
+        content.replace('version: "1.4.0"', 'version: "1.0.0"')
+        + "\n### Minha Seção Especial Customizada\n"
+    )
+    skill_path.write_text(custom_content, encoding="utf-8")
 
     report = run_update(repo_root=str(tmp_path), dry_run=False, yes=True)
 
     assert ".claude/skills/vigilia/SKILL.md" in report.applied_files
     backup_file = skill_path.with_name("SKILL.md.bak")
     assert backup_file.is_file()
-    assert extract_protocol_version(backup_file.read_text(encoding="utf-8")) == "1.0.0"
+    # O arquivo backup .bak preserva perfeitamente a customização do usuário
+    assert backup_file.read_text(encoding="utf-8") == custom_content
+    # O arquivo principal passa a ter a nova versão
     assert extract_protocol_version(skill_path.read_text(encoding="utf-8")) == "1.4.0"
+
+
+def test_run_update_interactive_declined(tmp_path, monkeypatch):
+    run_init(repo_root=str(tmp_path), quiet=True)
+
+    skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
+    content = skill_path.read_text(encoding="utf-8")
+    skill_path.write_text(content.replace('version: "1.4.0"', 'version: "1.0.0"'), encoding="utf-8")
+
+    # Usuário digita 'n' na confirmação interativa
+    monkeypatch.setattr("builtins.input", lambda _: "n")
+
+    report = run_update(repo_root=str(tmp_path), dry_run=False, yes=False, interactive=True)
+    assert len(report.applied_files) == 0
+    assert ".claude/skills/vigilia/SKILL.md" in report.skipped_files
 
 
 def test_run_update_preserves_existing_roster_governance(tmp_path):
@@ -125,6 +163,7 @@ def test_format_update_summary_with_changes():
         local_version="1.0.0",
         template_version="1.4.0",
         diff="--- diff ---",
+        is_customized=True,
     )
     report = UpdateReport(
         statuses=[status],
@@ -132,9 +171,9 @@ def test_format_update_summary_with_changes():
         backup_files=["target.bak"],
     )
     text = format_update_summary(report, dry_run=False)
-    assert "[DEFASADO]" in text
-    assert "Atualizado: .claude/skills/vigilia/SKILL.md" in text
-    assert "backup criado" in text
+    assert "[CUSTOMIZADO/DEFASADO]" in text
+    assert "Substituído: .claude/skills/vigilia/SKILL.md" in text
+    assert "backup preservado" in text
 
 
 def test_cli_parse_update_args():

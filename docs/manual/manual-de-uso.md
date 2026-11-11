@@ -159,8 +159,9 @@ agloop update --dry-run   # visualiza o diff unificado sem modificar arquivos
 agloop update --yes       # aplica as atualizações criando backups (.bak) automáticos
 ```
 
-- **Preservação de customizações e governança:** Documentos preenchidos de governança (`roadmap.md`, `backlog-produto.md`, `matriz-riscos.md`) **nunca** são tocados. O `roster-agentes.md` só é criado se ainda não existia.
-- **Backups automáticos:** Se um arquivo existente for atualizado, uma cópia de segurança com terminação `.bak` é salva ao lado.
+- **Substituição com backup (.bak):** O `agloop update` atualiza os arquivos de protocolo substituindo-os pelos templates da nova versão e criando uma cópia `.bak` do arquivo original no mesmo diretório. Ele **não** faz mesclagem automática (merge 3-way). Se o seu `SKILL.md` ou protocolo contiver personalizações locais profundas (ex.: nomes do PO, seções exclusivas), use sempre `agloop update --dry-run` para inspecionar o diff antes de atualizar e reincorpore suas customizações a partir da cópia `.bak`.
+- **Governança preenchida imutável:** Documentos de governança preenchidos (`roadmap.md`, `backlog-produto.md`, `matriz-riscos.md`) **nunca** são tocados pelo update. O `roster-agentes.md` só é criado se ainda não existia.
+- **Transparência interativa:** Ao rodar `agloop update` sem `--yes`, o terminal exibe o diff unificado de cada arquivo antes de solicitar confirmação explícita.
 - **Aviso não-intrusivo do PyPI:** Ao rodar comandos como `agloop init`, `agloop check` ou `agloop update`, se houver versão mais recente do pacote publicada no PyPI, uma linha informativa e fail-silent é exibida no final:
   `💡 AgLoop: versão X.Y.Z disponível (instalada: A.B.C). Atualize: pip install --upgrade agloop`
   *(Desativado automaticamente em ambientes CI ou via `AGLOOP_NO_UPDATE_CHECK=1`)*.

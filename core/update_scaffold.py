@@ -31,6 +31,7 @@ class ProtocolFileStatus:
     local_version: str | None = None
     template_version: str | None = None
     diff: str = ""
+    is_customized: bool = False
 
     @property
     def needs_update(self) -> bool:
@@ -58,6 +59,29 @@ def extract_protocol_version(content: str) -> str | None:
     """Extrai o campo version do frontmatter YAML de um arquivo SKILL.md."""
     match = VERSION_PATTERN.search(content)
     return match.group(1).strip() if match else None
+
+
+def detect_customization(local_content: str, tmpl_content: str) -> bool:
+    """
+    Verifica se o arquivo local possui alterações substantivas além da versão no frontmatter.
+    Útil para alertar sobre personalizações do usuário (nomes de PO, seções extras).
+    """
+    diff_lines = list(
+        difflib.unified_diff(
+            local_content.splitlines(),
+            tmpl_content.splitlines(),
+            n=0,
+        )
+    )
+    changed = [
+        line
+        for line in diff_lines
+        if (line.startswith("+") or line.startswith("-"))
+        and not line.startswith("+++")
+        and not line.startswith("---")
+        and "version:" not in line
+    ]
+    return len(changed) > 0
 
 
 def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatus]:
@@ -97,6 +121,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
                     local_version=None,
                     template_version=tmpl_version,
                     diff=f"+ Arquivo novo a ser criado: {rel_path}",
+                    is_customized=False,
                 )
             )
             continue
@@ -104,6 +129,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
         local_content = local_path.read_text(encoding="utf-8")
         local_version = extract_protocol_version(local_content)
         is_ident = local_content == tmpl_content
+        is_cust = detect_customization(local_content, tmpl_content) if not is_ident else False
 
         # Gera diff unificado
         diff_lines = list(
@@ -127,6 +153,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
                 local_version=local_version,
                 template_version=tmpl_version,
                 diff=diff_str,
+                is_customized=is_cust,
             )
         )
 
@@ -145,7 +172,7 @@ def run_update(
     :param repo_root: Raiz do repositório.
     :param dry_run: Se True, apenas calcula diffs sem alterar arquivos no disco.
     :param yes: Se True, aplica as alterações sem confirmação interativa.
-    :param interactive: Se True e yes=False, solicita confirmação no terminal.
+    :param interactive: Se True e yes=False, solicita confirmação no terminal mostrando diffs.
     :return: UpdateReport consolidado.
     """
     statuses = check_protocol_update_status(repo_root=repo_root)
@@ -155,14 +182,38 @@ def run_update(
     if not pending_updates or dry_run:
         return report
 
-    # Em modo interativo sem --yes, solicita confirmação
+    # Em modo interativo sem --yes, solicita confirmação transparente exibindo os diffs
     if interactive and not yes:
-        print("\nArquivos de protocolo passíveis de atualização:")
+        print("\n============================================================")
+        print("          CONFIRMAÇÃO DE ATUALIZAÇÃO (AGLOOP UPDATE)         ")
+        print("============================================================")
+        print("⚠️  AVISO: agloop update realiza a SUBSTITUIÇÃO COMPLETA dos")
+        print("   arquivos pelos templates empacotados na nova versão.")
+        print("   Ele NÃO realiza mesclagem automática (merge de 3 vias).")
+        print("   Cópias de segurança (.bak) serão criadas para permitir que")
+        print("   personalizações locais sejam reincorporadas manualmente.\n")
+        print("Arquivos de protocolo passíveis de atualização:")
         for s in pending_updates:
-            action = "Criar novo arquivo" if not s.exists_locally else f"Atualizar (v{s.local_version or '?'} -> v{s.template_version or '?'})"
+            cust_note = " [⚠️ PERSONALIZADO PELO USUÁRIO]" if s.is_customized else ""
+            action = (
+                "Criar novo arquivo"
+                if not s.exists_locally
+                else f"Substituir (v{s.local_version or '?'} -> v{s.template_version or '?'}){cust_note}"
+            )
             print(f"  - {s.rel_path}: {action}")
+
+        # Exibe os diffs reais antes de pedir confirmação
+        for s in pending_updates:
+            if s.diff:
+                print(f"\n--- Diff proposto para {s.rel_path} ---")
+                print(s.diff)
+
         try:
-            resp = input("\nDeseja aplicar essas atualizações com backup automático? [s/N]: ").strip().lower()
+            resp = (
+                input("\nDeseja aplicar a SUBSTITUIÇÃO desses arquivos com backup (.bak)? [s/N]: ")
+                .strip()
+                .lower()
+            )
             if resp not in ("s", "sim", "y", "yes"):
                 report.skipped_files = [s.rel_path for s in pending_updates]
                 return report
@@ -213,13 +264,14 @@ def format_update_summary(report: UpdateReport, dry_run: bool = False) -> str:
     lines.append("Status dos arquivos de protocolo:")
     for s in report.statuses:
         if not s.exists_locally:
-            lines.append(f"  [NOVO]        {s.rel_path} (template v{s.template_version or '?'})")
+            lines.append(f"  [NOVO]                 {s.rel_path} (template v{s.template_version or '?'})")
         elif s.needs_update:
+            tag = "[CUSTOMIZADO/DEFASADO]" if s.is_customized else "[DEFASADO]"
             lines.append(
-                f"  [DEFASADO]    {s.rel_path} (local v{s.local_version or '?'} < template v{s.template_version or '?'})"
+                f"  {tag:<22} {s.rel_path} (local v{s.local_version or '?'} < template v{s.template_version or '?'})"
             )
         else:
-            lines.append(f"  [ATUALIZADO]  {s.rel_path} (v{s.local_version or '?'})")
+            lines.append(f"  [ATUALIZADO]           {s.rel_path} (v{s.local_version or '?'})")
 
     if dry_run:
         lines.append("")
@@ -229,17 +281,18 @@ def format_update_summary(report: UpdateReport, dry_run: bool = False) -> str:
                 lines.append(f"\n--- {s.rel_path} ---")
                 lines.append(s.diff)
         lines.append("\nModo dry-run: nenhum arquivo foi modificado no disco.")
-        lines.append("Para aplicar as atualizações com backup automático: agloop update --yes")
+        lines.append("Para aplicar a substituição com backup automático: agloop update --yes")
     elif report.applied_files or report.created_files:
         lines.append("")
         lines.append("Resultados da atualização:")
         for f in report.created_files:
             lines.append(f"  ✓ Criado: {f}")
         for f in report.applied_files:
-            lines.append(f"  ✓ Atualizado: {f} (backup criado em {f}.bak)")
+            lines.append(f"  ✓ Substituído: {f} (backup preservado em {f}.bak)")
         for f in report.skipped_files:
             lines.append(f"  - Preservado: {f}")
-        lines.append("\nAtualização de protocolo concluída com sucesso.")
+        lines.append("\nAtualização concluída com sucesso.")
+        lines.append("Aviso: Caso você possuísse personalizações no arquivo original, elas estão preservadas no .bak.")
         lines.append("Documentos de governança preenchidos (roadmap, backlog, riscos) foram preservados intactos.")
 
     lines.append("============================================================")
