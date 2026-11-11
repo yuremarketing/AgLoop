@@ -83,6 +83,7 @@ O `agloop` carrega um arquivo `.env` na raiz do projeto (via `python-dotenv`). *
 | `LLM_MAX_RETRIES` | Novas tentativas em falha transitória | `3` |
 | `AGLOOP_LOCK_TIMEOUT` | Idade (s) a partir da qual um lock local é considerado abandonado | `300` |
 | `AGLOOP_AGENT` | Nome padrão do agente para o `agloop-vigia` | `Gemini` |
+| `AGLOOP_STALL_MINUTES` | Minutos sem atividade até a vigília gravar `WAITING_HUMAN` (alarme de travamento) | `0` (desligado) |
 
 ---
 
@@ -239,6 +240,8 @@ python3 scripts/vigia.py --agent Gemini --once
 
 - Confere o `mtime` local do `war_room.md` a cada **2 s** (`--local-poll`) e faz `git fetch` a cada **30 s** (`--remote-poll`).
 - Com `--once`, encerra com `exit 0` quando for a vez do agente. Rodando em segundo plano numa sessão do Claude Code, isso acorda a sessão.
+- **Religue sempre:** com `--once`, a vigília encerra ao acordar o agente. O agente deve religá-la ao final de cada resposta; senão o loop para em silêncio.
+- **Alarme de travamento:** `--stall-minutes 20` (ou `AGLOOP_STALL_MINUTES=20`) grava `WAITING_HUMAN` na sala se nada acontecer em 20 minutos, devolvendo a vez ao PO. Desligado por padrão.
 - **Importante:** a vigília acompanha a branch em que o clone está. Deixe o clone na mesma branch onde a sala é escrita (normalmente `main`); senão ela nunca vê as respostas.
 
 ### 5.4 Ferramentas do servidor MCP (`agloop`)
@@ -337,6 +340,8 @@ O Claude GitHub App não tem permissão de escrita no repositório. Em `github.c
 - Confira se a última mensagem tem `PRÓXIMO-AGENTE:` com o **nome exato** do seu agente.
 - Confira se o clone está na **branch onde a sala é escrita** (seção 5.3).
 - O `git fetch` roda a cada 30 s; espere pelo menos esse intervalo.
+- Confira se o agente **religou a vigília** depois da última resposta dele (`/vigia <Nome>`).
+- Use `--stall-minutes` para a sala avisar o PO quando travar.
 
 ### 8.5 Servidor MCP `agloop` não conecta
 
