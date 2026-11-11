@@ -137,7 +137,16 @@ Depois do `init`, diga ao seu agente: *"instalei o AgLoop"*. Ele segue o **Onboa
 4. preenche a governança **em conversa com você** (visão, PO, backlog com user stories e critérios de aceite, riscos etc.);
 5. sugere ferramentas de apoio para cada artefato, com instrução explícita (qual ferramenta, quais fontes, prompt pronto, onde salvar no repositório).
 
-Enquanto o **Gate de Prontidão** não estiver 🟢, o agente não escreve código de produção e **não oferece pular o protocolo**. Itens pendentes ficam marcados nos arquivos com `<!-- AGLOOP_TODO: ... -->`. A verificação automática do Gate (`agloop check`) é a Fase B da [Issue #42](https://github.com/yuremarketing/AgLoop/issues/42).
+Enquanto o **Gate de Prontidão** não estiver 🟢, o agente não escreve código de produção e **não oferece pular o protocolo**. Itens pendentes ficam marcados nos arquivos com `<!-- AGLOOP_TODO: ... -->`. Para conferir o Gate a qualquer momento (sem IA, determinístico):
+
+```bash
+agloop check        # relatório completo: 🔒 obrigatórios e 📌 recomendados, com o que falta
+agloop check -q     # só o resumo, ex.: "Gate de Prontidão: 🔴 (4 pendência(s) bloqueante(s))"
+```
+
+- Sai com código `0` quando o Gate está 🟢 e `1` quando está 🔴, então serve também para CI.
+- O `agloop run` **se recusa a rodar** com o Gate 🔴. Bypass só em emergência e com autorização expressa do PO: `agloop run --force-bypass-gate ...`.
+- Num repositório recém-inicializado o resultado é 🔴, como esperado: o Onboarding existe justamente para levá-lo a 🟢.
 
 ### 3.2 Conhecer o projeto (somente leitura)
 
