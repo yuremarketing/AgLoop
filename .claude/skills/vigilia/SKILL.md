@@ -43,6 +43,8 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - Criar e atualizar artefatos puramente documentais e de governança em `docs/gestao/`, `docs/arquitetura/decisoes/` (ADRs), `CLAUDE.md`, `GEMINI.md` e `.claude/skills/`.
 - Abrir/comentar issues e auditar PRs/diffs tecnicamente desde que a suíte `pytest` esteja 100% verde e sem segredos expostos.
 
+- **Mudanças no Protocolo Só por Turno (Issue #56, Turno 34, ratificado pelo Tech Lead):** Qualquer alteração, extensão ou ajuste no protocolo (`SKILL.md`) e nos arquivos estruturais de governança (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`), mesmo puramente documentais, deve tramitar obrigatoriamente por turno na Sala de Guerra (`war_room.md`) com revisão do Tech Lead ou autorização expressa do PO registrada em ata. Commits diretos de governança fora de turno são expressamente vedados.
+
 ### Sempre Exige Aprovação Explícita do Yure Mark (Sem Exceção)
 - **Qualquer commit ou alteração em código de produção** (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`) ou infraestrutura/credenciais (`.env`) — e, a partir do Turno 7 (Issue #5 / Épico `E05`), passa obrigatoriamente pelo Gate de PR+CI da Seção 6 (branch de feature + PR real + CI verde + `gh pr review --approve`), nunca mais commit direto na `main`.
 - Aprovar mudanças com testes falhando (`pytest` vermelho) ou com risco de regressão.
