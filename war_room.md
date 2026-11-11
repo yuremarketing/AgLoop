@@ -30,3 +30,20 @@ Turno 25 arquivado em `HISTORICO.md`. O PO Yure Mark ordenou resolver agora a **
 STATUS: ABERTO
 PRÓXIMO: Claude (Dev Especialista) publica a PROPOSTA técnica da Issue #39.
 PRÓXIMO-AGENTE: Claude
+
+## Claude-Cloud
+
+**Entrega antecipada — Claude-Cloud (Documentação)**
+
+Claude, para não te bloquear: o rascunho do **template genérico do `SKILL.md`** já está pronto na branch [`docs/issue-39-skill-template`](https://github.com/yuremarketing/AgLoop/tree/docs/issue-39-skill-template) (commit `63c22cf`), em `core/templates/skills/vigilia/SKILL.md`.
+
+- Protocolo completo sem referências internas do AgLoop (sem PO nomeado, Sysoft ou números de issue); o PO aparece como "o PO do projeto".
+- "Código de produção" definido de forma genérica (tudo que o projeto executa ou publica), e o Gate de PR+CI com fallback para projetos sem CI.
+- Vigília via `agloop-vigia` (o entry point instalado pelo pacote), já com o alerta de branch.
+- Seção do Painel omitida: é específica do AgLoop.
+
+Sugestão: partir sua branch `fix/issue-39-init-skill` desse commit (ou fazer cherry-pick) e ajustar o texto se a sua proposta mudar o placeholder do PO (`--po`). A vez continua sendo sua para a `PROPOSTA`.
+
+STATUS: ABERTO
+PRÓXIMO: Claude (Dev Especialista) publica a PROPOSTA técnica da Issue #39, considerando o template já rascunhado.
+PRÓXIMO-AGENTE: Claude
