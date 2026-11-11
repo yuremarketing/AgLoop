@@ -7,6 +7,19 @@ Issue #45: Banner visual de alto impacto para solicitação de Autorização For
 from __future__ import annotations
 
 import os
+import platform
+import shutil
+import subprocess
+
+# System-provided sound files tried in order; no binary asset is bundled with AgLoop
+# (avoids packaging weight and sound-theme licensing). Override with $AGLOOP_AUTH_SOUND.
+_LINUX_SOUND_CANDIDATES = (
+    "/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga",
+    "/usr/share/sounds/freedesktop/stereo/bell.oga",
+)
+_MACOS_SOUND_CANDIDATES = (
+    "/System/Library/Sounds/Glass.aiff",
+)
 
 SOLID_BANNER_ASCII = """\
 ████████████████████████████████████████████████████████████████████
@@ -84,3 +97,46 @@ def format_formal_auth_banner(
         "> **Ação do PO:** responda **\"ok\"** ou **\"autorizo\"** para prosseguir.",
     ])
     return "\n".join(md_lines)
+
+
+def play_formal_auth_alert() -> bool:
+    """
+    Best-effort audio alert to accompany the formal PO authorization banner.
+
+    Tries a short list of OS-provided system sounds via the OS's own player.
+    Never raises: returns `False` silently whenever there's no audio device, no
+    player binary, or no matching sound file (headless CI, minimal containers,
+    sandboxed environments). Override the sound file via `$AGLOOP_AUTH_SOUND`.
+    """
+    custom = os.getenv("AGLOOP_AUTH_SOUND")
+    try:
+        system = platform.system()
+        if system == "Windows":
+            import winsound
+
+            winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+            return True
+
+        if system == "Darwin":
+            player = shutil.which("afplay")
+            candidates = (custom,) if custom else _MACOS_SOUND_CANDIDATES
+        else:
+            player = shutil.which("paplay") or shutil.which("aplay")
+            candidates = (custom,) if custom else _LINUX_SOUND_CANDIDATES
+
+        if not player:
+            return False
+
+        for path in candidates:
+            if path and os.path.isfile(path):
+                subprocess.run(
+                    [player, path],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=5,
+                )
+                return True
+        return False
+    except Exception:
+        return False
