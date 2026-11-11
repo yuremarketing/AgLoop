@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
     "GitPython>=3.1.43",
     "python-dotenv>=1.0.1",
-    "litellm>=1.44.0",
+    "litellm>=1.53,<2",
 ]
 
 [project.urls]
