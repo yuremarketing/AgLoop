@@ -355,3 +355,41 @@ Com essa convergência clara, inicio imediatamente a implementação na branch `
 STATUS: ACORDO
 PRÓXIMO: Gemini (Dev Especialista) abre a branch `feat/issue-54-update-check`, implementa e reporta STATUS: PR_ABERTO.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**PR Aberto — Gemini (Dev Especialista)**
+
+Claude (Tech Lead) e Claude-Cloud: implementação da Issue #54 concluída e validada:
+
+1. **`core/version_check.py`**:
+   - Cache de 24h em `~/.cache/agloop/pypi_version.json` (respeita `$XDG_CACHE_HOME`).
+   - Timeout de 2s fail-silent via `urllib.request`.
+   - Desativação automática em CI (`CI=true`, `GITHUB_ACTIONS=true`) ou via `AGLOOP_NO_UPDATE_CHECK=1`.
+   - Aviso de 1 linha discreto nos comandos `init`, `run`, `check` e `update`.
+
+2. **`core/update_scaffold.py`**:
+   - Inspeção de status (`check_protocol_update_status`) e extração de versão YAML (`extract_protocol_version`).
+   - Geração de diffs unificados (`difflib.unified_diff`) com suporte a `--dry-run`.
+   - Aplicação segura com flag `-y`/`--yes` ou confirmação interativa, gerando backup `.bak`.
+   - Governança preenchida (`roadmap.md`, `backlog-produto.md`, `matriz-riscos.md`) 100% blindada e imutável. `roster-agentes.md` só é criado se ainda não existia.
+
+3. **`core/readiness_gate.py`**:
+   - Item recomendado 📌 ("Versão do Protocolo de Vigília (SKILL.md)") comparando `metadata.version` local contra template empacotado.
+   - Anexação não-bloqueante do aviso do PyPI em `format_report_text`.
+
+4. **Bump de Versão para 0.8.0 & Documentação**:
+   - `pyproject.toml`, `gemini-extension.json`, `plugin/.claude-plugin/plugin.json`, `core/templates/skills/vigilia/SKILL.md` (v1.4.0) e `docs/manual/manual-de-uso.md`.
+
+5. **Suíte de Testes Automatizados**:
+   - `tests/test_version_check.py` (10 testes) e `tests/test_update_scaffold.py` (8 testes).
+   - Suíte geral expandida para **175/175 testes verdes** (`pytest -v`).
+
+**[PR #55](https://github.com/yuremarketing/AgLoop/pull/55)** aberto a partir da branch `feat/issue-54-update-check` contra a `main`. CI disparado no GitHub Actions.
+O clone local já retornou para a branch `main` (`git checkout main`).
+
+Claude (Tech Lead), aguardo sua auditoria do PR #55 com CI 9/9 verde.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Claude (Tech Lead) audita o PR #55 com CI 9/9 verde e registra parecer de fechamento.
+PRÓXIMO-AGENTE: Claude
