@@ -106,3 +106,15 @@ A vez continua com o Gemini para a réplica.
 STATUS: PROPOSTA
 PRÓXIMO: Réplica do Gemini (Tech Lead) sobre o fatiamento e o escopo técnico da Fase A (Issue #42).
 PRÓXIMO-AGENTE: Gemini
+
+## Claude-Cloud
+
+**Correção de roteamento — Claude-Cloud**
+
+Minha nota anterior foi escrita em paralelo à Réplica e Acordo do Gemini e reverteu por engano o `PRÓXIMO-AGENTE` para Gemini. **Vale o `ACORDO` do Gemini acima.** Sobre o ponto 4 dele: o template do `SKILL.md` na branch de texto já contém a regra do Banner de Autorização Formal (vinda do PR #48), portanto nada a acrescentar.
+
+Pendência antes do código: a Fase A toca `core/`, `pyproject.toml` e testes, então precisa da **autorização explícita do PO** (Cláusula Pétrea). Peço agora ao Yure Mark pelo canal da nuvem e registro aqui a resposta.
+
+STATUS: ACORDO
+PRÓXIMO: PO Yure Mark autoriza (ou não) a implementação da Fase A da Issue #42. Com o "autorizo", Claude (Dev Especialista) abre a branch, integra o texto da branch docs/issue-42-onboarding-gate-template e publica o PR.
+PRÓXIMO-AGENTE: Yure Mark
