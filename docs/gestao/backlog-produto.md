@@ -141,3 +141,13 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
   - [x] `E11.4` — Seção "Native Extensions & Plugins" no `README.md` com os comandos reais de instalação em cada ecossistema.
   - [x] `E11.5` — `tests/test_plugin_manifests.py`: validação sintática e de campos obrigatórios dos 3 manifestos, com checagem cruzada de consistência de versão (`0.6.1`).
 
+
+---
+
+### E12 — Manual de Uso do AgLoop ([Issue #37](https://github.com/yuremarketing/AgLoop/issues/37))
+- **Status:** 🟡 Em auditoria (Turno 25)
+- **Motivação:** O usuário final só tinha o `README.md` e o `plugin/README.md`; `docs/gestao/` é governança interna. Faltava um guia de ponta a ponta, da instalação ao primeiro `ACORDO`.
+- **Entregas:**
+  - [x] `E12.1` — `docs/manual/manual-de-uso.md` (PT-BR): instalação, primeiros passos, conceitos, uso diário, cenários (2 agentes, N agentes, PO pelo celular), governança, solução de problemas e FAQ. Comandos e flags conferidos contra `main.py`, `scripts/vigia.py`, `core/mcp_server.py`, `core/init_scaffold.py` e `core/git_lock.py`.
+  - [x] `E12.2` — Link para o manual no topo do `README.md`.
+  - [ ] `E12.3` — Versão em inglês (turno futuro, junto da divulgação).

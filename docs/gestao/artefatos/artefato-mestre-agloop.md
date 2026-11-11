@@ -66,6 +66,7 @@ O **AgLoop** é um framework leve e *serverless* de orquestração multi-agente 
 - [`lgpd-conformidade-agloop.md`](../lgpd-conformidade-agloop.md) — Relatório de Mapeamento de Conformidade LGPD (Lei nº 13.709/2018), governança de dados, privacidade (`R06`, `R09`, `R10`) e requisitos `LGPD-01` a `LGPD-04`.
 - [`gdpr-conformidade-agloop.md`](../gdpr-conformidade-agloop.md) — Relatório de Mapeamento de Conformidade GDPR (Regulamento (UE) 2016/679), bases legais (Art. 6º), transferência internacional (Art. 44–49), direitos em Git e Privacy by Design.
 - [`painel-agloop.html`](../painel-agloop.html) — Painel visual de gestão autocontido e portável entre agentes (Marcos, Issues, Riscos, KPIs e status da Sala de Guerra — Issue #6 / Épico `E06`).
+- [`docs/manual/manual-de-uso.md`](../../manual/manual-de-uso.md) — Manual de Uso para o usuário final: instalação, conceitos, uso diário, cenários com N agentes, governança e solução de problemas (Issue #37 / Épico `E12`).
 
 ### 3.2 Decisões de Arquitetura (`docs/arquitetura/decisoes/`)
 - [`0001-ipc-markdown-e-git-serverless-broker.md`](../../arquitetura/decisoes/0001-ipc-markdown-e-git-serverless-broker.md) — Uso de `war_room.md` e Git como broker serverless.

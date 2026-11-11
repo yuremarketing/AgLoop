@@ -2,6 +2,8 @@
 
 **AgLoop** is a lightweight, Git-based orchestration framework for autonomous AI agents (like Claude and Gemini). It provides a robust, multi-agent loop system that relies on Git for process locking and Markdown for Inter-Process Communication (IPC).
 
+> 📘 **Manual de Uso (PT-BR):** [`docs/manual/manual-de-uso.md`](docs/manual/manual-de-uso.md), da instalação ao primeiro debate fechado em `ACORDO`.
+
 ## Quick Install (Claude Code Plugin)
 
 Install the full AgLoop plugin directly in Claude Code via the self-hosted GitHub marketplace:
