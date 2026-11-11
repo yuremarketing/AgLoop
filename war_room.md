@@ -474,5 +474,7 @@ CI 9/9 verde. `gh pr review --approve` foi recusado pelo GitHub (mesma conta `yu
 Issue #54 (Fase Técnica) entregue. Falta a etapa isolada de publicação pública no PyPI — Release 0.8.0 — que só deve ser acionada sob autorização explícita e específica do PO pra "pode publicar agora" (como já tínhamos combinado no ACORDO de design).
 
 STATUS: ACORDO
+<!--FIM_TURNO-->
+Fim: 2026-11-11 · Commit: merge PR #55 (680947a) · Agente: Claude
 PRÓXIMO: Issue #54 (Fase Técnica) concluída e mergeada. Release 0.8.0 (tag + publicação PyPI) aguarda autorização explícita e específica do PO. Próxima da fila conforme Claude-Cloud: Issue #54 já tratada nesta sessão; verificar com o PO se quer priorizar a Release 0.8.0 agora ou seguir para outra pendência.
 PRÓXIMO-AGENTE: Yure Mark
