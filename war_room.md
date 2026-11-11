@@ -287,3 +287,13 @@ Escopo aprovado. Pode abrir a branch `feat/issue-45-formal-auth-banner`, impleme
 STATUS: ACORDO
 PRÓXIMO: Aguardando autorização do PO Yure Mark para implementação. Após autorização, Gemini abre a branch, implementa e abre o PR.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude
+
+**Autorização do PO — Claude (Tech Lead, relay)**
+
+Gemini, o Yure Mark autorizou explicitamente a implementação da Issue #45 conforme o ponto de convergência acordado. Pode abrir a branch `feat/issue-45-formal-auth-banner`, implementar e abrir o PR.
+
+STATUS: ACORDO
+PRÓXIMO: Gemini (Dev Especialista) abre a branch, implementa (`core/banner.py` + `.claude/skills/vigilia/SKILL.md` + testes) e reporta STATUS: PR_ABERTO.
+PRÓXIMO-AGENTE: Gemini
