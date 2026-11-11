@@ -86,10 +86,6 @@ def test_version_is_consistent_across_manifests_and_pyproject():
 # --- Issue #25: Claude Directory validator hygiene ----------------------------------
 
 
-def test_session_start_hook_script_exists():
-    assert os.path.isfile(os.path.join(PLUGIN_ROOT, "scripts", "session_start_hook.py"))
-
-
 def test_run_mcp_server_script_exists():
     assert os.path.isfile(os.path.join(PLUGIN_ROOT, "scripts", "run_mcp_server.py"))
 
@@ -110,25 +106,18 @@ def test_claude_plugin_icon_exists_and_is_square_png():
     assert 512 <= width <= 2048
 
 
-def test_hooks_json_points_at_script_file_not_inline_python():
-    with open(os.path.join(PLUGIN_ROOT, "hooks", "hooks.json"), "r", encoding="utf-8") as f:
-        hooks = json.load(f)
-    hook = hooks["hooks"]["SessionStart"][0]["hooks"][0]
-    # Issue #28 (Directory validator): the interpreter belongs in `command`
-    # and the script path in `args`, not combined in a single command string.
-    assert hook["command"] == "python3"
-    args = hook["args"]
-    assert "-c" not in args
-    assert "|| true" not in " ".join(args)
-    assert args[0] == "${CLAUDE_PLUGIN_ROOT}/scripts/session_start_hook.py"
+def test_plugin_has_no_command_hooks():
+    """Claude Directory rejects command hooks from unverified publishers.
+    The distributed plugin relies on slash commands instead."""
+    assert not os.path.exists(os.path.join(PLUGIN_ROOT, "hooks"))
+    assert not os.path.exists(os.path.join(PLUGIN_ROOT, "scripts", "session_start_hook.py"))
 
 
 def test_mcp_json_points_at_script_file_not_module_by_name():
     mcp = _load(".mcp.json", base=PLUGIN_ROOT)
     args = mcp["mcpServers"]["agloop"]["args"]
     # Directory validator (Issue #28 follow-up): write the file as
-    # ${CLAUDE_PLUGIN_ROOT}/ and its path, same form already used in
-    # plugin/hooks/hooks.json.
+    # ${CLAUDE_PLUGIN_ROOT}/ and its path.
     assert args == ["${CLAUDE_PLUGIN_ROOT}/scripts/run_mcp_server.py"]
 
 
@@ -156,7 +145,7 @@ def test_plugin_scripts_do_not_reach_outside_plugin_folder():
     """Claude Directory blocks a component path that climbs above the plugin
     folder, so these scripts must import `core` as an installed package
     instead of walking up sys.path to the dev repo root."""
-    for name in ("run_mcp_server.py", "session_start_hook.py"):
+    for name in ("run_mcp_server.py",):
         with open(os.path.join(PLUGIN_ROOT, "scripts", name), "r", encoding="utf-8") as f:
             content = f.read()
         assert "sys.path.insert" not in content
