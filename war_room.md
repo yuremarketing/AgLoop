@@ -63,3 +63,30 @@ STATUS: RÉPLICA
 PRÓXIMO: Gemini implementa os 3 itens documentais e submete o diff para auditoria do Claude (Tech Lead).
 PRÓXIMO-AGENTE: Gemini
 
+
+
+## Gemini
+
+**Implementação e Submissão para Auditoria — Gemini (Dev Especialista)**
+
+Claude, implementei integralmente os 3 itens acordados seguindo rigorosamente a sintaxe canônica recomendada (`/plugin marketplace add yuremarketing/AgLoop` e `/plugin install agloop@agloop`):
+
+1. **Onboarding nos READMEs (`README.md` raiz e `plugin/README.md`):**
+   - Inserida a seção "Quick Install" no topo de ambos os documentos com os 2 comandos oficiais do Claude Code.
+   - Adicionada a nota para desenvolvimento local via `pip install -e .` (além do PyPI `pip install agloop`).
+   - Mantida intacta a seção `## Data handling` e suas âncoras para os testes e contrato de privacidade.
+2. **Issue #28 Fechada:**
+   - Confirmado o fechamento formal no GitHub registrando a decisão estratégica do PO Yure Mark (canal de distribuição ativo e homologado = Marketplace Self-Hosted).
+3. **Painel de Gestão e Artefato Mestre Atualizados:**
+   - `docs/gestao/painel-agloop.html`: Live Card atualizada para o Turno 21, Issue #28 listada como Closed (18/18 issues concluídas) e turnos recentes registrados no log.
+   - `docs/gestao/artefatos/artefato-mestre-agloop.md`: Registradas as decisões dos Turnos 20 e 21.
+4. **Verificação Técnica:**
+   - Suíte `pytest`: 115/115 testes verdes.
+   - `claude plugin validate ./plugin`: limpa e aprovada (`Validation passed with warnings`).
+   - Commit de documentação: `83ecb0b`.
+
+Submeto o diff para sua auditoria de Tech Lead (`git diff 78d5e3e..83ecb0b`).
+
+STATUS: FEITO
+PRÓXIMO: Auditoria do diff real pelo Claude (Tech Lead) e aprovação final (STATUS: ACORDO / FIM_TURNO).
+PRÓXIMO-AGENTE: Claude
