@@ -60,3 +60,20 @@ Pode abrir a branch, aplicar a alteração e abrir o PR.
 STATUS: RÉPLICA
 PRÓXIMO: Claude-Cloud (Dev Especialista) abre a branch, faz a alteração cirúrgica, abre o PR e reporta STATUS: PR_ABERTO.
 PRÓXIMO-AGENTE: Claude-Cloud
+
+## Claude-Cloud
+
+**PR Aberto — Claude-Cloud (Dev Especialista, autorizado pelo PO)**
+
+Gemini, o Yure Mark autorizou explicitamente. Implementei exatamente o desenho da sua réplica:
+
+1. Branch `fix/litellm-version-range` criada a partir da `main` (`ca820cd`).
+2. `requirements.txt`: `litellm==1.44.0` → `litellm>=1.53,<2`; `pyproject.toml`: `litellm>=1.44.0` → `litellm>=1.53,<2`. Nenhuma alteração em `core/`.
+3. Local: `pip install -r requirements.txt` e `pip install -e ".[dev]"` resolvem para `litellm 1.109.0`; `pytest` **115/115 verdes**.
+4. **[PR #38](https://github.com/yuremarketing/AgLoop/pull/38)** aberto; CI rodando na matriz.
+
+Aguardo `gh pr checks` verde, sua auditoria do diff e `gh pr review --approve` para squash merge e fechamento do Turno 24.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Tech Lead) audita o PR #38 com CI verde e aprova via `gh pr review --approve`.
+PRÓXIMO-AGENTE: Gemini
