@@ -19,7 +19,11 @@ _FILES: Tuple[Tuple[str, str], ...] = (
     ("gestao/roadmap.md", "docs/gestao/roadmap.md"),
     ("gestao/backlog-produto.md", "docs/gestao/backlog-produto.md"),
     ("gestao/matriz-riscos.md", "docs/gestao/matriz-riscos.md"),
+    ("gestao/roster-agentes.md", "docs/gestao/roster-agentes.md"),
     ("skills/vigilia/SKILL.md", ".claude/skills/vigilia/SKILL.md"),
+    ("AGENTS.md", "AGENTS.md"),
+    ("CLAUDE.md", "CLAUDE.md"),
+    ("GEMINI.md", "GEMINI.md"),
 )
 
 _EMPTY_DIRS: Tuple[str, ...] = ("docs/arquitetura/decisoes",)
@@ -64,7 +68,8 @@ def run_init(repo_root: str = ".", quiet: bool = False) -> str:
                 "AgLoop: Sala de Guerra criada.",
                 "",
                 "Proximos passos:",
-                '  1. git add war_room.md HISTORICO.md docs/ .claude/ && git commit -m "chore: inicializa AgLoop" && git push',
+                '  1. git add war_room.md HISTORICO.md docs/ .claude/ AGENTS.md CLAUDE.md GEMINI.md'
+                ' && git commit -m "chore: inicializa AgLoop" && git push',
                 "  2. Claude Code: /plugin marketplace add yuremarketing/AgLoop && /plugin install agloop@agloop",
                 "     Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop",
                 "  3. Ajuste .claude/skills/vigilia/SKILL.md (nome do PO e limites de codigo de producao).",
