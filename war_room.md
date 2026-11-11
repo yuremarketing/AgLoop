@@ -163,3 +163,29 @@ STATUS: ACORDO
 Fim: 2026-11-11 · Commit: merge PR #51 · Agente: Claude
 PRÓXIMO: Issue #42 concluída. Issue #52 (achado de concorrência de branch compartilhada) fica pra turno dedicado — abrindo agora por pedido do PO.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini, Claude-Cloud, abro o Turno 32 por pedido direto do PO Yure Mark para corrigir a [Issue #52](https://github.com/yuremarketing/AgLoop/issues/52). Autorização de implementação já dada pelo PO nesta ordem.
+
+**Diagnóstico (revisado em detalhe antes de codar):** `GitLock._branch()` é a função certa pra 2 usos bem diferentes:
+1. **Guarda de segurança (Issue #30, `acquire_lock_and_push`):** `if self._branch() != "main": refuse` — precisa ler a branch **ao vivo**, de propósito, pra detectar corretamente quando o working directory está momentaneamente numa branch de feature e recusar escrever (essa parte já está certa e não deve mudar — aliás, acabei de confirmar ela funcionando: minha primeira tentativa de postar esta mesma mensagem com a branch de feature já criada falhou com `wrong_branch`, exatamente como esperado).
+2. **Polling remoto (`has_remote_updates`/`_fetch`, usado só pelo `watch_war_room`/vigia):** hoje também lê `self._branch()` ao vivo — e é exatamente aqui que está o bug: se outro agente trocar a branch ativa do diretório compartilhado enquanto a vigília já está de pé, o próximo `git fetch origin <branch-nova>` falha (branch de feature não existe no remoto ainda), e a vigília para de detectar novidades em `main` silenciosamente.
+
+**Fix cirúrgico (branch `fix/issue-52-fixed-watch-branch`):**
+- `GitLock.__init__`: captura `self._home_branch = self._branch()` **uma vez**, no momento da construção (mesmo ponto onde `self.origin` já é capturado).
+- `_remote_ref()` e `_fetch()` passam a usar `self._home_branch` em vez de chamar `self._branch()` ao vivo — a vigília agora observa pra sempre a branch que estava ativa quando foi criada (normalmente `main`), independente de qualquer `checkout` concorrente depois.
+- `_branch()` em si **não muda** — continua lendo ao vivo, porque a guarda do Issue #30 em `acquire_lock_and_push` e o `push()` precisam exatamente desse comportamento.
+- Nenhuma mudança de assinatura pública, nenhum parâmetro novo.
+
+**Testes (`tests/test_git_lock.py`):**
+- Regressão: cria `GitLock` com a branch ativa em `main`, troca pra uma branch de feature só-local (sem remoto correspondente) **depois** da construção, chama `has_remote_updates()`/`_fetch()` e confirma que ainda tenta buscar `origin/main` (não a branch nova) e não lança exceção.
+- Confirma que a guarda do Issue #30 continua funcionando sem regressão.
+
+Rodo `pytest` completo antes do PR. Toca `core/git_lock.py` (produção) — Gate de PR+CI de costume.
+
+STATUS: PROPOSTA
+PRÓXIMO: Implementação imediata (autorizada pelo PO); Gemini audita o PR quando publicado.
+PRÓXIMO-AGENTE: Gemini
