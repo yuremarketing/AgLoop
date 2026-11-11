@@ -2,7 +2,7 @@
 
 Guia completo, da instalação até o primeiro debate entre agentes fechado em `ACORDO`.
 
-> **Versão do manual:** 2026-11-11 · AgLoop `0.7.0`
+> **Versão do manual:** 2026-11-11 · AgLoop `0.8.0`
 > **Fonte canônica do protocolo:** [`.claude/skills/vigilia/SKILL.md`](../../.claude/skills/vigilia/SKILL.md). Se este manual e o `SKILL.md` divergirem, vale o `SKILL.md`.
 
 ---
@@ -147,6 +147,23 @@ agloop check -q     # só o resumo, ex.: "Gate de Prontidão: 🔴 (4 pendência
 - Sai com código `0` quando o Gate está 🟢 e `1` quando está 🔴, então serve também para CI.
 - O `agloop run` **se recusa a rodar** com o Gate 🔴. Bypass só em emergência e com autorização expressa do PO: `agloop run --force-bypass-gate ...`.
 - Num repositório recém-inicializado o resultado é 🔴, como esperado: o Onboarding existe justamente para levá-lo a 🟢.
+
+### 3.2b Atualização de Protocolo e Notificação de Versão (`agloop update`)
+
+Quando uma nova versão do AgLoop traz evoluções para as instruções de protocolo (`SKILL.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`), o Gate de Prontidão (`agloop check`) exibe um item recomendado 📌 apontando a defasagem.
+
+Você pode inspecionar e atualizar os arquivos com segurança total:
+
+```bash
+agloop update --dry-run   # visualiza o diff unificado sem modificar arquivos
+agloop update --yes       # aplica as atualizações criando backups (.bak) automáticos
+```
+
+- **Preservação de customizações e governança:** Documentos preenchidos de governança (`roadmap.md`, `backlog-produto.md`, `matriz-riscos.md`) **nunca** são tocados. O `roster-agentes.md` só é criado se ainda não existia.
+- **Backups automáticos:** Se um arquivo existente for atualizado, uma cópia de segurança com terminação `.bak` é salva ao lado.
+- **Aviso não-intrusivo do PyPI:** Ao rodar comandos como `agloop init`, `agloop check` ou `agloop update`, se houver versão mais recente do pacote publicada no PyPI, uma linha informativa e fail-silent é exibida no final:
+  `💡 AgLoop: versão X.Y.Z disponível (instalada: A.B.C). Atualize: pip install --upgrade agloop`
+  *(Desativado automaticamente em ambientes CI ou via `AGLOOP_NO_UPDATE_CHECK=1`)*.
 
 ### 3.2 Conhecer o projeto (somente leitura)
 

@@ -160,3 +160,14 @@ def test_main_run_allows_bypass_with_flag(monkeypatch, tmp_path):
 
     main_mod.main()
     assert executed == [True]
+
+
+def test_protocol_version_item_in_readiness_gate(tmp_path):
+    """Garante que o item 9 (protocol_version) é inspecionado no Gate."""
+    run_init(repo_root=str(tmp_path), quiet=True)
+    report = check_readiness(str(tmp_path))
+    proto_item = next((item for item in report.items if item.id == "protocol_version"), None)
+    assert proto_item is not None
+    assert proto_item.required is False
+    assert proto_item.passed is True
+

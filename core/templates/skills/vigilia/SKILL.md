@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo da Sala de Guerra (AgLoop) deste projeto: papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO, debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   source: "agloop init"
-  version: "1.0.0"
+  version: "1.4.0"
 ---
 
 # Vigília — Protocolo da Sala de Guerra
@@ -151,6 +151,7 @@ Gatilho: o humano diz algo como *"instalei o AgLoop"*, ou você encontra o Gate 
 **Operação da sala**
 - 🔒 Agentes com nomes distintos, registrados no roster
 - 🔒 `AGENTS.md` (e `CLAUDE.md`/`GEMINI.md`, se usados) apontando para este arquivo
+- 📌 Versão do protocolo de vigília (SKILL.md) alinhada com os templates empacotados
 - 📌 Painel de acompanhamento
 
 Se algum 🔒 estiver pendente quando o PO pedir código, responda que o Gate ainda está 🔴, liste o que falta e ofereça resolver agora, nunca contornar.
