@@ -254,6 +254,35 @@ def check_readiness(repo_root: str = ".") -> ReadinessReport:
         )
     )
 
+    # 9. 📌 Versão do Protocolo de Vigília (.claude/skills/vigilia/SKILL.md)
+    protocol_skill = root / ".claude" / "skills" / "vigilia" / "SKILL.md"
+    proto_up_to_date = True
+    proto_detail = "Protocolo alinhado com a versão empacotada"
+    if protocol_skill.is_file():
+        from core.init_scaffold import get_templates_dir
+        from core.update_scaffold import extract_protocol_version
+        from core.version_check import is_version_newer
+
+        local_v = extract_protocol_version(protocol_skill.read_text(encoding="utf-8"))
+        tmpl_file = get_templates_dir() / "skills" / "vigilia" / "SKILL.md"
+        if tmpl_file.is_file():
+            tmpl_v = extract_protocol_version(tmpl_file.read_text(encoding="utf-8"))
+            if local_v and tmpl_v and is_version_newer(tmpl_v, local_v):
+                proto_up_to_date = False
+                proto_detail = f"Protocolo local v{local_v} defasado (template v{tmpl_v}). Execute: agloop update"
+            elif local_v:
+                proto_detail = f"Protocolo local v{local_v} alinhado"
+    items.append(
+        ReadinessItem(
+            id="protocol_version",
+            name="Versão do Protocolo de Vigília (SKILL.md)",
+            description="Verifica se o protocolo do projeto está alinhado com a versão mais recente",
+            required=False,
+            passed=proto_up_to_date,
+            detail=proto_detail,
+        )
+    )
+
     return ReadinessReport(items=items)
 
 
@@ -275,10 +304,19 @@ def format_report_text(report: ReadinessReport, quiet: bool = False, use_color: 
     bold = "\033[1m" if use_color else ""
     reset = "\033[0m" if use_color else ""
 
+    from core.version_check import check_pypi_update
+
+    update_notice = check_pypi_update()
+
     if quiet:
-        if report.passed:
-            return f"{green}Gate de Prontidão: 🟢 (Aprovado){reset}"
-        return f"{red}Gate de Prontidão: 🔴 ({len(report.blocking_issues)} pendência(s) bloqueante(s)){reset}"
+        base_line = (
+            f"{green}Gate de Prontidão: 🟢 (Aprovado){reset}"
+            if report.passed
+            else f"{red}Gate de Prontidão: 🔴 ({len(report.blocking_issues)} pendência(s) bloqueante(s)){reset}"
+        )
+        if update_notice:
+            return f"{base_line}\n💡 {update_notice}"
+        return base_line
 
     lines = [
         f"{bold}============================================================{reset}",
@@ -314,10 +352,9 @@ def format_report_text(report: ReadinessReport, quiet: bool = False, use_color: 
         lines.append(
             f"Existem {red}{len(report.blocking_issues)} item(ns) obrigatório(s) pendente(s){reset}."
         )
-        lines.append(
-            f"{bold}Regra pétrea do protocolo:{reset} Nenhuma linha de código antes do Gate 🟢."
-        )
-        lines.append("Conduza o Onboarding com o seu agente para preencher os artefatos.")
+    if update_notice:
+        lines.append("")
+        lines.append(f"{yellow}💡 {update_notice}{reset}")
 
     lines.append(f"{bold}============================================================{reset}")
     return "\n".join(lines)
