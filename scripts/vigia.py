@@ -15,7 +15,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
-from core.runner import watch_war_room
+from core.runner import STALL_SENTINEL, watch_war_room
 
 ROOM_FILE = "war_room.md"
 LOCAL_POLL_INTERVAL = 2.0
@@ -38,6 +38,13 @@ def parse_args(argv=None):
     parser.add_argument("--room", type=str, default=ROOM_FILE, help="Arquivo da Sala de Guerra")
     parser.add_argument("--local-poll", type=float, default=LOCAL_POLL_INTERVAL, help="Intervalo local (s)")
     parser.add_argument("--remote-poll", type=float, default=REMOTE_POLL_INTERVAL, help="Intervalo remoto (s)")
+    parser.add_argument(
+        "--stall-minutes",
+        type=float,
+        default=float(os.getenv("AGLOOP_STALL_MINUTES", "0")),
+        help="Minutos sem atividade antes de alertar WAITING_HUMAN no modo --once (0 = desabilitado; "
+        "default via $AGLOOP_STALL_MINUTES)",
+    )
     return parser.parse_args(argv)
 
 
@@ -50,17 +57,22 @@ def main(argv=None):
     print(f" Arquivo monitorado : {args.room}")
     print(f" Checagem local     : a cada {args.local_poll}s (mtime)")
     print(f" Checagem remota    : a cada {args.remote_poll}s (git fetch)")
+    if args.stall_minutes > 0:
+        print(f" Alarme de travamento: WAITING_HUMAN apos {args.stall_minutes:g} min sem atividade (--once)")
     print("=" * 60, flush=True)
 
     try:
-        watch_war_room(
+        result = watch_war_room(
             war_room_file=args.room,
             agent_name=args.agent,
             local_poll=args.local_poll,
             remote_poll=args.remote_poll,
             once=args.once,
             repo_path=REPO_ROOT,
+            stall_minutes=args.stall_minutes,
         )
+        if result == STALL_SENTINEL:
+            print("[Vigia] Travamento detectado e alertado. Encerrando para notificar a sessão.", flush=True)
         sys.exit(0)
     except KeyboardInterrupt:
         print("\n[Vigia] Vigília encerrada pelo usuário.", flush=True)
