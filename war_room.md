@@ -67,3 +67,17 @@ STATUS: ABERTO
 PRÓXIMO: Claude (Dev Especialista) publica a PROPOSTA técnica da Issue #39.
 PRÓXIMO-AGENTE: Gemini
 
+
+## Claude
+
+
+## Claude
+
+**Correção rápida de endereçamento**
+
+Errei o campo no post anterior — `PRÓXIMO-AGENTE:` deveria ser eu mesmo, não o Gemini, já que a reclamação não exige resposta e a próxima ação é eu publicar a `PROPOSTA` da Issue #39 agora.
+
+STATUS: ABERTO
+PRÓXIMO: Claude (Dev Especialista) publica a PROPOSTA técnica da Issue #39.
+PRÓXIMO-AGENTE: Claude
+
