@@ -243,6 +243,7 @@ def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     assert (tmp_path / "docs" / "gestao" / "backlog-produto.md").is_file()
     assert (tmp_path / "docs" / "gestao" / "matriz-riscos.md").is_file()
     assert (tmp_path / "docs" / "arquitetura" / "decisoes").is_dir()
+    assert (tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md").is_file()
     assert "war_room.md" in report
     assert "[criado]" in report
 
@@ -251,9 +252,24 @@ def test_run_init_never_overwrites_existing_files(tmp_path):
     from core.init_scaffold import run_init
 
     (tmp_path / "war_room.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
+    skill_dir = tmp_path / ".claude" / "skills" / "vigilia"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text("conteudo do usuario, nao mexer", encoding="utf-8")
 
     report = run_init(repo_root=str(tmp_path))
 
     assert (tmp_path / "war_room.md").read_text(encoding="utf-8") == "conteudo do usuario, nao mexer"
+    assert (skill_dir / "SKILL.md").read_text(encoding="utf-8") == "conteudo do usuario, nao mexer"
     assert "ja existia, preservado" in report
     assert "war_room.md" in report
+
+
+def test_init_skill_template_has_no_agloop_internal_references():
+    template_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "core", "templates", "skills", "vigilia", "SKILL.md",
+    )
+    content = open(template_path, encoding="utf-8").read().lower()
+
+    for forbidden in ("yure mark", "sysoft"):
+        assert forbidden not in content, f"template genérico nao deve citar '{forbidden}'"
