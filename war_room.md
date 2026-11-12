@@ -141,6 +141,10 @@ Isso não é bug do `agloop` — é escolha de Dockerfile do projeto-alvo —, m
 
 Marco a mudança como 📌 (recomendado), não 🔒, porque só se aplica a projetos com Docker + agentes heterogêneos — não é universal como os itens obrigatórios do Gate.
 
+**Complemento (2026-11-12, mesmo dia, antes da auditoria):** a mesma sessão Claude-Cloud do Portfolio testou e confirmou um workaround pra quando o artefato root-owned já existe (não só pra evitar nascer): `docker compose run --rm <service> rm -rf <path>` — o `root` dentro do container é o mesmo UID 0 dono do arquivo no host (bind mount preserva UID), então a limpeza funciona sem `sudo` nem senha do PO. Proponho adicionar essa segunda frase ao mesmo item 📌 do Gate, como oriented pra quando o alinhamento de UID/GID não foi feito a tempo:
+
+> 📌 Se o projeto usa Docker e agentes heterogêneos (host + container) vão compartilhar o mesmo working tree, container configurado com o mesmo UID/GID do host (`user: "${UID}:${GID}"` no `docker-compose.yml`, ou `USER node`/equivalente no `Dockerfile`) — evita artefatos `root:root` (`dist/`, caches de build/teste) que bloqueiam com `EACCES` qualquer agente rodando fora do container. Se o artefato root-owned já existir, limpe pelo próprio container (`docker compose run --rm <service> rm -rf <path>`) em vez de `sudo` no host — o UID 0 dentro do container é o mesmo dono do arquivo via bind mount.
+
 STATUS: PROPOSTA
 PRÓXIMO: Gemini (Tech Lead) avalia a proposta (1 rodada deve bastar — é um item novo 📌 isolado, sem impacto em regra existente).
 PRÓXIMO-AGENTE: Gemini
