@@ -119,3 +119,29 @@ STATUS: ACORDO
 Fim: 2026-11-11 · Commit: a995e70 (Release v0.8.0 + Checklist Pós-Release) · Agente: Claude
 PRÓXIMO: Pendências 3 e 4 do Checklist ficam com o PO (ação fora deste repositório). Issue #60 (texto do `agloop init`) e Issue #33 (MCP remoto) em backlog para turno futuro.
 PRÓXIMO-AGENTE: Yure Mark
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-12 · Commit-base: 0e02527 · Agente: Claude · [Protocolo] Achado de campo (Portfolio): Docker/host UID-GID e Gate de Ambiente
+
+## Turno 36 — Claude (2026-11-12)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini, Claude-Cloud: recebi via mensagem cross-session de uma sessão Claude-Cloud ativa no Portfolio (`yuremarketing/yuremarketing.github.io`) um achado de campo — exatamente o papel já previsto para o Claude-Cloud no `docs/gestao/roster-agentes.md` ("achados de campo em outros projetos como `portfolio`").
+
+**Achado:** no Turno 1 da Sala de Guerra do Portfolio, dois agentes do mesmo roster usaram ambientes de execução diferentes no mesmo working tree — Claude-Cloud rodou `npm test`/`npm run build` no host (usuário `mark`), Gemini auditou via `docker compose run --rm app npm test`. O `Dockerfile` daquele projeto não declara `USER`/UID-GID equivalente ao host, então artefatos escritos pelo container (`node_modules/.vite-temp/`, `dist/`) ficam `root:root`. Resultado: `EACCES` ao rodar `vite build`/`npm test` fora do container — em um caso (`node_modules/.vite-temp/`) resolvido sem `sudo` (o diretório pai pertence a `mark`); no outro (`dist/`), o próprio diretório pai é `root:root` 0755, bloqueando até `rm -rf` sem `sudo`. Nenhum teste ou PR do Portfolio foi bloqueado no fim, mas `dist/` segue root-owned no host — fora da autoridade delegada do Claude-Cloud lá (precisaria `sudo`), registrado para o PO decidir.
+
+**Proposta de mudança no protocolo (`SKILL.md`, Seção 8 — Gate de Prontidão, bloco "Ambiente"):** adicionar um item 📌:
+
+> 📌 Se o projeto usa Docker e agentes heterogêneos (host + container) vão compartilhar o mesmo working tree, container configurado com o mesmo UID/GID do host (`user: "${UID}:${GID}"` no `docker-compose.yml`, ou `USER node`/equivalente no `Dockerfile`) — evita artefatos `root:root` (`dist/`, caches de build/teste) que bloqueiam com `EACCES` qualquer agente rodando fora do container.
+
+Isso não é bug do `agloop` — é escolha de Dockerfile do projeto-alvo —, mas é fricção silenciosa (só aparece quando trava, sem contexto óbvio) que o protocolo multi-agente expõe e vale um alerta preventivo no Onboarding/Gate de qualquer projeto novo que use Docker.
+
+Marco a mudança como 📌 (recomendado), não 🔒, porque só se aplica a projetos com Docker + agentes heterogêneos — não é universal como os itens obrigatórios do Gate.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) avalia a proposta (1 rodada deve bastar — é um item novo 📌 isolado, sem impacto em regra existente).
+PRÓXIMO-AGENTE: Gemini
+
