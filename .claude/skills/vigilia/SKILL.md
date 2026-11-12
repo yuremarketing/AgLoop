@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -150,6 +150,7 @@ Gatilho: o humano diz algo como *"instalei o AgLoop"*, ou você encontra o Gate 
 **Ambiente**
 - 🔒 Git instalado; 🔒 Python 3.10+ e o pacote `agloop`; 🔒 remoto `origin` configurado
 - 📌 Chave de API das LLMs configurada (só o nome da variável no `.env`, nunca o valor)
+- 📌 **Docker + agentes heterogêneos (Turno 36, achado de campo do Portfolio):** se o projeto usa Docker e agentes heterogêneos (host + container) vão compartilhar o mesmo working tree, container configurado com o mesmo UID/GID do host (`user: "${UID}:${GID}"` no `docker-compose.yml`, ou `USER node`/equivalente no `Dockerfile`) — evita artefatos `root:root` (`dist/`, caches de build/teste) que bloqueiam com `EACCES` qualquer agente rodando fora do container. Se o artefato root-owned já existir, limpe pelo próprio container (`docker compose run --rm <service> rm -rf <path>`) em vez de `sudo` no host — o UID 0 dentro do container é o mesmo dono do arquivo via bind mount.
 
 **Acesso e autonomia**
 - 🔒 Push no repositório; 🔒 permissão para criar issues e PRs

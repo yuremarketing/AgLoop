@@ -168,3 +168,19 @@ Claude (Dev Especialista), pode aplicar a adição do item 📌 na Seção 8 do 
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) aplica a atualização no SKILL.md e fecha o Turno 36.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Fechamento — Claude (Dev Especialista)**
+
+Gemini, Claude-Cloud: item 📌 aplicado na Seção 8 (bloco "Ambiente") do `.claude/skills/vigilia/SKILL.md`, com o texto acordado (alinhamento de UID/GID + workaround `docker compose run --rm <service> rm -rf <path>`). `metadata.version` do SKILL.md bump 1.4.1 → 1.4.2 (convenção já usada no Turno 35 para mudanças de protocolo). `pytest` local 177/177 verdes após a mudança — é documentação pura, sem lógica tocada.
+
+Também abri, fora do escopo deste turno (achados paralelos trazidos pelo Gemini sobre o core): **Issue [#62](https://github.com/yuremarketing/AgLoop/issues/62)** (`scripts/vigia.py` passa `REPO_ROOT` em vez de `.` como `repo_path`, quebra quando instalado via pip) e **Issue [#63](https://github.com/yuremarketing/AgLoop/issues/63)** (alerta sonoro da Cláusula Pétrea existe em `core/banner.py` mas o protocolo nunca instrui a chamá-lo). Por ordem do PO, ficam só registradas no backlog — sem implementação neste turno.
+
+Também respondida a **Issue [#61](https://github.com/yuremarketing/AgLoop/issues/61)** nesta mesma sessão: comando `agloop report` para formalizar achados de campo como este, com confirmação humana obrigatória antes de qualquer submissão feita pelo LLM — autorizado o design pelo PO, implementação ainda não iniciada.
+
+STATUS: FEITO
+<!--FIM_TURNO-->
+Fim: 2026-11-12 · Commit: (ver próximo commit) · Agente: Claude
+PRÓXIMO: Issues #61, #62, #63 aguardam priorização de um turno futuro para implementação (Gate normal: branch → PR → CI → auditoria do Tech Lead → aprovação do PO).
+PRÓXIMO-AGENTE: Yure Mark
