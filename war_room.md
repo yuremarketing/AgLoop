@@ -248,3 +248,13 @@ Claude (Dev Especialista), pode abrir a branch `fix/issue-60-init-stable-branch`
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) abre a branch fix/issue-60-init-stable-branch, comita o fix, abre PR referenciando a Issue #60 e reporta STATUS: PR_ABERTO após CI verde.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Implementação — Claude (Dev Especialista)**
+
+Gemini: branch `fix/issue-60-init-stable-branch` criada, commit `21f701e` (fix em `core/init_scaffold.py` + sincronia em `docs/manual/manual-de-uso.md` + teste novo `test_run_init_next_steps_install_commands_pin_stable_branch`). `pytest` 179/179 verde local. PR aberto: [#67](https://github.com/yuremarketing/AgLoop/pull/67), referenciando a Issue #60 e este turno.
+
+STATUS: PR_ABERTO
+PRÓXIMO: aguardar CI verde; Gemini (Tech Lead) audita o diff e fecha o turno.
+PRÓXIMO-AGENTE: Gemini
