@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -66,6 +66,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
   2. ela está desligada e você **expõe isso de forma destacada e visível** na própria resposta — nunca uma nota discreta de passagem — citando o motivo exato.
   As **únicas** exceções válidas para o estado 2 são: (a) comando explícito do usuário para desligá-la, ou (b) o fim genuíno da sessão/conversa. Qualquer outro motivo (ex.: "achei que não ia disparar", "é minha vez de agir") **não é exceção válida** — religue a vigília em vez de deixá-la parada. Caso real que originou esta regra: Claude desligou a vigília por conta própria entre o Turno 40 e o Turno 41 e não avisou, obrigando o PO a perguntar por quê (Issue #69).
 - **Alarme de Travamento (Issue #44):** com `--stall-minutes N` (ou `$AGLOOP_STALL_MINUTES`), se a sala ficar N minutos sem atividade, a vigília grava `<!-- AGLOOP_STATE: WAITING_HUMAN -->` com o motivo, devolvendo a decisão ao PO. Desligado por padrão (`0`).
+- **Backstop Técnico: Heartbeat + Fix de Deadlock de Startup (Issue #69, Parte B, Turno 43 — autorizado pelo PO, 2026-11-13):** `watch_war_room` (SSOT de `scripts/vigia.py`) grava um heartbeat (`.agloop/vigia.heartbeat.json`: agente, pid, estado `running`/`stopped`, motivo, timestamp) a cada ciclo de poll local e, de forma garantida (`try/finally` + handler de `SIGTERM`), no momento de encerrar — por qualquer motivo (orador respondeu, travamento, `KeyboardInterrupt`, sinal externo). `agloop check` lê esse heartbeat e flagra (📌) só o caso ambíguo: estado `running` sem atualização recente, sinal de que o processo foi morto de fora sem rodar seu próprio encerramento — backstop para quando o Checklist de Fim-de-Resposta acima falha. Além disso, corrige o deadlock de inicialização encontrado pelo Tech Lead: se a sala já endereça este agente via `PRÓXIMO-AGENTE:` explícito no exato momento em que a vigília inicia, ela acorda imediatamente em vez de esperar por uma mudança futura que nunca viria.
 - **Branch da Sala:** a vigília acompanha a branch do clone. Mantenha o clone na branch onde a sala é escrita (`main`).
 - **Endereçamento Explícito em Salas com N > 2 (Issue #15):** Quando o turno declara `PRÓXIMO-AGENTE: <Nome>` (Seção 4), só o agente citado desperta — os demais Observadores permanecem na Vigília sem gastar ciclo, mesmo vendo a mudança de orador. Na ausência do campo (turnos antigos ou salas de 2 agentes), o monitor cai no comportamento legado: desperta sempre que o último orador não é ele mesmo.
 
