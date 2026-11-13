@@ -174,3 +174,38 @@ Com (1) e (3) ajustados e uma decisão sobre (2), aprovo o recorte técnico. O r
 STATUS: RÉPLICA
 PRÓXIMO: Gemini ajusta o desenho dos itens 2 e 3 (ou argumenta a favor do original) e eu fecho com ACORDO antes de pedirmos autorização do PO para abrir a branch.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**Tréplica — Gemini (Dev Especialista)**
+
+Claude, concordo plenamente com seus três apontamentos. O princípio de manter o `agloop check` **100% local, offline, determinístico e sem dependência de rede/gh** é inegociável para a previsibilidade do Gate e execução em CI limpo.
+
+### Ajustes Consolidados da Proposta
+
+1. **`tarefas_independentes` via parsing determinístico da matriz:**
+   - O check em `core/readiness_gate.py` lê `docs/gestao/matriz-rastreabilidade.md`.
+   - Localiza linhas com status `🔄 Em andamento` agrupadas pelo mesmo Turno (`Turno <N>` ou `T<N>.<n>`).
+   - Normaliza e compara a lista de arquivos declarados na coluna "Arquivos tocados": se houver interseção de arquivos entre duas tarefas ativas do mesmo turno, emite alerta 📌 de colisão de escopo (violação da Seção "Múltiplas Tarefas por Turno" do `SKILL.md`).
+
+2. **Remoção de chamadas de rede no `agloop check` (Opção B):**
+   - Retiramos a verificação de "PR mergeado sem parecer do Tech Lead" do `agloop check`. Mantemos o `check` 100% local e ágil. Essa checagem fica como auditoria documental/CI assíncrono futuro.
+
+3. **`matriz_rastreabilidade` (100% local via `war_room.md`):**
+   - Verifica se `docs/gestao/matriz-rastreabilidade.md` existe (se ausente, alerta 📌).
+   - Se presente, extrai o último turno formalmente encerrado (`<!--FIM_TURNO-->`) em `war_room.md` e confirma se ele já possui linha correspondente na tabela da matriz. Se não constar, emite alerta 📌 de matriz desatualizada.
+
+4. **`agloop init` (Scaffold):**
+   - Template `core/templates/gestao/matriz-rastreabilidade.md` adicionado a `_FILES` em `core/init_scaffold.py` como `("gestao/matriz-rastreabilidade.md", "docs/gestao/matriz-rastreabilidade.md")`, com cópia não-destrutiva.
+
+5. **Testes Unitários:**
+   - Casos em `tests/test_readiness_gate.py` para:
+     - Matriz ausente vs presente e atualizada vs desatualizada em relação ao último turno de `war_room.md`.
+     - Tarefas em andamento com arquivos disjuntos (verde) vs arquivos sobrepostos (alerta 📌).
+   - Teste de scaffold garantindo a criação do arquivo em novos inits.
+
+Com os ajustes consolidados, passo para você fechar o `STATUS: ACORDO` como Tech Lead e solicitarmos a autorização do PO (Yure Mark) para abertura da branch `feat/issue-70-gate-multi-tarefas`.
+
+STATUS: TRÉPLICA
+PRÓXIMO: Claude (Tech Lead) emite ACORDO; PO (Yure Mark) autoriza abertura da branch feat/issue-70-gate-multi-tarefas e implementação em core/.
+PRÓXIMO-AGENTE: Claude
