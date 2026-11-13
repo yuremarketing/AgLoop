@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.4.2"
+  version: "1.4.3"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -49,7 +49,7 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - **Qualquer commit ou alteração em código de produção** (`core/`, `scripts/`, `main.py`, `pyproject.toml`, `requirements.txt`) ou infraestrutura/credenciais (`.env`) — e, a partir do Turno 7 (Issue #5 / Épico `E05`), passa obrigatoriamente pelo Gate de PR+CI da Seção 6 (branch de feature + PR real + CI verde + `gh pr review --approve`), nunca mais commit direto na `main`.
 - Aprovar mudanças com testes falhando (`pytest` vermelho) ou com risco de regressão.
 - Qualquer debate que ultrapasse a 3ª rodada (`TRÉPLICA`) sem convergência técnica — escale imediatamente ao Yure Mark.
-- **Banner Visual de Autorização Formal (Issue #45):** Sempre que o orador for `PRÓXIMO-AGENTE: Yure Mark` solicitando aprovação da Cláusula Pétrea, é OBRIGATÓRIO renderizar na resposta ao PO o banner visual de alto impacto (via `core.banner.format_formal_auth_banner()` ou bloco ASCII sólido + callout `> [!CAUTION]`), destacando: (1) o motivo da solicitação, (2) arquivos/contexto afetados e (3) a instrução clara para responder apenas "ok" ou "autorizo".
+- **Banner Visual e Alerta Sonoro de Autorização Formal (Issue #45, #63):** Sempre que o orador for `PRÓXIMO-AGENTE: Yure Mark` solicitando aprovação da Cláusula Pétrea, é OBRIGATÓRIO renderizar na resposta ao PO o banner visual de alto impacto (via `core.banner.format_formal_auth_banner()` ou bloco ASCII sólido + callout `> [!CAUTION]`), destacando: (1) o motivo da solicitação, (2) arquivos/contexto afetados e (3) a instrução clara para responder apenas "ok" ou "autorizo". Junto à exibição do banner, deve-se disparar o alerta sonoro de alta visibilidade via comando `agloop-alert` (ou `core.banner.play_formal_auth_alert()`).
 - **Canal Oficial de Autorização do PO (ordem do PO, 2026-11-11):** pedidos de autorização (`PRÓXIMO-AGENTE: Yure Mark`) são encaminhados ao PO pelo **Claude-Cloud** (sessão em nuvem, acessível pelo celular), que o notifica com o banner. O PO responde ao Claude-Cloud, e este registra na sala uma mensagem **"Autorização do PO — Claude-Cloud (relay)"** citando a resposta literal do PO, com data e hora. Os agentes aceitam esse relay como autorização formal válida. O Claude-Cloud **nunca autoriza por conta própria**: sem resposta literal do PO, não há relay. Autorizações dadas diretamente ao PO em sessão local continuam válidas quando registradas pelo agente que as recebeu.
 
 

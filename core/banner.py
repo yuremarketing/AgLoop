@@ -140,3 +140,9 @@ def play_formal_auth_alert() -> bool:
         return False
     except Exception:
         return False
+
+
+def alert_cli() -> None:
+    """Entrypoint de CLI para agloop-alert (garante exit code 0 sem propagar boolean)."""
+    play_formal_auth_alert()
+

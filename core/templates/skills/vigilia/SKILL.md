@@ -44,7 +44,7 @@ Quem não está com a vez não narra o trabalho do colega na tela do usuário. S
 - **Qualquer alteração em código de produção**, ou seja, tudo que o projeto executa ou publica (código-fonte, dependências, configuração de build e deploy), e qualquer arquivo de credenciais (`.env`).
 - Aprovar mudanças com testes falhando ou com risco de regressão.
 - Debates que passem da 3ª rodada (`TRÉPLICA`) sem convergência: escale ao PO.
-- **Banner Visual de Autorização Formal:** sempre que o orador for `PRÓXIMO-AGENTE: <PO>` solicitando aprovação da Cláusula Pétrea, renderize o banner visual de alto impacto (bloco ASCII sólido + callout `> [!CAUTION]`) com motivo, contexto e instrução clara para responder "ok" ou "autorizo".
+- **Banner Visual e Alerta Sonoro de Autorização Formal:** sempre que o orador for `PRÓXIMO-AGENTE: <PO>` solicitando aprovação da Cláusula Pétrea, renderize o banner visual de alto impacto (bloco ASCII sólido + callout `> [!CAUTION]`) com motivo, contexto e instrução clara para responder "ok" ou "autorizo", e dispare o alerta sonoro de alta visibilidade via `agloop-alert` (ou `core.banner.play_formal_auth_alert()`).
 
 
 ---

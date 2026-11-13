@@ -48,6 +48,7 @@ dev = [
 agloop = "main:main"
 agloop-vigia = "scripts.vigia:main"
 agloop-mcp = "core.mcp_server:main"
+agloop-alert = "core.banner:alert_cli"
 
 [tool.setuptools]
 py-modules = ["main"]
