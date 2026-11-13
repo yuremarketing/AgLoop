@@ -99,3 +99,44 @@ STATUS: CONCLUIDO
 Fim: 2026-11-13 · Commit: 81790b3 (Issue #60, init stable branch) · Agente: Gemini
 PRÓXIMO: Backlog aberto (#61, #58, #57, #33) aguardando direcionamento do PO ou abertura de novo turno pelo Dev Especialista.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-13 · Commit-base: 7c27301 · Agente: Claude · Issue #61: comando 'agloop report'
+
+## Turno 40 — Claude (2026-11-13)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini: próximo item do backlog, Issue [#61](https://github.com/yuremarketing/AgLoop/issues/61) — design já autorizado pelo PO (nota no Turno 35), falta só a implementação. Diferente das últimas 3 (fixes de 1 linha), este é módulo novo — detalho o desenho antes de codar.
+
+**Módulo novo `core/report_bug.py`:**
+- `detect_environment(repo_root) -> dict`: `git config --get remote.origin.url` (origem), versão instalada (`importlib.metadata.version("agloop")`, fallback `"dev"` se não empacotado), `platform.platform()`, Docker via `Path("/.dockerenv").exists()`.
+- `render_issue_body(title, description, severity, env) -> str`: template fixo markdown (projeto de origem, versão, ambiente, severidade, descrição).
+- `find_duplicate(title, repo="yuremarketing/AgLoop") -> str | None`: `gh issue list -R <repo> --search "<title> in:title" --json number,url --jq ".[0].url"` (vazio = sem duplicata).
+- `submit_report(title, body, severity, source_slug, repo, dry_run) -> str`: `gh issue create -R <repo> --title ... --body ... --label area:field-report --label "source:<slug>"`, retorna a URL criada. `dry_run=True` (sempre que a confirmação não foi dada) só renderiza e retorna `None`, nunca chama `gh`.
+- `run_report(...) -> ReportResult`: orquestra os 4 acima + preflight `gh auth status` (mensagem amigável se falhar, já que quem roda isso pode ser agente de outro projeto, sem ser maintainer do AgLoop).
+
+**CLI (`main.py`, mesmo padrão de `run`/`audit`/`init`/`scan`/`check`/`update`):**
+```
+agloop report                                    # interativo: prompt de título + descrição
+agloop report --title "..." --body-file x.md --severity low|medium|high [--force] [-y/--yes]
+```
+- **Confirmação obrigatória (decisão do PO, 2026-11-12):** sem `-y`/`--yes` (ou resposta "s" no prompt interativo), o comando só imprime o rascunho completo do issue e sai sem chamar `gh issue create` — nunca submete issue público sem humano no loop, nem quando é o próprio LLM compondo via `--title`/`--body-file`.
+- `--force` pula o dedupe (`find_duplicate`); sem ele, achar duplicata imprime a URL existente e sai sem criar nada.
+- `source_slug` derivado do basename do remote origin (ex.: `yuremarketing/yuremarketing.github.io` → `yuremarketing-github-io`).
+
+**Testes:** todo o acesso a `gh`/`git` mockado via `monkeypatch` em `subprocess.run` — a suíte não pode, em hipótese alguma, disparar uma chamada real pro GitHub a partir do CI.
+
+**Infra fora do diff Python:** criar as labels `area:field-report` e a convenção `source:<slug>` no repo via `gh label create` — ação de governança, não de código, faço como parte da implementação mas documento separado do diff no PR.
+
+Toca `core/` + `main.py` (produção) — Gate normal da Seção 6: branch `feat/issue-61-agloop-report`, PR referenciando #61 e este turno, CI verde antes da sua auditoria.
+
+Gemini, de acordo com o desenho? Algum ponto que eu deveria simplificar ou algo que fugiu do escopo original da issue?
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) avalia o desenho — primeira proposta de feature nova desde a Release 0.8.0, maior que os últimos 3 turnos.
+PRÓXIMO-AGENTE: Gemini
