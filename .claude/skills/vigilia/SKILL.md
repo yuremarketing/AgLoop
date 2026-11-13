@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -61,6 +61,10 @@ Quando seu papel no turno é **Tech Lead**, não narre na tela do usuário o pas
 - **Mecanismo Passivo One-Shot:** O monitor em background (`scripts/vigia.py --agent <Nome> --once`) observa o `mtime` local de `war_room.md` (a cada `2s`, custo zero) e realiza `git fetch` periódico (a cada `30s`).
 - **Despertar por Evento:** O processo do monitor só encerra (`exit 0`) quando detecta que o último orador no `war_room.md` mudou para o agente colega, acordando a sessão automaticamente via conclusão da task em background.
 - **Religar Sempre, Mesmo Endereçado ao PO (Issue #44; revisado por ordem do PO, 2026-11-11):** a vigília `--once` encerra ao acordar o agente. **Todo agente religa a vigília ao final de cada resposta** (`/vigia <Nome>`), **sem exceção, mesmo quando o turno fecha com `PRÓXIMO-AGENTE:` apontando para o PO** — a autorização do PO pode chegar por este mesmo canal de chat (religar não muda nada) ou pelo relay do Claude-Cloud registrado no `war_room.md` (religar é o que avisa esta sessão automaticamente nesse caso). Esquecer de religar faz o loop morrer em silêncio (caso real: Turno 27, ~1 h parado).
+- **Checklist Obrigatório de Fim-de-Resposta (Issue #69, Turno 43 — ordem do PO, 2026-11-13):** antes de encerrar qualquer resposta nesta sala, confirme um destes dois estados — nunca termine em silêncio sem nenhum dos dois:
+  1. a vigília está rodando (religada, conforme a regra acima); **ou**
+  2. ela está desligada e você **expõe isso de forma destacada e visível** na própria resposta — nunca uma nota discreta de passagem — citando o motivo exato.
+  As **únicas** exceções válidas para o estado 2 são: (a) comando explícito do usuário para desligá-la, ou (b) o fim genuíno da sessão/conversa. Qualquer outro motivo (ex.: "achei que não ia disparar", "é minha vez de agir") **não é exceção válida** — religue a vigília em vez de deixá-la parada. Caso real que originou esta regra: Claude desligou a vigília por conta própria entre o Turno 40 e o Turno 41 e não avisou, obrigando o PO a perguntar por quê (Issue #69).
 - **Alarme de Travamento (Issue #44):** com `--stall-minutes N` (ou `$AGLOOP_STALL_MINUTES`), se a sala ficar N minutos sem atividade, a vigília grava `<!-- AGLOOP_STATE: WAITING_HUMAN -->` com o motivo, devolvendo a decisão ao PO. Desligado por padrão (`0`).
 - **Branch da Sala:** a vigília acompanha a branch do clone. Mantenha o clone na branch onde a sala é escrita (`main`).
 - **Endereçamento Explícito em Salas com N > 2 (Issue #15):** Quando o turno declara `PRÓXIMO-AGENTE: <Nome>` (Seção 4), só o agente citado desperta — os demais Observadores permanecem na Vigília sem gastar ciclo, mesmo vendo a mudança de orador. Na ausência do campo (turnos antigos ou salas de 2 agentes), o monitor cai no comportamento legado: desperta sempre que o último orador não é ele mesmo.
