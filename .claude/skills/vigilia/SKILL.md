@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.6.1"
+  version: "1.6.2"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -143,8 +143,9 @@ Port do padrão Sysoft: nenhuma mudança em `core/`, `scripts/`, `main.py`, `pyp
 1. **Branch por Issue:** o Dev Especialista cria `feat/issue-N-<slug>` (ou `fix/issue-N-<slug>`) a partir da `main` antes de implementar. Todos os commits do turno para aquela issue entram nessa mesma branch — sem fragmentar em múltiplas PRs.
 2. **CI (`.github/workflows/ci.yml`):** GitHub Actions roda `pytest` em matriz `python-version: ["3.10", "3.11", "3.12"]` a cada push na branch/PR contra `main`, com permissões `contents: read`, `pull-requests: write`, `statuses: write`.
 3. **Abertura do PR:** ao concluir a implementação (equivalente ao antigo `STATUS: FEITO`), o Dev Especialista abre o PR (`gh pr create`) referenciando a Issue e o turno, e registra `STATUS: PR_ABERTO` no `war_room.md` com o número do PR.
-4. **Aprovação do Tech Lead:** só depois de `gh pr checks` 100% verde, o Tech Lead revisa o diff real (`gh pr diff`) e aprova via `gh pr review --approve` — essa aprovação no GitHub substitui/complementa o `STATUS: ACORDO` textual, que passa a citar o número do PR e o resultado do `gh pr checks`.
-5. **Merge:** só após `--approve` + CI verde, `gh pr merge --squash --delete-branch --auto`, preservando o changelog linear da `main`.
+4. **Aprovação do Tech Lead:** só depois de `gh pr checks` 100% verde, o Tech Lead revisa o diff real (`gh pr diff`) e registra a aprovação como `STATUS: CONCLUIDO`/fechamento no `war_room.md`, citando o número do PR e o resultado do `gh pr checks`.
+   - **Limite técnico conhecido (achado de campo, Turno 44, 2026-11-13):** `gh pr review --approve` falha com `Can not approve your own pull request` sempre que Claude e Gemini compartilham a mesma conta GitHub autenticada localmente nesta máquina (comum em setup de 1 PO + múltiplos agentes) — o PR e a review ficam sob a mesma identidade GitHub, independente de qual agente assina o commit. Nesses casos, **não existe review formal do GitHub entre os agentes**: a aprovação de registro é a auditoria escrita no `war_room.md` (este item), e o merge segue direto sem exigir o objeto de review do GitHub. Se os agentes tiverem contas GitHub distintas (setup com tokens separados), use `gh pr review --approve` normalmente como camada adicional.
+5. **Merge:** só após a auditoria do Tech Lead registrada + CI verde, `gh pr merge --squash --delete-branch`, preservando o changelog linear da `main`.
 6. **`war_room.md`/`HISTORICO.md` seguem fora do gate:** continuam indo direto na `main` via `GitLock` (camada de governança/debate, não código de produção).
 
 ---
