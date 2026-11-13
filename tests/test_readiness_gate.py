@@ -237,3 +237,147 @@ def test_vigilia_heartbeat_item_passes_when_stopped_long_ago(tmp_path):
     item = _heartbeat_item(check_readiness(str(tmp_path)))
     assert item.passed is True
 
+
+# --- Issue #57 / #70: Matriz de Rastreabilidade e Múltiplas Tarefas ----------------
+
+
+def _matriz_item(report):
+    item = next((item for item in report.items if item.id == "matriz_rastreabilidade"), None)
+    assert item is not None
+    assert item.required is False
+    return item
+
+
+def _tarefas_item(report):
+    item = next((item for item in report.items if item.id == "tarefas_independentes"), None)
+    assert item is not None
+    assert item.required is False
+    return item
+
+
+def test_matriz_rastreabilidade_fails_when_file_missing(tmp_path):
+    report = check_readiness(str(tmp_path))
+    item = _matriz_item(report)
+    assert item.passed is False
+    assert "ausente" in item.detail
+
+
+def test_matriz_rastreabilidade_passes_when_no_closed_turns(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    (gestao / "matriz-rastreabilidade.md").write_text("# Matriz\n| Épico | Issue | Turno |\n", encoding="utf-8")
+    (tmp_path / "war_room.md").write_text("# War Room\n<!--INICIANDO_TURNO-->\n## Turno 1\nEm debate...\n", encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _matriz_item(report)
+    assert item.passed is True
+    assert "nenhum turno encerrado" in item.detail
+
+
+def test_matriz_rastreabilidade_passes_when_synced_with_last_closed_turn(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    matriz_content = """# Matriz
+| Épico | Issue | Turno / Tarefa | PR | Arquivos tocados | Testes | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| E01 | #10 | Turno 5 | PR #11 | `core/runner.py` | 10/10 | ✅ Concluído |
+"""
+    (gestao / "matriz-rastreabilidade.md").write_text(matriz_content, encoding="utf-8")
+
+    war_room_content = """# War Room
+<!--INICIANDO_TURNO-->
+## Turno 5
+STATUS: CONCLUIDO
+<!--FIM_TURNO-->
+Fim: 2026-11-13 · Turno 5 fechado.
+
+<!--INICIANDO_TURNO-->
+## Turno 6
+Em andamento...
+"""
+    (tmp_path / "war_room.md").write_text(war_room_content, encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _matriz_item(report)
+    assert item.passed is True
+    assert "Turno 5" in item.detail
+
+
+def test_matriz_rastreabilidade_fails_when_last_closed_turn_missing(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    matriz_content = """# Matriz
+| Épico | Issue | Turno / Tarefa | PR | Arquivos tocados | Testes | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| E01 | #10 | Turno 4 | PR #11 | `core/runner.py` | 10/10 | ✅ Concluído |
+"""
+    (gestao / "matriz-rastreabilidade.md").write_text(matriz_content, encoding="utf-8")
+
+    war_room_content = """# War Room
+<!--INICIANDO_TURNO-->
+## Turno 5
+STATUS: CONCLUIDO
+<!--FIM_TURNO-->
+Fim: 2026-11-13 · Turno 5 fechado.
+"""
+    (tmp_path / "war_room.md").write_text(war_room_content, encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _matriz_item(report)
+    assert item.passed is False
+    assert "desatualizada" in item.detail
+    assert "Turno 5" in item.detail
+
+
+def test_tarefas_independentes_passes_with_disjoint_active_tasks(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    matriz_content = """# Matriz
+| Épico | Issue | Turno / Tarefa | PR | Arquivos tocados | Testes | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| E01 | #10 | Turno 7<br>T7.1 | - | `core/runner.py` | - | 🔄 Em andamento |
+| E02 | #11 | Turno 7<br>T7.2 | - | `core/readiness_gate.py` | - | 🔄 Em andamento |
+"""
+    (gestao / "matriz-rastreabilidade.md").write_text(matriz_content, encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _tarefas_item(report)
+    assert item.passed is True
+    assert "Nenhum conflito" in item.detail
+
+
+def test_tarefas_independentes_fails_when_active_tasks_collide(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    matriz_content = """# Matriz
+| Épico | Issue | Turno / Tarefa | PR | Arquivos tocados | Testes | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| E01 | #10 | Turno 7<br>T7.1 | - | `core/runner.py`, `core/git_lock.py` | - | 🔄 Em andamento |
+| E02 | #11 | Turno 7<br>T7.2 | - | `core/git_lock.py`, `core/readiness_gate.py` | - | 🔄 Em andamento |
+"""
+    (gestao / "matriz-rastreabilidade.md").write_text(matriz_content, encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _tarefas_item(report)
+    assert item.passed is False
+    assert "Turno 7" in item.detail
+    assert "core/git_lock.py" in item.detail
+    assert "concorrentes" in item.detail
+
+
+def test_tarefas_independentes_ignores_completed_overlap(tmp_path):
+    gestao = tmp_path / "docs" / "gestao"
+    gestao.mkdir(parents=True, exist_ok=True)
+    matriz_content = """# Matriz
+| Épico | Issue | Turno / Tarefa | PR | Arquivos tocados | Testes | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| E01 | #10 | Turno 7<br>T7.1 | PR #1 | `core/git_lock.py` | 10/10 | ✅ Concluído |
+| E02 | #11 | Turno 7<br>T7.2 | - | `core/git_lock.py` | - | 🔄 Em andamento |
+"""
+    (gestao / "matriz-rastreabilidade.md").write_text(matriz_content, encoding="utf-8")
+
+    report = check_readiness(str(tmp_path))
+    item = _tarefas_item(report)
+    assert item.passed is True
+
+
