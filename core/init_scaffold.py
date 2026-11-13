@@ -76,8 +76,8 @@ def run_init(repo_root: str = ".", quiet: bool = False) -> str:
                 "Proximos passos:",
                 '  1. git add war_room.md HISTORICO.md docs/ .claude/ AGENTS.md CLAUDE.md GEMINI.md'
                 ' && git commit -m "chore: inicializa AgLoop" && git push',
-                "  2. Claude Code: /plugin marketplace add yuremarketing/AgLoop && /plugin install agloop@agloop",
-                "     Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop",
+                "  2. Claude Code: /plugin marketplace add yuremarketing/AgLoop#stable && /plugin install agloop@agloop",
+                "     Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop --ref=stable",
                 "  3. Ajuste .claude/skills/vigilia/SKILL.md (nome do PO e limites de codigo de producao).",
                 '  4. Diga ao seu agente: "instalei o AgLoop". Ele conduz o onboarding.',
                 "",

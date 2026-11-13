@@ -265,6 +265,16 @@ def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     assert "Manual de Uso: https://github.com/yuremarketing/AgLoop/blob/main/docs/manual/manual-de-uso.md" in report
 
 
+def test_run_init_next_steps_install_commands_pin_stable_branch(tmp_path):
+    """Issue #60: a saída do init não pode voltar a instalar a partir da main."""
+    from core.init_scaffold import run_init
+
+    report = run_init(repo_root=str(tmp_path))
+
+    assert "/plugin marketplace add yuremarketing/AgLoop#stable" in report
+    assert "gemini extensions install https://github.com/yuremarketing/AgLoop --ref=stable" in report
+
+
 def test_run_init_never_overwrites_existing_files(tmp_path):
     from core.init_scaffold import run_init
 
