@@ -156,4 +156,4 @@ Registro priorizado dos épicos e histórias técnicas do **AgLoop**, mantendo r
 - **Entregas:**
   - [x] `E12.1` — `docs/manual/manual-de-uso.md` (PT-BR): instalação, primeiros passos, conceitos, uso diário, cenários (2 agentes, N agentes, PO pelo celular), governança, solução de problemas e FAQ. Comandos e flags conferidos contra `main.py`, `scripts/vigia.py`, `core/mcp_server.py`, `core/init_scaffold.py` e `core/git_lock.py`.
   - [x] `E12.2` — Link para o manual no topo do `README.md`.
-  - [ ] `E12.3` — Versão em inglês (turno futuro, junto da divulgação).
+  - [x] `E12.3` — Versão em inglês (Issue #58, Turno 41): `README.md` (EN, principal) + `README.pt-BR.md` + `docs/manual/user-guide.md` (EN, fase 1 — instalação, primeiros passos, conceitos, FAQ), com links cruzados bidirecionais. Uso diário/cenários/governança/troubleshooting (§5–§8) seguem só em PT-BR por ora, documentado como escopo de fase 2.
