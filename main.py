@@ -1,5 +1,6 @@
 import argparse
 import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 from core.agent import Agent, configure_json_logging
@@ -63,6 +64,19 @@ def _build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument("--dry-run", action="store_true", help="Show unified diffs without modifying files.")
     update_parser.add_argument("--repo-root", type=str, default=".", help="Root directory of the repo to update.")
 
+    report_parser = subparsers.add_parser(
+        "report",
+        help="Formaliza um achado de campo como issue em yuremarketing/AgLoop (confirmação humana obrigatória).",
+    )
+    report_parser.add_argument("--title", type=str, help="Título do issue. Omitido => modo interativo.")
+    report_parser.add_argument("--body-file", type=str, help="Arquivo com a descrição do achado.")
+    report_parser.add_argument("--body", "--description", dest="body_text", type=str, help="Descrição inline (alternativa a --body-file).")
+    report_parser.add_argument("--severity", choices=["low", "medium", "high"], default="medium", help="Severidade do achado.")
+    report_parser.add_argument("--force", action="store_true", help="Pula a checagem de issues duplicados.")
+    report_parser.add_argument("-y", "--yes", action="store_true", help="Publica sem prompt de confirmação (modo não-interativo).")
+    report_parser.add_argument("--repo-root", type=str, default=".", help="Diretório do projeto de origem (p/ detectar ambiente).")
+    report_parser.add_argument("--repo", type=str, default="yuremarketing/AgLoop", help="Repositório de destino (owner/repo).")
+
     return parser
 
 
@@ -117,6 +131,56 @@ def main():
         if notice:
             print(f"\n💡 {notice}")
         return
+
+    if args.command == "report":
+        from core.report_bug import run_report
+
+        title = args.title
+        description = None
+        if getattr(args, "body_text", None):
+            description = args.body_text
+        elif getattr(args, "body_file", None):
+            description = Path(args.body_file).read_text(encoding="utf-8")
+
+        interactive = title is None and description is None
+        confirm = None
+        if interactive:
+            title = input("Título: ").strip()
+            print("Descrição (finalize com uma linha vazia):")
+            lines = []
+            while True:
+                try:
+                    line = input()
+                except EOFError:
+                    break
+                if line == "":
+                    break
+                lines.append(line)
+            description = "\n".join(lines)
+
+            def confirm(body: str) -> bool:
+                print("\n" + "=" * 60 + f"\n{body}\n" + "=" * 60)
+                answer = input(f"Publicar este issue em {getattr(args, 'repo', 'yuremarketing/AgLoop')}? [s/N] ").strip().lower()
+                return answer in ("s", "sim", "y", "yes")
+        elif title is None or description is None:
+            print("Use --title junto com --body-file/--body, ou nenhum dos dois para o modo interativo.", file=sys.stderr)
+            sys.exit(2)
+
+        result = run_report(
+            title=title,
+            description=description,
+            severity=getattr(args, "severity", "medium"),
+            repo_root=getattr(args, "repo_root", "."),
+            repo=getattr(args, "repo", "yuremarketing/AgLoop"),
+            force=getattr(args, "force", False),
+            yes=getattr(args, "yes", False),
+            confirm=confirm,
+        )
+        print(result.message)
+        if result.rendered_body and not result.submitted and not result.duplicate_url and not result.error:
+            print("\n--- Rascunho do issue ---\n")
+            print(result.rendered_body)
+        sys.exit(1 if result.error else 0)
 
     notice = check_pypi_update()
     if notice:
