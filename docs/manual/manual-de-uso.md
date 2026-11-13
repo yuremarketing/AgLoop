@@ -244,6 +244,10 @@ Marcadores especiais lidos pelo código: `<!-- AGLOOP_STATE: CONSENSUS -->` e `<
 
 Sem convergência após a `TRÉPLICA`, o debate é escalado ao PO. Isso evita loops infinitos e gasto descontrolado de tokens.
 
+### 4.7 Múltiplas tarefas por turno (Issue #57)
+
+Um turno pode conter **mais de uma tarefa**, desde que independentes (não toquem os mesmos arquivos/módulos). Cada tarefa ganha um identificador `T<turno>.<n>` (ex.: `T42.1`), citado em `TAREFA:` junto do `STATUS:`; com mais de uma tarefa aberta, `PRÓXIMO-AGENTE:` lista cada agente junto da tarefa correspondente (`Gemini (T42.1); Claude (T42.2)`). A autorização do PO (Seção 7.1) e o limite de 3 rodadas valem **por tarefa**, não pelo turno inteiro, e o turno só fecha quando todas as tarefas estiverem em `ACORDO` ou adiadas. O rastreio de qual issue/PR/arquivo pertence a qual turno/tarefa vive em [`docs/gestao/matriz-rastreabilidade.md`](../gestao/matriz-rastreabilidade.md), não mais espalhado entre backlog, Artefato Mestre e `HISTORICO.md`. Regra completa e atualizada: [`SKILL.md`](../../.claude/skills/vigilia/SKILL.md).
+
 ---
 
 ## 5. Uso no dia a dia

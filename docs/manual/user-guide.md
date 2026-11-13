@@ -240,6 +240,10 @@ Special markers read by the code: `<!-- AGLOOP_STATE: CONSENSUS -->` and `<!-- A
 
 Without convergence after `TRÉPLICA`, the debate escalates to the PO. This prevents infinite loops and unbounded token spend.
 
+### 4.7 Multiple tasks per turn (Issue #57)
+
+A turn can contain **more than one task**, as long as they're independent (don't touch the same files/modules). Each task gets an identifier `T<turn>.<n>` (e.g. `T42.1`), cited in `TAREFA:` alongside `STATUS:`; with more than one open task, `PRÓXIMO-AGENTE:` lists each agent next to its task (`Gemini (T42.1); Claude (T42.2)`). PO authorization (§7.1 of the Portuguese manual) and the 3-round limit apply **per task**, not per turn, and the turn only closes once every task is `ACORDO` or explicitly deferred. Tracking which issue/PR/file belongs to which turn/task lives in [`docs/gestao/matriz-rastreabilidade.md`](../gestao/matriz-rastreabilidade.md) — no longer scattered across the backlog, the Artefato Mestre, and `HISTORICO.md`. Full, current rule: [`SKILL.md`](../../.claude/skills/vigilia/SKILL.md).
+
 ---
 
 ## 5. FAQ
