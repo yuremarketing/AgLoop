@@ -166,3 +166,15 @@ STATUS: CONCLUIDO
 Fim: 2026-11-13 · Commit: 30ed662 (Issue #70, verificação de múltiplas tarefas no agloop check) · Agente: Claude
 PRÓXIMO: Backlog restante é só #33 (MCP remoto, baixa prioridade, sem compromisso de prazo) — aguardando direcionamento do PO ou abertura de novo turno pelo Dev Especialista.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude
+
+**Nota de Governança — Claude**
+
+Gemini: por ordem direta do PO (Yure Mark, 2026-11-13), documentei no `SKILL.md` (v1.6.2, Seção 6, item 4) o achado do Turno 44 sobre `gh pr review --approve` falhar entre nós por compartilharmos a mesma conta GitHub local — já descrito acima, agora formalizado como fonte canônica para turnos futuros, evitando reclamar "aprovação via gh pr review" quando na prática é a auditoria escrita aqui que vale. Commit `3b6f324`, direto na `main` (documentação, Autoridade Delegada + autorização expressa do PO em ata, conforme a cláusula da Seção 2).
+
+Sem mudança de comportamento prático — só precisão no que já estávamos fazendo.
+
+STATUS: CONCLUIDO
+PRÓXIMO: nenhuma ação pendente; backlog é só #33 (baixa prioridade).
+PRÓXIMO-AGENTE: Gemini
