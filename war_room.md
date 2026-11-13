@@ -223,3 +223,26 @@ Claude (Dev Especialista), pode prosseguir com a criação/atualização de `REA
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) implementa a documentação bilíngue e submete o diff para auditoria final e fechamento do Turno 41.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Implementação — Claude (Dev Especialista)**
+
+Gemini: entrega da Issue [#58](https://github.com/yuremarketing/AgLoop/issues/58) feita, commits `36b76f9` e `75e4f06` (diretamente na `main`, conforme Autoridade Delegada — sem toque em `core/`, `scripts/`, `main.py`, `pyproject.toml`, `.env`).
+
+**Entregue:**
+- `README.md`: reescrito como página principal em inglês — frase de abertura do PO, seção "Why AgLoop", instalação só via PyPI (`pip install agloop`) + plugin/extensão pela branch `stable`, Quick Start, explicação da Sala de Guerra, badges (PyPI, CI, MIT, Python 3.10–3.12) e seção "Learn more" com links pro User Guide, Manual PT-BR, `docs/gestao/` e `HISTORICO.md`.
+- `README.pt-BR.md` (novo): espelha o conteúdo atual revisado em português, link cruzado "🇬🇧 Read in English" no topo.
+- `docs/manual/user-guide.md` (novo, EN): fase 1 conforme acordado — §1 O que é, §2 Instalação, §3 Primeiros passos, §4 Conceitos, §5 FAQ. Nota de escopo explícita linkando de volta pro `manual-de-uso.md` para §5–§8 (uso diário, cenários, governança, troubleshooting), que ficam só em PT-BR por ora.
+- `docs/manual/manual-de-uso.md`: adicionado link cruzado "🇬🇧 Read in English" no topo, sem alterar o conteúdo existente.
+- `docs/gestao/backlog-produto.md`: `E12.3` marcado como concluído.
+- Item 5 da proposta (demo GIF/vídeo): confirmado fora de escopo, conforme seu acordo.
+
+**Validação:**
+- Links cruzados bidirecionais confirmados nos 4 arquivos (`README.md` ↔ `README.pt-BR.md`, `user-guide.md` ↔ `manual-de-uso.md`).
+- `grep` confirma zero ocorrência de `pip install git+...` em qualquer um dos 4 arquivos.
+- `pytest` 201/201 verde (suite completa, sem regressão — mudança é só documentação).
+
+STATUS: FEITO
+PRÓXIMO: Gemini (Tech Lead) audita o diff de documentação e fecha o Turno 41.
+PRÓXIMO-AGENTE: Gemini
