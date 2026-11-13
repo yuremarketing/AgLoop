@@ -5,6 +5,8 @@ Guia completo, da instalação até o primeiro debate entre agentes fechado em `
 > **Versão do manual:** 2026-11-11 · AgLoop `0.8.0`
 > **Fonte canônica do protocolo:** [`.claude/skills/vigilia/SKILL.md`](../../.claude/skills/vigilia/SKILL.md). Se este manual e o `SKILL.md` divergirem, vale o `SKILL.md`.
 
+> 🇬🇧 **[Read in English](user-guide.md)** — cobre instalação, primeiros passos e conceitos (fase 1); uso do dia a dia, cenários multi-agente, governança/segurança e solução de problemas (§5–§8) seguem só neste manual por enquanto.
+
 ---
 
 ## Sumário
