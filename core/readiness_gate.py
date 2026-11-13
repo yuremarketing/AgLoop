@@ -293,6 +293,12 @@ def check_readiness(repo_root: str = ".") -> ReadinessReport:
     # 10. 📌 Heartbeat da Vigília (.agloop/vigia.heartbeat.json) — Issue #69
     items.append(_check_vigilia_heartbeat(root))
 
+    # 11. 📌 Matriz de Rastreabilidade (docs/gestao/matriz-rastreabilidade.md) — Issue #57/70
+    items.append(_check_matriz_rastreabilidade(root))
+
+    # 12. 📌 Independência de Tarefas Concorrentes (matriz-rastreabilidade.md) — Issue #57/70
+    items.append(_check_tarefas_independentes(root))
+
     return ReadinessReport(items=items)
 
 
@@ -358,6 +364,245 @@ def _check_vigilia_heartbeat(root: Path) -> ReadinessItem:
         required=False,
         passed=True,
         detail=detail,
+    )
+
+
+def _extract_last_closed_turn(war_room_content: str) -> Optional[int]:
+    """
+    Extrai o número do último turno formalmente encerrado (<!--FIM_TURNO-->) na Sala de Guerra.
+    O marcador deve estar isolado em sua própria linha para não casar com menções em texto/prosa.
+    """
+    parts = re.split(r"(?=<!--INICIANDO_TURNO-->)", war_room_content)
+    closed_turns: list[int] = []
+    for part in parts:
+        if re.search(r"^\s*<!--FIM_TURNO-->\s*$", part, re.MULTILINE):
+            m = re.search(r"##\s*Turno\s*(\d+)", part)
+            if m:
+                closed_turns.append(int(m.group(1)))
+            else:
+                m2 = re.search(r"Turno\s*(\d+)", part)
+                if m2:
+                    closed_turns.append(int(m2.group(1)))
+    if closed_turns:
+        return closed_turns[-1]
+
+    matches = re.findall(
+        r"##\s*Turno\s*(\d+).*?^\s*<!--FIM_TURNO-->\s*$",
+        war_room_content,
+        flags=re.DOTALL | re.MULTILINE,
+    )
+    if matches:
+        return int(matches[-1])
+    return None
+
+
+def _check_matriz_rastreabilidade(root: Path) -> ReadinessItem:
+    """
+    Verificação determinística (Issue #57/#70) da existência e atualização da
+    Matriz de Rastreabilidade Única (docs/gestao/matriz-rastreabilidade.md).
+    Alerta caso o arquivo não exista ou o último turno formalmente encerrado
+    na Sala de Guerra (<!--FIM_TURNO-->) não conste na matriz.
+    """
+    matriz_path = root / "docs" / "gestao" / "matriz-rastreabilidade.md"
+    if not matriz_path.is_file():
+        return ReadinessItem(
+            id="matriz_rastreabilidade",
+            name="Matriz de Rastreabilidade (matriz-rastreabilidade.md)",
+            description="Artefato único de rastreabilidade de turnos, entregas e PRs (Issue #57/70)",
+            required=False,
+            passed=False,
+            detail="docs/gestao/matriz-rastreabilidade.md ausente (recomendado)",
+        )
+
+    matriz_content = matriz_path.read_text(encoding="utf-8")
+    war_room_path = root / "war_room.md"
+    if not war_room_path.is_file():
+        return ReadinessItem(
+            id="matriz_rastreabilidade",
+            name="Matriz de Rastreabilidade (matriz-rastreabilidade.md)",
+            description="Artefato único de rastreabilidade de turnos, entregas e PRs (Issue #57/70)",
+            required=False,
+            passed=True,
+            detail="Presente (war_room.md ausente para conferência de turnos)",
+        )
+
+    last_closed_turn = _extract_last_closed_turn(war_room_path.read_text(encoding="utf-8"))
+    if last_closed_turn is None:
+        return ReadinessItem(
+            id="matriz_rastreabilidade",
+            name="Matriz de Rastreabilidade (matriz-rastreabilidade.md)",
+            description="Artefato único de rastreabilidade de turnos, entregas e PRs (Issue #57/70)",
+            required=False,
+            passed=True,
+            detail="Presente (nenhum turno encerrado na Sala de Guerra)",
+        )
+
+    turn_pattern = re.compile(
+        rf"(?:\bTurno\s*`?{last_closed_turn}`?\b|\bT{last_closed_turn}(?:\.\d+)?\b)",
+        re.IGNORECASE,
+    )
+    if turn_pattern.search(matriz_content):
+        return ReadinessItem(
+            id="matriz_rastreabilidade",
+            name="Matriz de Rastreabilidade (matriz-rastreabilidade.md)",
+            description="Artefato único de rastreabilidade de turnos, entregas e PRs (Issue #57/70)",
+            required=False,
+            passed=True,
+            detail=f"Presente e atualizada com o último turno fechado (Turno {last_closed_turn})",
+        )
+
+    return ReadinessItem(
+        id="matriz_rastreabilidade",
+        name="Matriz de Rastreabilidade (matriz-rastreabilidade.md)",
+        description="Artefato único de rastreabilidade de turnos, entregas e PRs (Issue #57/70)",
+        required=False,
+        passed=False,
+        detail=(
+            f"Matriz de rastreabilidade desatualizada: o último turno fechado na Sala de Guerra "
+            f"(Turno {last_closed_turn}) não possui registro na matriz"
+        ),
+    )
+
+
+def _extract_files_list(files_str: str) -> set[str]:
+    """Extrai caminhos de arquivos a partir de texto de coluna (com backticks ou vírgulas)."""
+    code_matches = re.findall(r"`([^`]+)`", files_str)
+    raw_list = code_matches if code_matches else re.split(r"[,;\n]+", files_str)
+    files = set()
+    for item in raw_list:
+        clean = item.strip().strip("`").strip()
+        if clean and not clean.startswith("<") and clean not in ("—", "-", "none", "nenhum"):
+            files.add(clean)
+    return files
+
+
+def _check_tarefas_independentes(root: Path) -> ReadinessItem:
+    """
+    Verificação determinística (Issue #57/#70) da independência obrigatória de
+    múltiplas tarefas ativas no mesmo turno (SKILL.md Seção 4).
+    Analisa a matriz de rastreabilidade e flagra sobreposição de arquivos
+    declarados na coluna 'Arquivos tocados' entre tarefas simultâneas (🔄 Em andamento).
+    """
+    matriz_path = root / "docs" / "gestao" / "matriz-rastreabilidade.md"
+    if not matriz_path.is_file():
+        return ReadinessItem(
+            id="tarefas_independentes",
+            name="Independência de Tarefas Concorrentes (matriz-rastreabilidade.md)",
+            description="Garante que múltiplas tarefas ativas no mesmo turno não toquem os mesmos arquivos (Issue #57/70)",
+            required=False,
+            passed=True,
+            detail="docs/gestao/matriz-rastreabilidade.md ausente (verificada em item próprio)",
+        )
+
+    matriz_content = matriz_path.read_text(encoding="utf-8")
+    lines = matriz_content.splitlines()
+
+    col_indexes: dict[str, int] = {}
+    table_header_found = False
+    active_tasks_by_turn: dict[int, list[dict]] = {}
+
+    for line in lines:
+        line_clean = line.strip()
+        if not line_clean.startswith("|") or not line_clean.endswith("|"):
+            continue
+        cells = [c.strip() for c in line_clean.split("|")[1:-1]]
+        if not cells or all(c == "" for c in cells):
+            continue
+
+        if all(re.match(r"^:?-+:?$", c) for c in cells):
+            continue
+
+        lower_cells = [c.lower() for c in cells]
+        if any("turno" in c for c in lower_cells) and any("status" in c for c in lower_cells):
+            table_header_found = True
+            col_indexes = {}
+            for idx, c in enumerate(lower_cells):
+                if "turno" in c or "tarefa" in c:
+                    col_indexes["turno"] = idx
+                elif "arquivo" in c:
+                    col_indexes["arquivos"] = idx
+                elif "status" in c:
+                    col_indexes["status"] = idx
+                elif "issue" in c:
+                    col_indexes["issue"] = idx
+            continue
+
+        if table_header_found and "turno" in col_indexes and "status" in col_indexes:
+            turno_val = cells[col_indexes["turno"]] if col_indexes["turno"] < len(cells) else ""
+            status_val = cells[col_indexes["status"]] if col_indexes["status"] < len(cells) else ""
+            arquivos_val = (
+                cells[col_indexes["arquivos"]]
+                if "arquivos" in col_indexes and col_indexes["arquivos"] < len(cells)
+                else ""
+            )
+            issue_val = (
+                cells[col_indexes["issue"]]
+                if "issue" in col_indexes and col_indexes["issue"] < len(cells)
+                else ""
+            )
+
+            if "<N>" in turno_val or "<issue>" in issue_val or "<arquivo1>" in arquivos_val:
+                continue
+
+            status_lower = status_val.lower()
+            is_active = (
+                "andamento" in status_lower
+                or "progresso" in status_lower
+                or "in progress" in status_lower
+                or "🔄" in status_val
+            )
+            if not is_active:
+                continue
+
+            turn_match = re.search(r"(?:Turno\s*|T)(\d+)", turno_val, re.IGNORECASE)
+            if not turn_match:
+                continue
+            turn_num = int(turn_match.group(1))
+
+            files = _extract_files_list(arquivos_val)
+            active_tasks_by_turn.setdefault(turn_num, []).append(
+                {
+                    "label": turno_val,
+                    "files": files,
+                }
+            )
+
+    conflicts: list[str] = []
+    for turn_num, tasks in active_tasks_by_turn.items():
+        if len(tasks) < 2:
+            continue
+        for i in range(len(tasks)):
+            for j in range(i + 1, len(tasks)):
+                t1, t2 = tasks[i], tasks[j]
+                overlap = t1["files"].intersection(t2["files"])
+                if overlap:
+                    files_str = ", ".join(f"`{f}`" for f in sorted(overlap))
+                    conflicts.append(
+                        f"Turno {turn_num}: tarefas '{t1['label']}' e '{t2['label']}' "
+                        f"tocam arquivos concorrentes: {files_str}"
+                    )
+
+    if conflicts:
+        detail_msg = (
+            "; ".join(conflicts)
+            + ". Múltiplas tarefas no mesmo turno devem ter escopos de arquivos estritamente disjuntos."
+        )
+        return ReadinessItem(
+            id="tarefas_independentes",
+            name="Independência de Tarefas Concorrentes (matriz-rastreabilidade.md)",
+            description="Garante que múltiplas tarefas ativas no mesmo turno não toquem os mesmos arquivos (Issue #57/70)",
+            required=False,
+            passed=False,
+            detail=detail_msg,
+        )
+
+    return ReadinessItem(
+        id="tarefas_independentes",
+        name="Independência de Tarefas Concorrentes (matriz-rastreabilidade.md)",
+        description="Garante que múltiplas tarefas ativas no mesmo turno não toquem os mesmos arquivos (Issue #57/70)",
+        required=False,
+        passed=True,
+        detail="Nenhum conflito de arquivos entre tarefas concorrentes",
     )
 
 

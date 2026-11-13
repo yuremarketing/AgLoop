@@ -26,6 +26,7 @@ _FILES: Tuple[Tuple[str, str], ...] = (
     ("gestao/backlog-produto.md", "docs/gestao/backlog-produto.md"),
     ("gestao/matriz-riscos.md", "docs/gestao/matriz-riscos.md"),
     ("gestao/roster-agentes.md", "docs/gestao/roster-agentes.md"),
+    ("gestao/matriz-rastreabilidade.md", "docs/gestao/matriz-rastreabilidade.md"),
     ("skills/vigilia/SKILL.md", ".claude/skills/vigilia/SKILL.md"),
     ("AGENTS.md", "AGENTS.md"),
     ("CLAUDE.md", "CLAUDE.md"),

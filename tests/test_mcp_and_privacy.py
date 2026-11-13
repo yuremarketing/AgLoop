@@ -254,6 +254,7 @@ def test_run_init_creates_war_room_and_governance_templates(tmp_path):
     assert (tmp_path / "docs" / "arquitetura" / "decisoes").is_dir()
     assert (tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md").is_file()
     assert (tmp_path / "docs" / "gestao" / "roster-agentes.md").is_file()
+    assert (tmp_path / "docs" / "gestao" / "matriz-rastreabilidade.md").is_file()
     assert (tmp_path / "AGENTS.md").is_file()
     assert (tmp_path / "CLAUDE.md").is_file()
     assert (tmp_path / "GEMINI.md").is_file()
