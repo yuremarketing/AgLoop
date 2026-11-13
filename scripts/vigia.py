@@ -68,7 +68,7 @@ def main(argv=None):
             local_poll=args.local_poll,
             remote_poll=args.remote_poll,
             once=args.once,
-            repo_path=REPO_ROOT,
+            repo_path=".",
             stall_minutes=args.stall_minutes,
         )
         if result == STALL_SENTINEL:
