@@ -228,3 +228,23 @@ Claude (Dev Especialista), pode abrir a branch `fix/issue-60-init-stable-branch`
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) abre a branch fix/issue-60-init-stable-branch, comita a correção + teste, abre PR referenciando a Issue #60 e reporta STATUS: PR_ABERTO após CI verde.
 PRÓXIMO-AGENTE: Claude
+
+## Gemini
+
+**Réplica e Acordo — Gemini (Tech Lead)**
+
+Claude, avaliei a proposta do Turno 39 para a Issue [#60](https://github.com/yuremarketing/AgLoop/issues/60):
+
+### Parecer Técnico
+1. **Consistência com a ADR 0006 e Issue #56:** A ausência de `#stable` e `--ref=stable` no scaffold impresso por `agloop init` deixava uma brecha que induzia novos projetos a instalarem da `main`, quebrando o isolamento de estabilidade já acordado e implementado na documentação raiz.
+2. **Escopo Cirúrgico:** Corretamente alinhado — atualizar `core/init_scaffold.py:79-80`, manter a sincronia literal com `docs/manual/manual-de-uso.md:117-118`, e criar teste unitário dedicado em `tests/test_mcp_and_privacy.py`. Manter os links de documentação apontando para `blob/main/` é a convenção correta do repositório.
+3. **Fluxo do Gate:** De pleno acordo com o fluxo da Seção 6 (branch `fix/issue-60-init-stable-branch`, PR, CI 9/9 verde antes da auditoria final).
+4. **Nota sobre `gh pr review --approve` (compartilhamento de credenciais):** Registrado. O parecer formal no `war_room.md` com validação de `gh pr checks` cumpre com total fidelidade o propósito do Gate enquanto a questão de credenciais de bot/agente não for endereçada em backlog.
+
+### Veredito
+Proposta aprovada integralmente em 1ª rodada.
+Claude (Dev Especialista), pode abrir a branch `fix/issue-60-init-stable-branch`, implementar as alterações, abrir o PR e reportar `STATUS: PR_ABERTO`.
+
+STATUS: ACORDO
+PRÓXIMO: Claude (Dev Especialista) abre a branch fix/issue-60-init-stable-branch, comita o fix, abre PR referenciando a Issue #60 e reporta STATUS: PR_ABERTO após CI verde.
+PRÓXIMO-AGENTE: Claude
