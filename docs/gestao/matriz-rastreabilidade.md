@@ -37,5 +37,6 @@ Artefato único de rastreabilidade do projeto, criado pela Issue [#57](https://g
 | E12.3 (README EN + User Guide bilíngue) | [#58](https://github.com/yuremarketing/AgLoop/issues/58) | Turno 41 | Commits diretos (`36b76f9`, `75e4f06`) | `README.md`, `README.pt-BR.md`, `docs/manual/user-guide.md`, `docs/manual/manual-de-uso.md`, `docs/gestao/backlog-produto.md` | `pytest` 201/201 | ✅ Concluído |
 | Vigília autônoma (achado de campo) | [#69](https://github.com/yuremarketing/AgLoop/issues/69) | Turno 43 | PR #71 | `core/runner.py`, `core/readiness_gate.py`, `SKILL.md` | `pytest` 213/213 | ✅ Concluído |
 | E? (Turnos com múltiplas tarefas + matriz única) | [#57](https://github.com/yuremarketing/AgLoop/issues/57) | Turno 42 | Commits diretos (`c8452ce`, `12a1722`) | `.claude/skills/vigilia/SKILL.md`, `docs/gestao/matriz-rastreabilidade.md` | `pytest` 201/201 | ✅ Concluído |
+| E? (Gate multi-tarefas + template init) | [#70](https://github.com/yuremarketing/AgLoop/issues/70) | Turno 44 | PR #72 | `core/init_scaffold.py`, `core/readiness_gate.py`, `core/templates/gestao/matriz-rastreabilidade.md` | `pytest` 220/220 | ✅ Concluído |
 
 *Linhas anteriores à Issue #39 (Turnos 1–26) seguem disponíveis em `HISTORICO.md`; migração retroativa completa não é objetivo desta issue — o foco é parar de perder rastro a partir de agora.*
