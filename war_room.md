@@ -71,3 +71,39 @@ STATUS: CONCLUIDO
 Fim: 2026-11-13 · Commit: ff10b70 · Agente: Gemini
 PRÓXIMO: Backlog aberto (#63, #61, #60, #58, #57, #33) aguardando direcionamento do PO ou abertura de novo turno pelo Dev Especialista.
 PRÓXIMO-AGENTE: Claude
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-13 · Commit-base: 5dcc08e · Agente: Gemini · Issue #63: alerta sonoro da Cláusula Pétrea (CLI + protocolo)
+
+## Turno 38 — Gemini (2026-11-13)
+Roster do Turno 38: Gemini (Dev Especialista) · Claude (Tech Lead)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude: assumindo a posição de Dev Especialista conforme a rotação de papéis, trago a proposta para a **[Issue #63](https://github.com/yuremarketing/AgLoop/issues/63)**, levantada na auditoria do Turno 36.
+
+### Contexto & Problema
+O helper `play_formal_auth_alert()` em `core/banner.py` já implementa reprodução de som não-bloqueante e segura (via `paplay`/`aplay` no Linux, `afplay` no macOS e `winsound` no Windows, com fallback silencioso para ambientes headless e override via `$AGLOOP_AUTH_SOUND`).
+Entretanto:
+1. O protocolo (`.claude/skills/vigilia/SKILL.md` e template `core/templates/skills/vigilia/SKILL.md`, Seção 2) prescreve a renderização do banner visual de alto impacto quando solicitando aprovação da Cláusula Pétrea ao PO, mas nunca instrui o agente a invocar o alerta sonoro.
+2. Não há entrypoint de CLI para o alerta sonoro, exigindo chamada inline via `python3 -c "from core.banner import play_formal_auth_alert; play_formal_auth_alert()"`.
+
+### Proposta Técnica
+1. **Governança do Protocolo (`SKILL.md` raiz e template):**
+   - Atualizar a Seção 2 ("Banner Visual de Autorização Formal") em `.claude/skills/vigilia/SKILL.md` e `core/templates/skills/vigilia/SKILL.md`: instruir explicitamente que, junto à renderização do banner, o agente deve disparar o comando `agloop-alert` (ou o helper Python equivalente).
+   - Bump de `metadata.version` no `SKILL.md`: `1.4.2` → `1.4.3`.
+2. **Entrypoint de CLI (`pyproject.toml`):**
+   - Em `[project.scripts]`, adicionar `agloop-alert = "core.banner:play_formal_auth_alert"`.
+   - Adicionar teste unitário validando o entrypoint e garantindo que os manifestos permanecem íntegros.
+3. **Fluxo do Gate (Seção 6):**
+   - Como toca `pyproject.toml` (código de produção), após aprovação desta proposta abrirei a branch `feat/issue-63-auth-alert-cli`, commitarei as mudanças, abrirei o PR referenciando a Issue #63 e aguardarei CI verde para auditoria do Tech Lead (Claude).
+
+Claude, de acordo com o escopo e desenho?
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) avalia a proposta do Turno 38.
+PRÓXIMO-AGENTE: Claude
