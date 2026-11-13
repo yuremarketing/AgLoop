@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.4.3"
+  version: "1.5.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
@@ -98,6 +98,23 @@ Quando o turno toca `core/`, `scripts/`, `main.py`, `pyproject.toml` ou `require
 3. **Autoria Isolada por Agente:** Cada commit registra `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL` e `GIT_COMMITTER_NAME`/`GIT_COMMITTER_EMAIL` escopados ao subprocesso do agente ativo, sem vazar variáveis para o ambiente global.
 4. **Fechamento e Arquivamento Atômico:** Ao fechar um turno (`<!--FIM_TURNO-->` / `CONSENSUS`), o arquivamento de turnos antigos em `HISTORICO.md` ocorre no mesmo commit/push atômico.
 5. **Jitter de Backoff Ampliado (Issue #15):** Em `push()`, o backoff entre tentativas após rejeição usa `random.uniform(0.5, 2.0) * attempt` — faixa ampliada em relação à v1 (`0.2–1.0`) para diluir colisões à medida que o número de agentes escritores concorrentes cresce além de 2.
+
+### Múltiplas Tarefas por Turno (Issue #57, Turno 42)
+
+Um turno pode conter **mais de uma tarefa**, desde que independentes entre si — evita serializar trabalhos que não conflitam (precedente real: Turno 31, PRs #51 e #50 entregues em paralelo sem conflito).
+
+- **Independência obrigatória:** tarefas do mesmo turno não tocam os mesmos arquivos/módulos. Declarada pelo Dev Especialista na abertura do turno, conferida pelo Tech Lead contra a coluna "Arquivos tocados" da matriz de rastreabilidade (abaixo).
+- **Uma tarefa = uma issue = um PR** (quando tocar código), com CI e auditoria próprios; a falha de uma tarefa não bloqueia as demais.
+- **Identificação `T<turno>.<n>`:** cada tarefa recebe um identificador (ex.: `T42.1`, `T42.2`). Toda mensagem relativa a uma tarefa específica inclui `TAREFA: T<turno>.<n>` além do `STATUS:`.
+- **`PRÓXIMO-AGENTE:` por tarefa:** com mais de uma tarefa aberta no turno, o campo lista cada agente endereçado junto da tarefa correspondente — `PRÓXIMO-AGENTE: Gemini (T42.1); Claude (T42.2)`. Com uma única tarefa, o formato da Seção 4 continua valendo sem mudança.
+- **Autorização do PO por tarefa:** a Cláusula Pétrea (Seção 2) se aplica a cada tarefa que toque código de produção individualmente, não ao turno inteiro — uma tarefa documental segue por Autoridade Delegada enquanto outra, no mesmo turno, aguarda aprovação do PO.
+- **Limite:** no máximo 2–3 tarefas por turno, para não comprometer a qualidade da auditoria. O limite de 3 rodadas de debate (Seção 1) vale **por tarefa**, não pelo turno inteiro.
+- **Fechamento do turno:** `<!--FIM_TURNO-->` só quando **todas** as tarefas estiverem em `ACORDO`/implementadas ou explicitamente adiadas (registradas como tal, nunca abandonadas em silêncio).
+- **Vigília com múltiplas tarefas (dependência futura de código, Issue #69):** até `scripts/vigia.py`/`core/runner.py` ganharem parsing nativo de `PRÓXIMO-AGENTE:` por tarefa, o agente endereçado em qualquer tarefa aberta liga a vigília normalmente — na prática, ela desperta ao ver seu nome em qualquer posição da linha de `PRÓXIMO-AGENTE:`. Essa mudança de código fica para issue de acompanhamento, fora deste turno.
+
+### Matriz de Rastreabilidade Única (Issue #57)
+
+`docs/gestao/matriz-rastreabilidade.md` é o artefato único de rastreabilidade do projeto (Requisito/Épico → Issue → Turno/Tarefa → PR → Arquivos tocados → Testes → Status), substituindo o rastreamento hoje espalhado entre `backlog-produto.md`, o Artefato Mestre e `HISTORICO.md`. Atualizado pelo Dev Especialista a cada abertura e fechamento de tarefa; a coluna "Arquivos tocados" é a base da verificação de independência entre tarefas do mesmo turno (item acima). O template para o scaffold do `agloop init` fica para a Fase 3 (código em `core/`), tratada em issue de acompanhamento com aprovação do PO.
 
 ---
 
