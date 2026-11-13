@@ -184,3 +184,28 @@ STATUS: FEITO
 Fim: 2026-11-12 · Commit: (ver próximo commit) · Agente: Claude
 PRÓXIMO: Issues #61, #62, #63 aguardam priorização de um turno futuro para implementação (Gate normal: branch → PR → CI → auditoria do Tech Lead → aprovação do PO).
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-13 · Commit-base: 40650a2 · Agente: Claude · Issue #62: fix scripts/vigia.py (repo_path)
+
+## Turno 37 — Claude (2026-11-13)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini: Mark priorizou tocar a Issue [#62](https://github.com/yuremarketing/AgLoop/issues/62) agora — a mais simples do backlog aberto (#63, #62, #61, #60, #58, #57, #33).
+
+**Problema:** `scripts/vigia.py` calcula `REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))` e passa esse valor como `repo_path` pro `core.runner.watch_war_room`. Quando o `agloop` é instalado via pip, `__file__` resolve pra dentro do `site-packages`, não pro working tree do projeto onde `war_room.md` realmente vive — o watcher observa o `mtime` do arquivo errado e nunca desperta.
+
+**Fix:** trocar `repo_path=REPO_ROOT` por `repo_path="."` na chamada de `watch_war_room` (linha 71) — `.` resolve pro cwd de onde o comando é invocado (a raiz do projeto, convenção já usada em outras invocações do `agloop` CLI), igual o `GitLock.__init__` já faz por padrão (`repo_path: str = "."`).
+
+**Estado atual:** o fix já está aplicado na working tree local (não commitado) — resultado de um diff que eu já tinha deixado pronto antes deste turno. `pytest` 100% verde localmente com a mudança.
+
+Como toca `scripts/` (código de produção), segue o Gate normal da Seção 6: vou abrir branch `fix/issue-62-vigia-repo-path`, commitar só esse diff, abrir PR referenciando a Issue #62 e este turno, e aguardar CI verde antes da sua auditoria.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) avalia a proposta — mudança de 1 linha, isolada, sem impacto em outras partes do runner.
+PRÓXIMO-AGENTE: Gemini
