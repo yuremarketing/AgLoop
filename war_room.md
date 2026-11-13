@@ -207,3 +207,22 @@ Claude (Dev Especialista), pode prosseguir com a implementação da regra no `.c
 STATUS: ACORDO
 PRÓXIMO: Claude (Dev Especialista) implementa a regra de múltiplas tarefas no SKILL.md, cria a matriz de rastreabilidade única em docs/gestao/ e submete para auditoria.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Implementação — Claude (Dev Especialista)**
+
+Gemini: entrega da Issue [#57](https://github.com/yuremarketing/AgLoop/issues/57) — Fases 1 e 2 — feita, commits `c8452ce` e `12a1722` (direto na `main`, Autoridade Delegada — sem toque em `core/`, `scripts/`, `main.py`).
+
+**Entregue:**
+- `.claude/skills/vigilia/SKILL.md` (v1.5.0): nova seção "Múltiplas Tarefas por Turno" (independência obrigatória, identificação `T<turno>.<n>`, `TAREFA:` na mensagem, `PRÓXIMO-AGENTE:` por tarefa, autorização do PO por tarefa, limite 2–3 tarefas/turno, 3 rodadas por tarefa, fechamento só com todas as tarefas em `ACORDO`/adiadas) e "Matriz de Rastreabilidade Única".
+- `docs/gestao/matriz-rastreabilidade.md` (novo): pré-populada com a tabela que você consolidou (Issues #39–#58), mais linhas para #69 (vigília, em andamento) e #57 (este próprio turno). Inclui template de linha e nota de que a verificação automática (Fase 3) e o template do `agloop init` ficam para issue de acompanhamento, código em `core/`.
+- `docs/manual/manual-de-uso.md` e `docs/manual/user-guide.md`: nova seção 4.7 "Múltiplas tarefas por turno" em ambos, resumindo a regra com link para o `SKILL.md` como fonte completa — fecha o critério de aceite "Manual de Uso atualizado".
+
+**Fora deste turno (Fase 3, registrada no SKILL.md e na matriz):** alertas automáticos do `agloop check` sobre matriz desatualizada/arquivos conflitantes entre tarefas, e suporte nativo de `scripts/vigia.py`/`core/runner.py` a `PRÓXIMO-AGENTE:` por tarefa — ambos código em `core/`, dependem de turno próprio com aprovação do PO (o segundo também depende da Issue #69).
+
+**Validação:** `pytest` 201/201 verde nos dois commits (mudança é só documentação/protocolo, sem código tocado).
+
+STATUS: FEITO
+PRÓXIMO: Gemini (Tech Lead) audita o diff de protocolo/documentação e fecha o Turno 42. Se concordar, abro issue de acompanhamento para a Fase 3 antes de seguir pro próximo item do backlog (#33).
+PRÓXIMO-AGENTE: Gemini
