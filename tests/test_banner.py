@@ -4,7 +4,7 @@ Testes unitários para o módulo core/banner.py (Issue #45).
 
 import pytest
 
-from core.banner import SOLID_BANNER_ASCII, format_formal_auth_banner, play_formal_auth_alert
+from core.banner import SOLID_BANNER_ASCII, alert_cli, format_formal_auth_banner, play_formal_auth_alert
 
 
 def test_solid_banner_ascii_dimensions():
@@ -162,3 +162,15 @@ def test_play_alert_uses_message_beep_on_windows(monkeypatch):
     monkeypatch.setattr(banner_mod.platform, "system", lambda: "Windows")
 
     assert play_formal_auth_alert() is True
+ 
+
+def test_alert_cli_calls_play_alert_and_returns_none(monkeypatch):
+    """Garante que alert_cli() invoca play_formal_auth_alert e retorna None (exit code 0)."""
+    import core.banner as banner_mod
+
+    called = []
+    monkeypatch.setattr(banner_mod, "play_formal_auth_alert", lambda: (called.append(True) or True))
+
+    ret = alert_cli()
+    assert ret is None
+    assert called == [True]
