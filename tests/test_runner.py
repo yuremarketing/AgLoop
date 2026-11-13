@@ -398,3 +398,106 @@ def test_inference_failure_logs_turn_failed_and_eventually_turn_appended(in_repo
     events = [getattr(r, "event", None) for r in caplog.records if getattr(r, "agent", None) == "Alice"]
     assert "turn_failed" in events
     assert "turn_appended" in events
+
+
+# --- Issue #69: vigília heartbeat + startup deadlock fix --------------------------
+
+
+def test_is_addressed_pure_function():
+    assert runner_mod._is_addressed("Bob", "Alice", "Bob") is True
+    assert runner_mod._is_addressed("Bob", "Alice", "Carol") is False
+    assert runner_mod._is_addressed(None, "Alice", "Bob") is True  # legacy fallback
+    assert runner_mod._is_addressed(None, "Bob", "Bob") is False  # I was last speaker
+    assert runner_mod._is_addressed(None, None, "Bob") is False  # empty room
+
+
+def test_read_heartbeat_returns_none_when_missing(tmp_path):
+    assert runner_mod.read_heartbeat(str(tmp_path)) is None
+
+
+def test_watch_war_room_once_wakes_immediately_when_already_addressed_at_startup(in_repo, monkeypatch):
+    """Issue #69 (Gemini's Turno 43 finding): starting the vigília when the room
+    already explicitly addresses this agent must not wait for a future mtime
+    change that will never come — it must return immediately, without sleeping."""
+    append(in_repo, "Gemini", "reply\n\nPRÓXIMO-AGENTE: Claude")
+
+    def fail_if_slept(_seconds):
+        raise AssertionError("must not sleep: already addressed at startup")
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fail_if_slept)
+    speaker = runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True)
+    assert speaker == "Gemini"
+
+    hb = runner_mod.read_heartbeat(".")
+    assert hb["state"] == "stopped"
+    assert hb["reason"] == "peer_responded_before_startup"
+
+
+def test_watch_war_room_legacy_fallback_still_waits_at_startup_without_explicit_field(in_repo, monkeypatch):
+    """Unlike the explicit PRÓXIMO-AGENTE case above, the ambiguous legacy "last
+    speaker wasn't me" fallback must NOT trigger an immediate startup return —
+    2-agent rooms without structured addressing keep the pre-#69 behavior."""
+    append(in_repo, "Gemini", "waiting for Claude")  # no PRÓXIMO-AGENTE field
+
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        if counter["n"] >= 2:
+            raise KeyboardInterrupt  # bound the test
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    with pytest.raises(KeyboardInterrupt):
+        runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True)
+    assert counter["n"] == 2
+
+
+def test_watch_war_room_once_writes_stopped_heartbeat_with_reason_on_peer_responded(in_repo, monkeypatch):
+    append(in_repo, "Gemini", "waiting for Claude")
+    counter = {"n": 0}
+
+    def fake_sleep(_seconds):
+        counter["n"] += 1
+        if counter["n"] == 2:
+            append(in_repo, "Claude", "Here is my reply")
+            st = os.stat(in_repo / ROOM)
+            os.utime(in_repo / ROOM, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    speaker = runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Gemini", local_poll=0, once=True)
+    assert speaker == "Claude"
+
+    hb = runner_mod.read_heartbeat(".")
+    assert hb["state"] == "stopped"
+    assert hb["reason"] == "peer_responded"
+    assert hb["agent"] == "Gemini"
+
+
+def test_watch_war_room_once_writes_stopped_heartbeat_on_stall_timeout(in_repo, monkeypatch):
+    append(in_repo, "Gemini", "waiting for Claude")
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(runner_mod.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(runner_mod.time, "sleep", lambda _s: clock.__setitem__("t", clock["t"] + 120.0))
+
+    result = runner_mod.watch_war_room(
+        war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True, stall_minutes=5,
+    )
+    assert result == runner_mod.STALL_SENTINEL
+
+    hb = runner_mod.read_heartbeat(".")
+    assert hb["state"] == "stopped"
+    assert hb["reason"] == "stall_timeout"
+
+
+def test_watch_war_room_writes_stopped_heartbeat_on_keyboard_interrupt(in_repo, monkeypatch):
+    def fake_sleep(_seconds):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(runner_mod.time, "sleep", fake_sleep)
+    with pytest.raises(KeyboardInterrupt):
+        runner_mod.watch_war_room(war_room_file=ROOM, agent_name="Claude", local_poll=0, once=True)
+
+    hb = runner_mod.read_heartbeat(".")
+    assert hb["state"] == "stopped"
+    assert hb["reason"] == "keyboard_interrupt"

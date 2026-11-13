@@ -1,7 +1,10 @@
+import json
 import logging
 import os
 import random
+import signal
 import time
+from datetime import datetime, timezone
 from typing import Optional
 
 from core.git_lock import GitLock
@@ -15,6 +18,60 @@ def _mtime(path: str) -> float:
 
 
 STALL_SENTINEL = "<AGLOOP_STALL>"
+
+HEARTBEAT_RELATIVE_PATH = os.path.join(".agloop", "vigia.heartbeat.json")
+
+
+def heartbeat_path(repo_path: str = ".") -> str:
+    """Path to the vigília heartbeat file for `repo_path` (Issue #69)."""
+    return os.path.join(repo_path, HEARTBEAT_RELATIVE_PATH)
+
+
+def _write_heartbeat(path: str, agent_name: str, state: str, reason: str) -> None:
+    """
+    Best-effort heartbeat write (Issue #69): records whether the vigília is
+    `running` or `stopped` (and why), so `agloop check` can flag a watcher
+    that died without anyone noticing — the failure mode that caused the
+    issue. Never raises: observability must never block or crash the watcher.
+    """
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        payload = {
+            "agent": agent_name,
+            "pid": os.getpid(),
+            "state": state,
+            "reason": reason,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        tmp_path = f"{path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh)
+        os.replace(tmp_path, path)
+    except OSError:
+        pass
+
+
+def read_heartbeat(repo_path: str = ".") -> Optional[dict]:
+    """Reads the vigília heartbeat written by `watch_war_room`, if any (Issue #69)."""
+    path = heartbeat_path(repo_path)
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
+def _is_addressed(next_agent: Optional[str], speaker: Optional[str], agent_name: str) -> bool:
+    """
+    Pure helper: True when `agent_name` is the one meant to act next, given an
+    explicit `PRÓXIMO-AGENTE:` field (Issue #15) or, in its absence, the legacy
+    "last speaker wasn't me" rule.
+    """
+    if next_agent is not None:
+        return next_agent.strip().lower() == agent_name.strip().lower()
+    return bool(speaker) and speaker != agent_name
 
 
 def _is_stalled(started_at: float, stall_minutes: Optional[float], now: Optional[float] = None) -> bool:
@@ -255,80 +312,128 @@ def watch_war_room(
     git_lock = GitLock(repo_path=repo_path)
     room_path = os.path.join(repo_path, war_room_file) if not os.path.isabs(war_room_file) else war_room_file
     war_room = WarRoom(filepath=room_path)
+    hb_path = heartbeat_path(repo_path)
 
-    last_mtime = _mtime(room_path)
-    last_speaker = war_room.get_last_speaker()
-    print(
-        f"[Vigia] Monitorando '{war_room_file}' (Agente: {agent_name}, modo: {'once' if once else 'contínuo'}, "
-        f"último orador: '{last_speaker}')",
-        flush=True,
-    )
+    exit_state = {"reason": "unexpected_termination"}
 
-    next_remote_check = time.monotonic() + remote_poll
-    started_at = time.monotonic()
-    failures = 0
+    def _beat(state: str, reason: str) -> None:
+        _write_heartbeat(hb_path, agent_name, state, reason)
 
-    while True:
-        try:
-            time.sleep(local_poll)
+    def _handle_sigterm(signum, frame):
+        # Issue #69: the real-world trigger was the watcher being killed from
+        # outside (e.g. a harness stopping the background task) — SIGTERM gives
+        # us one last chance to record *why* before the process actually dies.
+        exit_state["reason"] = "signal:SIGTERM"
+        raise SystemExit(0)
 
-            changed = False
-            current_mtime = _mtime(room_path)
-            if current_mtime != last_mtime:
-                last_mtime = current_mtime
-                changed = True
-                started_at = time.monotonic()
-                print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
-            elif git_lock.origin and time.monotonic() >= next_remote_check:
-                next_remote_check = time.monotonic() + remote_poll
-                if git_lock.has_remote_updates():
-                    print("\n[VIGIA ALERTA] Novos commits detectados em origin!", flush=True)
-                    if git_lock.sync_if_needed(war_room.paths):
-                        last_mtime = _mtime(room_path)
-                        changed = True
-                        started_at = time.monotonic()
+    try:
+        previous_sigterm = signal.signal(signal.SIGTERM, _handle_sigterm)
+    except (ValueError, OSError, AttributeError):
+        previous_sigterm = None
 
-            if changed:
-                speaker = war_room.get_last_speaker()
-                next_agent = war_room.get_next_agent()
-                print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
-                # Issue #15: honor explicit PRÓXIMO-AGENTE addressing when present,
-                # so Observers in N > 2 rooms don't wake up for turns that aren't theirs.
-                if next_agent is not None:
-                    addressed = next_agent.strip().lower() == agent_name.strip().lower()
-                else:
-                    addressed = bool(speaker) and speaker != agent_name
-                if addressed:
-                    print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
-                    if once:
-                        return speaker
-                else:
-                    print(f"[Vigia] Não é a vez de {agent_name}. Aguardando...", flush=True)
-            elif once and _is_stalled(started_at, stall_minutes):
-                print(
-                    f"\n[VIGIA ALERTA] Travamento: sem atividade em {war_room_file} "
-                    f"nos últimos {stall_minutes:g} minuto(s).",
-                    flush=True,
-                )
-                if war_room.get_state() not in ("WAITING_HUMAN", "CONSENSUS"):
-                    alert = (
-                        "**Alerta automático de travamento (vigília)**\n\n"
-                        f"Nenhuma resposta em `{war_room_file}` nos últimos {stall_minutes:g} minuto(s). "
-                        "PRÓXIMO-AGENTE pode ter ficado sem vigília religada.\n\n"
-                        "<!-- AGLOOP_STATE: WAITING_HUMAN -->"
+    try:
+        last_mtime = _mtime(room_path)
+        last_speaker = war_room.get_last_speaker()
+        last_next_agent = war_room.get_next_agent()
+        print(
+            f"[Vigia] Monitorando '{war_room_file}' (Agente: {agent_name}, modo: {'once' if once else 'contínuo'}, "
+            f"último orador: '{last_speaker}')",
+            flush=True,
+        )
+        _beat("running", "startup")
+
+        # Issue #69 (achado do Tech Lead, Turno 43): se a sala já endereça este
+        # agente via PRÓXIMO-AGENTE explícito no momento em que a vigília inicia
+        # (ex.: ela ficou desligada enquanto o colega respondeu), não espere por
+        # uma mudança futura que nunca vai acontecer — isso é o deadlock de
+        # inicialização. Escopo deliberadamente restrito ao campo explícito: a
+        # regra legada ("último orador não fui eu") permanece só para mudanças
+        # observadas depois do startup, como já era.
+        if last_next_agent is not None and last_next_agent.strip().lower() == agent_name.strip().lower():
+            print(
+                f"[Vigia] >>> ATENÇÃO: já era a vez de {agent_name} ao iniciar a vigília "
+                "(PRÓXIMO-AGENTE já endereçado). Acordando sem esperar por uma mudança futura.",
+                flush=True,
+            )
+            if once:
+                exit_state["reason"] = "peer_responded_before_startup"
+                return last_speaker
+
+        next_remote_check = time.monotonic() + remote_poll
+        started_at = time.monotonic()
+        failures = 0
+
+        while True:
+            try:
+                time.sleep(local_poll)
+                _beat("running", "polling")
+
+                changed = False
+                current_mtime = _mtime(room_path)
+                if current_mtime != last_mtime:
+                    last_mtime = current_mtime
+                    changed = True
+                    started_at = time.monotonic()
+                    print(f"\n[VIGIA ALERTA] Modificação local detectada em {war_room_file}!", flush=True)
+                elif git_lock.origin and time.monotonic() >= next_remote_check:
+                    next_remote_check = time.monotonic() + remote_poll
+                    if git_lock.has_remote_updates():
+                        print("\n[VIGIA ALERTA] Novos commits detectados em origin!", flush=True)
+                        if git_lock.sync_if_needed(war_room.paths):
+                            last_mtime = _mtime(room_path)
+                            changed = True
+                            started_at = time.monotonic()
+
+                if changed:
+                    speaker = war_room.get_last_speaker()
+                    next_agent = war_room.get_next_agent()
+                    print(f"[Vigia] Novo orador: '{speaker}'", flush=True)
+                    # Issue #15: honor explicit PRÓXIMO-AGENTE addressing when present,
+                    # so Observers in N > 2 rooms don't wake up for turns that aren't theirs.
+                    addressed = _is_addressed(next_agent, speaker, agent_name)
+                    if addressed:
+                        print(f"[Vigia] >>> ATENÇÃO: {speaker} respondeu! Vez de {agent_name}.", flush=True)
+                        if once:
+                            exit_state["reason"] = "peer_responded"
+                            return speaker
+                    else:
+                        print(f"[Vigia] Não é a vez de {agent_name}. Aguardando...", flush=True)
+                elif once and _is_stalled(started_at, stall_minutes):
+                    print(
+                        f"\n[VIGIA ALERTA] Travamento: sem atividade em {war_room_file} "
+                        f"nos últimos {stall_minutes:g} minuto(s).",
+                        flush=True,
                     )
-                    git_lock.acquire_lock_and_push(
-                        action_callback=lambda: war_room.append_message(agent_name, alert),
-                        message=f"AgLoop: {agent_name} stall alert in {war_room_file}",
-                        paths=war_room.paths,
-                        author_name=agent_name,
-                    )
-                return STALL_SENTINEL
+                    if war_room.get_state() not in ("WAITING_HUMAN", "CONSENSUS"):
+                        alert = (
+                            "**Alerta automático de travamento (vigília)**\n\n"
+                            f"Nenhuma resposta em `{war_room_file}` nos últimos {stall_minutes:g} minuto(s). "
+                            "PRÓXIMO-AGENTE pode ter ficado sem vigília religada.\n\n"
+                            "<!-- AGLOOP_STATE: WAITING_HUMAN -->"
+                        )
+                        git_lock.acquire_lock_and_push(
+                            action_callback=lambda: war_room.append_message(agent_name, alert),
+                            message=f"AgLoop: {agent_name} stall alert in {war_room_file}",
+                            paths=war_room.paths,
+                            author_name=agent_name,
+                        )
+                    exit_state["reason"] = "stall_timeout"
+                    return STALL_SENTINEL
 
-            failures = 0
-        except Exception as e:
-            failures += 1
-            backoff = min(2 ** failures, max_backoff) + random.uniform(0, jitter)
-            print(f"[Vigia] Erro inesperado no laço de monitoramento: {e}. Tentando novamente em {backoff:.1f}s.", flush=True)
-            time.sleep(backoff)
+                failures = 0
+            except Exception as e:
+                failures += 1
+                backoff = min(2 ** failures, max_backoff) + random.uniform(0, jitter)
+                print(f"[Vigia] Erro inesperado no laço de monitoramento: {e}. Tentando novamente em {backoff:.1f}s.", flush=True)
+                time.sleep(backoff)
+    except KeyboardInterrupt:
+        exit_state["reason"] = "keyboard_interrupt"
+        raise
+    finally:
+        if previous_sigterm is not None:
+            try:
+                signal.signal(signal.SIGTERM, previous_sigterm)
+            except (ValueError, OSError):
+                pass
+        _beat("stopped", exit_state["reason"])
 

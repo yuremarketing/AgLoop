@@ -10,9 +10,16 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 
 TODO_PATTERN = re.compile(r"<!--\s*AGLOOP_TODO:\s*(.*?)\s*-->", re.IGNORECASE)
+
+# Issue #69: heartbeats older than this (while state == "running") are treated as a
+# watcher that died without recording why — e.g. killed from outside the process,
+# so its own `finally` never ran. Generous relative to the 2s/30s default poll
+# intervals, to avoid false positives from normal scheduling jitter.
+HEARTBEAT_STALE_SECONDS = 90.0
 
 
 @dataclass
@@ -283,7 +290,75 @@ def check_readiness(repo_root: str = ".") -> ReadinessReport:
         )
     )
 
+    # 10. 📌 Heartbeat da Vigília (.agloop/vigia.heartbeat.json) — Issue #69
+    items.append(_check_vigilia_heartbeat(root))
+
     return ReadinessReport(items=items)
+
+
+def _check_vigilia_heartbeat(root: Path) -> ReadinessItem:
+    """
+    Verificação determinística (Issue #69) de que a última vigília conhecida não
+    morreu em silêncio: lê o heartbeat gravado por `core.runner.watch_war_room`
+    e flagra apenas o caso ambíguo — estado `running` sem atualização recente,
+    sinal de que o processo foi encerrado de fora sem rodar seu próprio `finally`.
+    Ausência de heartbeat (vigília nunca rodou nesta sessão) e estado `stopped`
+    (encerramento que já registrou o próprio motivo) nunca bloqueiam o Gate.
+    """
+    from core.runner import read_heartbeat
+
+    data = read_heartbeat(str(root))
+    if data is None:
+        return ReadinessItem(
+            id="vigilia_heartbeat",
+            name="Heartbeat da Vigília (vigia.heartbeat.json)",
+            description="Detecta uma vigília que parou sem registrar o motivo (Issue #69)",
+            required=False,
+            passed=True,
+            detail="Vigília ainda não foi iniciada nesta sessão (sem heartbeat para verificar)",
+        )
+
+    state = data.get("state")
+    reason = data.get("reason", "desconhecido")
+    try:
+        updated_at = datetime.fromisoformat(data["updated_at"])
+        age_seconds = (datetime.now(timezone.utc) - updated_at).total_seconds()
+    except (KeyError, TypeError, ValueError):
+        return ReadinessItem(
+            id="vigilia_heartbeat",
+            name="Heartbeat da Vigília (vigia.heartbeat.json)",
+            description="Detecta uma vigília que parou sem registrar o motivo (Issue #69)",
+            required=False,
+            passed=False,
+            detail="Heartbeat presente mas com formato inválido/corrompido",
+        )
+
+    if state == "running" and age_seconds > HEARTBEAT_STALE_SECONDS:
+        return ReadinessItem(
+            id="vigilia_heartbeat",
+            name="Heartbeat da Vigília (vigia.heartbeat.json)",
+            description="Detecta uma vigília que parou sem registrar o motivo (Issue #69)",
+            required=False,
+            passed=False,
+            detail=(
+                f"Heartbeat parado há {age_seconds / 60:.1f} min em estado 'running' — "
+                "o processo provavelmente foi encerrado de fora (ex.: harness matando a task) "
+                "sem registrar o motivo. Religue a vigília: scripts/vigia.py --agent <Nome> --once"
+            ),
+        )
+
+    if state == "running":
+        detail = f"Vigília ativa (agente {data.get('agent', '?')}, heartbeat há {age_seconds:.0f}s)"
+    else:
+        detail = f"Vigília encerrada (motivo: {reason}) há {age_seconds / 60:.1f} min"
+    return ReadinessItem(
+        id="vigilia_heartbeat",
+        name="Heartbeat da Vigília (vigia.heartbeat.json)",
+        description="Detecta uma vigília que parou sem registrar o motivo (Issue #69)",
+        required=False,
+        passed=True,
+        detail=detail,
+    )
 
 
 def format_report_text(report: ReadinessReport, quiet: bool = False, use_color: bool = True) -> str:

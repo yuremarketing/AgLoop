@@ -171,3 +171,69 @@ def test_protocol_version_item_in_readiness_gate(tmp_path):
     assert proto_item.required is False
     assert proto_item.passed is True
 
+
+# --- Issue #69: heartbeat da vigília no Gate de Prontidão ------------------------
+
+
+def _write_heartbeat_fixture(tmp_path, state, reason, age_seconds=0.0, agent="Claude"):
+    from datetime import datetime, timedelta, timezone
+
+    from core.runner import _write_heartbeat, heartbeat_path
+
+    path = heartbeat_path(str(tmp_path))
+    _write_heartbeat(path, agent, state, reason)
+    if age_seconds:
+        import json
+
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        stale_time = datetime.now(timezone.utc) - timedelta(seconds=age_seconds)
+        data["updated_at"] = stale_time.isoformat()
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(data, fh)
+
+
+def _heartbeat_item(report):
+    item = next((item for item in report.items if item.id == "vigilia_heartbeat"), None)
+    assert item is not None
+    assert item.required is False
+    return item
+
+
+def test_vigilia_heartbeat_item_passes_when_never_started(tmp_path):
+    item = _heartbeat_item(check_readiness(str(tmp_path)))
+    assert item.passed is True
+    assert "não foi iniciada" in item.detail
+
+
+def test_vigilia_heartbeat_item_passes_when_running_and_fresh(tmp_path):
+    _write_heartbeat_fixture(tmp_path, "running", "polling", age_seconds=0.0)
+    item = _heartbeat_item(check_readiness(str(tmp_path)))
+    assert item.passed is True
+    assert "ativa" in item.detail
+
+
+def test_vigilia_heartbeat_item_fails_when_running_but_stale(tmp_path):
+    """Caso real da Issue #69: processo morto de fora (ex.: TaskStop), sem rodar
+    o `finally` que gravaria o estado `stopped` — o heartbeat fica velho em
+    `running`, e é exatamente isso que o Gate precisa flagrar."""
+    _write_heartbeat_fixture(tmp_path, "running", "polling", age_seconds=200.0)
+    item = _heartbeat_item(check_readiness(str(tmp_path)))
+    assert item.passed is False
+    assert "encerrado de fora" in item.detail
+
+
+def test_vigilia_heartbeat_item_passes_when_stopped_with_reason(tmp_path):
+    _write_heartbeat_fixture(tmp_path, "stopped", "peer_responded", age_seconds=0.0)
+    item = _heartbeat_item(check_readiness(str(tmp_path)))
+    assert item.passed is True
+    assert "peer_responded" in item.detail
+
+
+def test_vigilia_heartbeat_item_passes_when_stopped_long_ago(tmp_path):
+    """Estado `stopped` nunca é motivo de bloqueio, mesmo antigo — só `running`
+    parado é ambíguo o suficiente para flagrar."""
+    _write_heartbeat_fixture(tmp_path, "stopped", "keyboard_interrupt", age_seconds=3600.0)
+    item = _heartbeat_item(check_readiness(str(tmp_path)))
+    assert item.passed is True
+
