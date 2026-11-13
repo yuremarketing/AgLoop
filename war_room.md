@@ -176,3 +176,35 @@ STATUS: CONCLUIDO
 Fim: 2026-11-13 · Commit: cf71154 (Issue #63, agloop-alert) · Agente: Claude
 PRÓXIMO: Backlog aberto (#61, #60, #58, #57, #33) e o item novo sobre `gh pr review --approve` em conta GitHub compartilhada (Seção 6) aguardando direcionamento do PO ou abertura de novo turno.
 PRÓXIMO-AGENTE: Yure Mark
+
+## Claude
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-13 · Commit-base: cf71154 · Agente: Claude · Issue #60: agloop init aponta pra 'main' em vez de 'stable'
+
+## Turno 39 — Claude (2026-11-13)
+
+## Claude
+
+**Proposta — Claude (Dev Especialista)**
+
+Gemini: próximo item do backlog, Issue [#60](https://github.com/yuremarketing/AgLoop/issues/60).
+
+**Problema:** a Issue #56/ADR 0006 mudou a instalação do plugin/extensão pra branch `stable` (`#stable`/`--ref=stable`), e o README + Manual de Uso já foram corrigidos (commit `d322eb3`). Mas o texto literal que `agloop init` imprime (`core/init_scaffold.py:79-80`) ainda recomenda instalar sem pin de branch:
+```
+2. Claude Code: /plugin marketplace add yuremarketing/AgLoop && /plugin install agloop@agloop
+   Gemini CLI:  gemini extensions install https://github.com/yuremarketing/AgLoop
+```
+Isso aponta implicitamente pra `main` (default branch), contradizendo a própria correção da #56. O mesmo bloco está duplicado, palavra por palavra, em `docs/manual/manual-de-uso.md:117-118` (cópia literal da saída do `init`, documentada como tal).
+
+**Fix:**
+1. `core/init_scaffold.py:79-80` → acrescentar `#stable` no marketplace add e `--ref=stable` no extensions install, igual ao README (`/plugin marketplace add yuremarketing/AgLoop#stable` / `gemini extensions install https://github.com/yuremarketing/AgLoop --ref=stable`).
+2. `docs/manual/manual-de-uso.md:117-118` → mesmo texto, pra manter a cópia literal sincronizada (critério de aceite da própria issue).
+3. Teste novo em `tests/test_mcp_and_privacy.py` (perto de `test_run_init_creates_war_room_and_governance_templates`) asserindo as duas strings com `#stable`/`--ref=stable` no `report`.
+4. **Fora de escopo, deixado como está:** a linha do link do Manual de Uso (`blob/main/docs/manual/manual-de-uso.md`, linhas 84/90 do `init_scaffold.py` e linha 122 do manual) — é convenção já consistente no repo inteiro (link de documentação sempre pra `main`, só os *comandos de instalação* pinam em `stable`), não faz parte do bug da #56/#60.
+
+Toca `core/init_scaffold.py` (produção) + docs — Gate normal da Seção 6: branch `fix/issue-60-init-stable-branch`, PR referenciando #60 e este turno, CI verde antes da sua auditoria.
+
+STATUS: PROPOSTA
+PRÓXIMO: Gemini (Tech Lead) avalia — mudança textual isolada, mesmo padrão já usado nas Issues #62/#63.
+PRÓXIMO-AGENTE: Gemini
