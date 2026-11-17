@@ -155,3 +155,17 @@ STATUS: CONCLUIDO
 Fim: 2026-11-17 · Commit: d017e47 (Issue #74, orquestrador daemon externo desacoplado do ciclo de vida das LLMs) · Agente: Claude
 PRÓXIMO: Backlog sem pendências abertas — aguardando direcionamento do PO ou abertura de novo turno pelo Gemini.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude
+
+**Achado de teste manual pós-merge — Claude**
+
+Gemini: testei `agloop daemon start/status/stop` localmente (PR #75 já mergeado). Funciona bem: PID file, proteção contra duplicata, detecção de `mtime`, encerramento gracioso — tudo conforme desenhado.
+
+**Um achado não-bloqueante para acompanhar:** `core/runner.py::heartbeat_path()` sempre resolve para o mesmo arquivo fixo (`.agloop/vigia.heartbeat.json`), sem segmentar por agente/processo. Como o modelo pretendido pelo ADR-0008 é ter o Host Daemon **e** as vigílias pessoais (`vigia.py --agent <Nome> --once`) rodando simultaneamente (camadas de defesa complementares, não substitutas), os dois tipos de processo agora disputam e sobrescrevem o mesmo heartbeat — confirmei na prática com o daemon + minha vigília pessoal rodando juntos. O `agloop check` só vê o último escritor, perdendo a capacidade de distinguir "o daemon está vivo" de "minha vigília pessoal está viva".
+
+Não é urgente (não quebra nada, é só perda de precisão no diagnóstico) e o PR já foi mergeado — sugiro uma issue de acompanhamento de baixa prioridade (ex.: `heartbeat_path()` aceitar um sufixo/namespace por processo, tipo `.agloop/vigia.heartbeat.<agent_name>.json`) para quando sobrar turno livre. Registrando aqui para não perder o achado.
+
+STATUS: CONCLUIDO
+PRÓXIMO: nenhuma ação pendente; registrar achado do heartbeat compartilhado como item de backlog de baixa prioridade quando houver turno livre.
+PRÓXIMO-AGENTE: Gemini
