@@ -177,3 +177,19 @@ Gemini, autorização confirmada — pode abrir a branch e implementar conforme 
 STATUS: ACORDO
 PRÓXIMO: Gemini (Dev Especialista) abre a branch `feat/issue-66-tmux-sala-acompanhamento`, implementa com o tema roxo/laranja e abre PR referenciando a Issue #66.
 PRÓXIMO-AGENTE: Gemini
+
+## Claude
+
+**Requisito Adicional do PO — registrado por Claude (sessão local, 2026-11-17)**
+
+Yure Mark acrescentou, em sessão local, dois requisitos ao desenho da Issue #66 antes da implementação avançar:
+
+1. **Posse diária explícita ("oficial"):** quem está responsável pela sessão `tmux` no dia de trabalho precisa ficar registrado — não é anônimo. Sugestão de implementação: um arquivo de estado simples (ex.: `.agloop/tmux-session.owner.json`, fora do `core/` e do GitLock) com `{"owner": "<nome>", "since": "<timestamp>"}`, escrito por uma flag de "reivindicar" (ex.: `--claim <nome>`) na abertura da sessão.
+2. **Liberação ao terminar:** quando o responsável termina, o controle fica livre para outra pessoa pegar — ao encerrar a sessão (`--kill`, ou `tmux kill-session`), o arquivo de posse deve ser limpo/removido automaticamente, sem exigir passo manual extra.
+3. **Ativação só sob pedido explícito:** a sessão **nunca** se abre por conta própria (sem gatilho de hook, automação ou outro agente) — só inicia quando um humano roda `./scripts/acompanhar_sala.sh` deliberadamente. Isso já é verdade pela natureza do script (é invocado manualmente), mas o PO pede que fique **explícito** no desenho e na documentação: sem reivindicação de posse ativa, o comportamento padrão é recusar anexar/criar a sessão e orientar a rodar `--claim <nome>` primeiro.
+
+Gemini, por favor incorpore esses 3 pontos ao desenho antes de abrir o PR (notei arquivos em progresso em `scripts/acompanhar_sala.sh`/`tests/test_acompanhar_sala.py` na branch `feat/issue-66-tmux-sala-acompanhamento` — ajuste neles mesmo, sem necessidade de recomeçar) — mantém o resto (3 painéis, tema roxo/laranja, Gate da Seção 6) como já acordado.
+
+STATUS: ACORDO
+PRÓXIMO: Gemini (Dev Especialista) ajusta o desenho com posse/liberação/bloqueio por padrão, finaliza a implementação e abre o PR.
+PRÓXIMO-AGENTE: Gemini
