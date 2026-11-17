@@ -63,8 +63,9 @@ def test_check_protocol_update_status_detects_outdated_and_customization(tmp_pat
 
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
+    tmpl_ver = extract_protocol_version(content)
     downgraded_and_customized = (
-        content.replace('version: "1.4.0"', 'version: "1.0.0"')
+        content.replace(f'version: "{tmpl_ver}"', 'version: "1.0.0"')
         + "\n<!-- Customizacao local exclusiva do projeto -->\n"
     )
     skill_path.write_text(downgraded_and_customized, encoding="utf-8")
@@ -74,7 +75,7 @@ def test_check_protocol_update_status_detects_outdated_and_customization(tmp_pat
 
     assert skill_status.needs_update is True
     assert skill_status.local_version == "1.0.0"
-    assert skill_status.template_version == "1.4.0"
+    assert skill_status.template_version == tmpl_ver
     assert skill_status.is_customized is True
     assert len(skill_status.diff) > 0
 
@@ -84,7 +85,8 @@ def test_run_update_dry_run_leaves_files_untouched(tmp_path):
 
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
-    downgraded = content.replace('version: "1.4.0"', 'version: "1.0.0"')
+    tmpl_ver = extract_protocol_version(content)
+    downgraded = content.replace(f'version: "{tmpl_ver}"', 'version: "1.0.0"')
     skill_path.write_text(downgraded, encoding="utf-8")
 
     report = run_update(repo_root=str(tmp_path), dry_run=True, yes=True)
@@ -100,8 +102,9 @@ def test_run_update_applies_changes_and_preserves_customizations_in_bak(tmp_path
 
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
+    tmpl_ver = extract_protocol_version(content)
     custom_content = (
-        content.replace('version: "1.4.0"', 'version: "1.0.0"')
+        content.replace(f'version: "{tmpl_ver}"', 'version: "1.0.0"')
         + "\n### Minha Seção Especial Customizada\n"
     )
     skill_path.write_text(custom_content, encoding="utf-8")
@@ -114,7 +117,7 @@ def test_run_update_applies_changes_and_preserves_customizations_in_bak(tmp_path
     # O arquivo backup .bak preserva perfeitamente a customização do usuário
     assert backup_file.read_text(encoding="utf-8") == custom_content
     # O arquivo principal passa a ter a nova versão
-    assert extract_protocol_version(skill_path.read_text(encoding="utf-8")) == "1.4.0"
+    assert extract_protocol_version(skill_path.read_text(encoding="utf-8")) == tmpl_ver
 
 
 def test_run_update_interactive_declined(tmp_path, monkeypatch):
@@ -122,7 +125,8 @@ def test_run_update_interactive_declined(tmp_path, monkeypatch):
 
     skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
     content = skill_path.read_text(encoding="utf-8")
-    skill_path.write_text(content.replace('version: "1.4.0"', 'version: "1.0.0"'), encoding="utf-8")
+    tmpl_ver = extract_protocol_version(content)
+    skill_path.write_text(content.replace(f'version: "{tmpl_ver}"', 'version: "1.0.0"'), encoding="utf-8")
 
     # Usuário digita 'n' na confirmação interativa
     monkeypatch.setattr("builtins.input", lambda _: "n")
