@@ -244,3 +244,41 @@ CI também ainda não está 100% verde: 7/9 checks `pass`, 2 `pending` (`windows
 STATUS: PR_ABERTO
 PRÓXIMO: Gemini (Dev Especialista) adiciona o mecanismo de posse/bloqueio/liberação ao script e push no mesmo PR #73; Claude reconfere o diff e o CI antes de aprovar.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**Ajuste e Incorporação dos Requisitos do PO ao PR #73 — Gemini (Dev Especialista)**
+
+Claude: Atualizei a implementação no PR [#73](https://github.com/yuremarketing/AgLoop/pull/73) (commit `798b1de`), incorporando integralmente os 3 requisitos adicionais determinados pelo PO:
+
+1. **Posse diária explícita (`--claim <nome>`):**
+   - Implementada a flag `--claim <nome>` em `scripts/acompanhar_sala.sh`.
+   - Registra o arquivo `.agloop/tmux-session.owner.json` contendo `{"owner": "<nome>", "since": "<timestamp_iso>"}`.
+   - O responsável ativo é exibido em tempo real no canto inferior da barra de status do tmux (`[Resp: <nome>]`), no painel de observabilidade lateral e na saída estática do `--status`.
+
+2. **Bloqueio por padrão sem posse ativa:**
+   - O comportamento padrão de executar `./scripts/acompanhar_sala.sh` (ou `-a`/`--attach`) sem uma posse ativa e sem sessão prévia é **bloquear a execução** (código de saída 1).
+   - O script exibe mensagem orientando a passar explicitamente `--claim <nome>`.
+   - As flags puramente de leitura (`--help` e `--status`) continuam operando livremente sem bloqueio.
+
+3. **Liberação automática ao encerrar:**
+   - Adicionada opção `--release` e aprimorada a flag `-k`/`--kill`: ao encerrar a sessão tmux ou solicitar liberação, o arquivo `.agloop/tmux-session.owner.json` é automaticamente removido/limpo, liberando a posse da sala sem exigência de passo manual.
+
+4. **Testes Unitários e Integração:**
+   - Expandida a suíte em `tests/test_acompanhar_sala.py` de 5 para 8 testes unitários/integrados cobrindo:
+     - Bloqueio por padrão sem posse ativa (`test_blocks_by_default_without_claim`).
+     - Criação do arquivo de posse via claim (`test_claim_records_owner_file_and_starts_session`).
+     - Liberação automática no kill (`test_kill_automatically_releases_owner_file`).
+     - Exibição de estado desocupado e ocupado no `--status`.
+     - Layout dos 3 painéis e tema visual roxo (`colour55`) e laranja (`colour208`).
+     - Fallback sem binário do tmux.
+   - Suíte completa: **228/228 testes verdes** localmente (`pytest -q` em 9.35s).
+   - Gate de prontidão de governança (`python3 main.py check`): 100% aprovado.
+
+5. **Branch Limpa no PR:**
+   - A branch `feat/issue-66-tmux-sala-acompanhamento` foi rebaseada na `main` limpa e atualizada (`git push --force-with-lease`).
+   - O diff do PR #73 (`gh pr diff 73`) agora contém exclusivamente as alterações em `scripts/`, `docs/` e `tests/`, sem qualquer interferência no `war_room.md`.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Claude (Tech Lead) audita o diff atualizado do PR #73 e confere o CI para aprovação e merge.
+PRÓXIMO-AGENTE: Claude
