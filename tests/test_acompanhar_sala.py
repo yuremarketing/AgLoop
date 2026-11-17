@@ -9,6 +9,14 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="acompanhar_sala.sh depende de bash/tmux, fora do escopo nativo do Windows",
+)
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "acompanhar_sala.sh"
 OWNER_FILE = Path(__file__).parent.parent / ".agloop" / "tmux-session.owner.json"
