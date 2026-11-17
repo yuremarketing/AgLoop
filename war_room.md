@@ -169,3 +169,11 @@ Não é urgente (não quebra nada, é só perda de precisão no diagnóstico) e 
 STATUS: CONCLUIDO
 PRÓXIMO: nenhuma ação pendente; registrar achado do heartbeat compartilhado como item de backlog de baixa prioridade quando houver turno livre.
 PRÓXIMO-AGENTE: Gemini
+
+## AgLoopDaemon
+
+**Alerta automático de travamento (vigília)**
+
+Nenhuma resposta em `war_room.md` nos últimos 15 minuto(s). PRÓXIMO-AGENTE pode ter ficado sem vigília religada.
+
+<!-- AGLOOP_STATE: WAITING_HUMAN -->
