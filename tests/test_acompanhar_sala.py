@@ -1,12 +1,23 @@
 """
 Testes unitários e de integração para o script de acompanhamento da Sala de Guerra (Issue #66).
+Requisitos: 3 painéis, tema roxo/laranja, posse diária explícita (--claim),
+bloqueio por padrão e liberação automática (--kill/--release).
 """
 
+import json
 import os
 from pathlib import Path
 import subprocess
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "acompanhar_sala.sh"
+OWNER_FILE = Path(__file__).parent.parent / ".agloop" / "tmux-session.owner.json"
+
+
+def teardown_function():
+    # Garante limpeza de sessão e arquivo de posse após cada teste
+    subprocess.run([str(SCRIPT_PATH), "--kill"], capture_output=True, check=False)
+    if OWNER_FILE.exists():
+        OWNER_FILE.unlink(missing_ok=True)
 
 
 def test_script_exists_and_is_executable():
@@ -23,28 +34,88 @@ def test_help_flag_displays_usage():
     )
     assert res.returncode == 0
     assert "Uso:" in res.stdout
+    assert "--claim" in res.stdout
+    assert "--release" in res.stdout
     assert "--attach" in res.stdout
     assert "--kill" in res.stdout
     assert "--status" in res.stdout
     assert "agloop-live" in res.stdout
 
 
-def test_status_flag_executes_observability_check():
+def test_blocks_by_default_without_claim():
+    """Requisito do PO: Sem reivindicação de posse ativa, recusa iniciar por padrão."""
+    teardown_function()
     res = subprocess.run(
-        [str(SCRIPT_PATH), "--status"],
+        [str(SCRIPT_PATH)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert res.returncode == 1
+    assert "Bloqueio" in res.stderr
+    assert "--claim" in res.stderr
+
+
+def test_claim_records_owner_file_and_starts_session():
+    """Requisito do PO: Posse diária explícita salva owner e since."""
+    teardown_function()
+    res = subprocess.run(
+        [str(SCRIPT_PATH), "--claim", "Alice"],
         capture_output=True,
         text=True,
         check=False,
     )
     assert res.returncode == 0
-    assert "OBSERVABILIDADE" in res.stdout
-    assert "Sala de Guerra" in res.stdout
-    assert "Vigília Híbrida" in res.stdout
+    assert "Alice" in res.stdout
+    assert OWNER_FILE.is_file()
+
+    with open(OWNER_FILE, encoding="utf-8") as f:
+        data = json.load(f)
+    assert data.get("owner") == "Alice"
+    assert "since" in data
+
+
+def test_kill_automatically_releases_owner_file():
+    """Requisito do PO: Liberação automática ao terminar."""
+    subprocess.run([str(SCRIPT_PATH), "--claim", "Bob"], capture_output=True, check=False)
+    assert OWNER_FILE.is_file()
+
+    res = subprocess.run(
+        [str(SCRIPT_PATH), "--kill"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert res.returncode == 0
+    assert "encerrada e posse liberada" in res.stdout
+    assert not OWNER_FILE.exists()
+
+
+def test_status_flag_shows_unoccupied_and_claimed_states():
+    teardown_function()
+    res1 = subprocess.run(
+        [str(SCRIPT_PATH), "--status"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert res1.returncode == 0
+    assert "Nenhum (sessão desocupada)" in res1.stdout
+
+    subprocess.run([str(SCRIPT_PATH), "--claim", "Carlos"], capture_output=True, check=False)
+    res2 = subprocess.run(
+        [str(SCRIPT_PATH), "--status"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert res2.returncode == 0
+    assert "Carlos" in res2.stdout
 
 
 def test_script_contains_purple_orange_theme_and_panes():
     content = SCRIPT_PATH.read_text(encoding="utf-8")
-    # Requisito do PO: Fundo roxo e texto/letras em laranja
+    # Requisito do PO: Fundo roxo (colour55) e texto/letras em laranja (colour208)
     assert "colour55" in content, "Tema deve incluir cor roxa (colour55)"
     assert "colour208" in content, "Tema deve incluir cor laranja (colour208)"
     # Layout de 3 painéis
@@ -55,7 +126,6 @@ def test_script_contains_purple_orange_theme_and_panes():
 
 
 def test_missing_tmux_exits_with_informative_error(tmp_path):
-    # Cria diretório de PATH com bash e python3, mas sem tmux
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     for tool in ("bash", "sh", "dirname", "basename", "cat", "python3"):
