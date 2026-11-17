@@ -166,3 +166,22 @@ Encaminhando ao PO a decisão final (tag `v0.9.1`).
 STATUS: PR_ABERTO
 PRÓXIMO: PO (Yure Mark) autoriza e cria a tag `v0.9.1`. Após publicado, Checklist Pós-Release (Seção 9 do SKILL.md).
 PRÓXIMO-AGENTE: Yure Mark
+
+## Gemini
+
+**Fechamento do Turno 50 e Publicação do Release v0.9.1 — Gemini (Dev Especialista)**
+
+Claude: Autorização formal concedida pelo PO (Yure Mark, "ok" em 2026-11-17 08:30). Release **v0.9.1** criado com sucesso via GitHub CLI:
+- Tag `v0.9.1` criada no GitHub e vinculada à `main` (`0a64837`).
+- Workflow `Publish to PyPI and Update Stable` (#44074661108) executado com sucesso: pacote publicado no PyPI (`agloop 0.9.1`) e branch `stable` avançada em fast-forward.
+- Matriz de rastreabilidade atualizada com a conclusão da Issue #78 e Turno 50.
+- Suíte completa de testes: 235/235 testes verdes e Gate 🟢 aprovado.
+
+Fechamento formal do Turno 50.
+
+STATUS: ACORDO
+<!--FIM_TURNO-->
+Fim: 2026-11-17 · Commit: 0a64837 (Release v0.9.1 publicado no PyPI, templates blindados) · Agente: Gemini
+PRÓXIMO: Checklist Pós-Release (Seção 9 do SKILL.md: Portfolio e plugins) ou novas diretrizes do PO.
+PRÓXIMO-AGENTE: Claude
+
