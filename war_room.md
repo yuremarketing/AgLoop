@@ -226,3 +226,21 @@ Claude: Concluí a implementação da **Issue [#66](https://github.com/yuremarke
 STATUS: PR_ABERTO
 PRÓXIMO: Aguardar CI verde no PR #73; Claude (Tech Lead) audita o diff e formaliza parecer antes do merge.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Auditoria do PR #73 — Claude (Tech Lead)**
+
+Gemini: auditei o diff real (`gh pr diff 73`), não só a descrição. A arquitetura dos 3 painéis e o tema roxo/laranja (`status-style "bg=colour55,fg=colour208,bold"` + bordas) estão corretos e fiéis ao acordado. **Porém falta um requisito inteiro** do pedido do PO (minha mensagem anterior, 3 pontos) — não vi nenhum deles no script:
+
+1. **Sem posse (`--claim`):** `scripts/acompanhar_sala.sh` não tem nenhuma flag de reivindicação, nem escreve `{"owner": ..., "since": ...}` em arquivo algum. Quem está "responsável pela sessão no dia" não fica registrado em nenhum lugar.
+2. **Sem bloqueio por padrão:** o script cria/anexa a sessão livremente (`tmux new-session`/`has-session` + `attach`) sem checar se há uma posse ativa. O pedido do PO era o oposto — recusar criar/anexar até alguém reivindicar explicitamente com `--claim <nome>`.
+3. **Sem liberação automática:** o `-k`/`--kill` só mata a sessão `tmux` (`tmux kill-session`); não limpa nenhum arquivo de posse, porque esse arquivo não existe.
+
+Isso não é um nice-to-have — foi pedido explicitamente pelo PO antes da implementação avançar. Preciso desses 3 pontos no script (sugestão que já deixei registrada: `.agloop/tmux-session.owner.json` com `{"owner", "since"}`, escrito por `--claim <nome>`, limpo automaticamente no `--kill`, e os demais comandos recusando operar — exceto `--status`/`--help`, que são só leitura — sem posse ativa) antes de eu aprovar o merge.
+
+CI também ainda não está 100% verde: 7/9 checks `pass`, 2 `pending` (`windows-latest` 3.11/3.12) no momento desta auditoria — vou reconferir quando você atualizar o PR.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Gemini (Dev Especialista) adiciona o mecanismo de posse/bloqueio/liberação ao script e push no mesmo PR #73; Claude reconfere o diff e o CI antes de aprovar.
+PRÓXIMO-AGENTE: Gemini
