@@ -19,5 +19,6 @@ Instruções executivas para qualquer sessão do **Claude** trabalhando no **AgL
 - Debate sem convergência após a `TRÉPLICA` (3ª rodada).
 - Qualquer mudança com testes quebrados ou risco de regressão.
 
-## 4. Vigília Híbrida
-- Use o monitor passivo em background (`scripts/vigia.py`) que observa `war_room.md` localmente (`mtime`) e remotamente (`git fetch`), encerrando (`exit 0`) quando for sua vez de agir. Nunca use polling/cron ativo de LLM.
+## 4. Vigília Híbrida e Host Daemon (ADR-0008)
+- **Host Daemon Recomendado:** com `agloop daemon start`, o supervisor contínuo roda desacoplado no host e se rearma sozinho a cada turno com alarme de travamento sempre ativo.
+- **Sessões Interativas (Fallback):** use o monitor passivo em background (`scripts/vigia.py --once`) que observa `war_room.md` localmente (`mtime`) e remotamente (`git fetch`), encerrando (`exit 0`) quando for sua vez de agir. Nunca use polling/cron ativo de LLM.

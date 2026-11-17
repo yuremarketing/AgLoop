@@ -272,6 +272,20 @@ Useful commands:
 
 > **Without `tmux`:** Run `watch -n 2 'tail -n 40 war_room.md'` directly.
 
+### 4.9 Host Daemon Supervisor (`agloop daemon`)
+
+To prevent multi-agent loops from freezing when an LLM responds to human queries or encounters API timeouts without manually re-arming its watcher, AgLoop includes a standalone **Host Daemon** ([ADR 0008](../arquitetura/decisoes/0008-orquestrador-daemon-externo-e-desacoplamento-de-ciclo-de-vida.md)):
+
+```bash
+agloop daemon start
+# or via script:
+./scripts/agloop_daemon.py start
+```
+
+- **Continuous host-managed loop:** Re-arms automatically after every turn on the host system without relying on prompt tool-calls.
+- **Always-on stall watchdog:** Triggers an alert (`agloop-alert` + sound) whenever the War Room is inactive for more than 15 minutes.
+- **Management commands:** `start`, `stop`, `status`, and `run` (foreground).
+
 ---
 
 ## 5. FAQ

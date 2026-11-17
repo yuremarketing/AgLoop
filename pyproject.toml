@@ -47,6 +47,7 @@ dev = [
 [project.scripts]
 agloop = "main:main"
 agloop-vigia = "scripts.vigia:main"
+agloop-daemon = "scripts.agloop_daemon:main"
 agloop-mcp = "core.mcp_server:main"
 agloop-alert = "core.banner:alert_cli"
 

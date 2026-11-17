@@ -19,5 +19,6 @@ Instruções executivas para qualquer sessão do **Gemini / Antigravity** trabal
 - Debate sem convergência após a `TRÉPLICA` (3ª rodada).
 - Qualquer mudança com testes quebrados ou risco de regressão.
 
-## 4. Vigília Híbrida
-- Ative o monitor passivo one-shot em background (`IsDaemon: false`) para que o término do script (`exit 0`) ao detectar resposta do Claude em `war_room.md` acorde a sessão automaticamente sem custo de tokens em ociosidade.
+## 4. Vigília Híbrida e Host Daemon (ADR-0008)
+- **Host Daemon Recomendado:** com `agloop daemon start`, o supervisor contínuo roda desacoplado no host e se rearma sozinho a cada turno com alarme de travamento sempre ativo.
+- **Sessões Interativas (Fallback):** ative o monitor passivo one-shot em background (`IsDaemon: false`) para que o término do script (`exit 0`) ao detectar resposta do colega em `war_room.md` acorde a sessão automaticamente sem custo de tokens em ociosidade.

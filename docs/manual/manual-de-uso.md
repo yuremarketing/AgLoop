@@ -322,6 +322,24 @@ O script inicia uma sessão `tmux` desacoplada (`agloop-live`) com visual amigá
 > watch -n 2 'tail -n 40 war_room.md'
 > ```
 
+### 5.3b Orquestrador Host Daemon (`agloop daemon`)
+
+Para eliminar o risco de a vigília parar caso a LLM esqueça de se rearmar no prompt, o AgLoop conta com o **Host Daemon** ([ADR 0008](../arquitetura/decisoes/0008-orquestrador-daemon-externo-e-desacoplamento-de-ciclo-de-vida.md)), um supervisor contínuo que roda diretamente no host:
+
+```bash
+agloop daemon start
+# ou diretamente via script:
+./scripts/agloop_daemon.py start
+```
+
+- **Ciclo contínuo desacoplado do prompt:** Rearma-se sozinho no host a cada turno sem depender de chamadas ou lembretes da LLM.
+- **Alarme de travamento sempre ativo:** Dispara alarme sonoro determinístico (`agloop-alert`) se a sala ficar inativa por mais de 15 minutos (`--stall-minutes`).
+- **Comandos de controle:**
+  - `agloop daemon start`: Inicia em background gerenciado via arquivo de PID (`.agloop/agloop_daemon.pid`).
+  - `agloop daemon stop`: Encerra o supervisor graciosamente.
+  - `agloop daemon status`: Exibe status operacional (executando/parado) e telemetria de heartbeat.
+  - `agloop daemon run`: Executa em primeiro plano (ideal para containers ou painel do tmux).
+
 ### 5.4 Ferramentas do servidor MCP (`agloop`)
 
 | Ferramenta | O que faz |

@@ -77,6 +77,34 @@ def _build_parser() -> argparse.ArgumentParser:
     report_parser.add_argument("--repo-root", type=str, default=".", help="Diretório do projeto de origem (p/ detectar ambiente).")
     report_parser.add_argument("--repo", type=str, default="yuremarketing/AgLoop", help="Repositório de destino (owner/repo).")
 
+    daemon_parser = subparsers.add_parser("daemon", help="Gerencia o orquestrador supervisor de processos do host.")
+    daemon_sub = daemon_parser.add_subparsers(dest="daemon_action")
+
+    d_run = daemon_sub.add_parser("run", help="Executa o daemon em primeiro plano (foreground).")
+    d_run.add_argument("--room", type=str, default="war_room.md", help="Arquivo da Sala de Guerra")
+    d_run.add_argument("--agent", type=str, default="AgLoopDaemon", help="Nome do supervisor")
+    d_run.add_argument("--local-poll", type=float, default=2.0, help="Intervalo local (s)")
+    d_run.add_argument("--remote-poll", type=float, default=30.0, help="Intervalo remoto (s)")
+    d_run.add_argument("--stall-minutes", type=float, default=15.0, help="Minutos p/ alarme de travamento")
+    d_run.add_argument("--repo-path", type=str, default=".", help="Raiz do repositório")
+    d_run.add_argument("--pid-file", type=str, default=None, help="Arquivo de PID")
+    d_run.add_argument("--no-audio", action="store_true", help="Desativa alarme sonoro")
+
+    d_start = daemon_sub.add_parser("start", help="Inicia o daemon em segundo plano (background).")
+    d_start.add_argument("--room", type=str, default="war_room.md", help="Arquivo da Sala de Guerra")
+    d_start.add_argument("--agent", type=str, default="AgLoopDaemon", help="Nome do supervisor")
+    d_start.add_argument("--stall-minutes", type=float, default=15.0, help="Minutos p/ alarme de travamento")
+    d_start.add_argument("--repo-path", type=str, default=".", help="Raiz do repositório")
+    d_start.add_argument("--pid-file", type=str, default=None, help="Arquivo de PID")
+    d_start.add_argument("--log-file", type=str, default=None, help="Arquivo de log")
+
+    d_stop = daemon_sub.add_parser("stop", help="Encerra o daemon em segundo plano.")
+    d_stop.add_argument("--pid-file", type=str, default=None, help="Arquivo de PID")
+
+    d_status = daemon_sub.add_parser("status", help="Consulta o status operacional do daemon.")
+    d_status.add_argument("--repo-path", type=str, default=".", help="Raiz do repositório")
+    d_status.add_argument("--pid-file", type=str, default=None, help="Arquivo de PID")
+
     return parser
 
 
@@ -181,6 +209,63 @@ def main():
             print("\n--- Rascunho do issue ---\n")
             print(result.rendered_body)
         sys.exit(1 if result.error else 0)
+
+    if args.command == "daemon":
+        from core.daemon import (
+            DEFAULT_DAEMON_PID_FILE,
+            AgLoopDaemon,
+            get_daemon_status,
+            start_daemon_background,
+            stop_daemon,
+        )
+
+        action = getattr(args, "daemon_action", None)
+        pid_file = getattr(args, "pid_file", None) or DEFAULT_DAEMON_PID_FILE
+        repo_path = getattr(args, "repo_path", ".")
+
+        if action == "run":
+            daemon = AgLoopDaemon(
+                war_room_file=args.room,
+                agent_name=args.agent,
+                local_poll=args.local_poll,
+                remote_poll=args.remote_poll,
+                stall_minutes=args.stall_minutes,
+                repo_path=repo_path,
+                pid_file=pid_file,
+                audio_alert=not args.no_audio,
+            )
+            daemon.run()
+        elif action == "start":
+            try:
+                pid = start_daemon_background(
+                    war_room_file=args.room,
+                    agent_name=args.agent,
+                    stall_minutes=args.stall_minutes,
+                    repo_path=repo_path,
+                    pid_file=pid_file,
+                    log_file=getattr(args, "log_file", None),
+                )
+                print(f"AgLoop Daemon iniciado em background (PID: {pid}).")
+            except RuntimeError as e:
+                print(f"Erro: {e}", file=sys.stderr)
+                sys.exit(1)
+        elif action == "stop":
+            stopped = stop_daemon(pid_file)
+            if stopped:
+                print("AgLoop Daemon encerrado com sucesso.")
+            else:
+                print("AgLoop Daemon não estava em execução.")
+        elif action == "status":
+            st = get_daemon_status(repo_path, pid_file)
+            if st["running"]:
+                print(f"AgLoop Daemon: EM EXECUÇÃO (PID: {st['pid']})")
+            else:
+                print("AgLoop Daemon: PARADO")
+            if st["heartbeat"]:
+                print(f"Último Heartbeat: {st['heartbeat']}")
+        else:
+            print("Uso: agloop daemon {start|stop|status|run}")
+        return
 
     notice = check_pypi_update()
     if notice:
