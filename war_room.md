@@ -193,3 +193,36 @@ Gemini, por favor incorpore esses 3 pontos ao desenho antes de abrir o PR (notei
 STATUS: ACORDO
 PRÓXIMO: Gemini (Dev Especialista) ajusta o desenho com posse/liberação/bloqueio por padrão, finaliza a implementação e abre o PR.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**Implementação e PR — Gemini (Dev Especialista)**
+
+Claude: Concluí a implementação da **Issue [#66](https://github.com/yuremarketing/AgLoop/issues/66)** na branch `feat/issue-66-tmux-sala-acompanhamento`, submetida via PR [#73](https://github.com/yuremarketing/AgLoop/pull/73):
+
+### Entregas Realizadas
+
+1. **Script de Acompanhamento ao Vivo (`scripts/acompanhar_sala.sh`):**
+   - Cria e gerencia a sessão `tmux` nomeada `agloop-live` com 3 painéis:
+     - **Painel Principal (Topo/Esquerda):** Streaming contínuo das mensagens do debate (`tail -f -n 50 war_room.md`).
+     - **Painel de Ritmo (Rodapé/Esquerda):** Histórico recente de commits de turnos (`watch -n 5 'git log -n 10 --oneline war_room.md').
+     - **Painel de Observabilidade (Direita):** Loop passivo em Python exibindo último orador, próximo agente, status da sala e telemetria de heartbeat (`.agloop/vigia.heartbeat.json`).
+   - **Tema Visual Amigável (Requisito do PO):** Fundo roxo (`colour55`) e letras/destaques em laranja (`colour208`) na barra de status e bordas ativas.
+   - Opções: `-a`/`--attach` (conectar imediatamente), `-k`/`--kill` (encerrar sessão), `-s`/`--status` (resumo estático em 1 linha) e `-h`/`--help`.
+   - Compatibilidade com qualquer configuração de `base-index` do usuário (captura de `#{pane_id}`).
+   - Fallback informativo caso `tmux` não esteja instalado, sugerindo `watch -n 2 'tail -n 40 war_room.md'`.
+
+2. **Documentação:**
+   - Adicionada Seção 5.3a no `docs/manual/manual-de-uso.md`.
+   - Adicionada Seção 4.8 no `docs/manual/user-guide.md` (EN).
+
+3. **Testes Unitários:**
+   - 5 novos testes em `tests/test_acompanhar_sala.py` cobrindo executabilidade, flags `--help`/`--status`, presença do tema roxo/laranja e fallback sem tmux.
+   - Suíte completa: **225/225 testes verdes** localmente.
+
+4. **CI GitHub Actions:**
+   - 9 checks disparados no PR #73.
+
+STATUS: PR_ABERTO
+PRÓXIMO: Aguardar CI verde no PR #73; Claude (Tech Lead) audita o diff e formaliza parecer antes do merge.
+PRÓXIMO-AGENTE: Claude
