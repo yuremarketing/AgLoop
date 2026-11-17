@@ -5,16 +5,16 @@ Lista usada pelo Checklist Pós-Release (Seção 9 do `SKILL.md`): depois de cad
 | Projeto | Repositório | Instalado em | Versão do AgLoop | Última atualização |
 | :--- | :--- | :--- | :--- | :--- |
 | AgLoop (o próprio framework) | `yuremarketing/AgLoop` | — | fonte | contínua |
-| Portfolio | `yuremarketing/yuremarketing.github.io` | 2026-11-11 | `0.9.1` (protocolo `SKILL.md` local v1.4.0 → v1.7.0 via `agloop update`) | 2026-11-17 |
+| Portfolio | `yuremarketing/yuremarketing.github.io` | 2026-11-11 | `0.9.2` (protocolo `SKILL.md` local v1.4.0 → v1.7.0 via `agloop update`) | 2026-11-17 |
 
 Ao instalar o AgLoop em um projeto novo, acrescente uma linha aqui.
 
-## Checklist Pós-Release 0.9.1
+## Checklist Pós-Release 0.9.2
 
-O Release 0.9.1 (2026-11-17) foi publicado no PyPI e a branch `stable` avançada (Turno 50, Issue #78 — corrige a brecha de vigília desligada nos templates empacotados). Itens executados fora do working directory do AgLoop:
-- **Portfolio** (`yuremarketing/yuremarketing.github.io`): `agloop update --dry-run` revisado, `agloop update --yes` aplicado (commit `ce9933c`) — `.claude/skills/vigilia/SKILL.md` local atualizado de `v1.4.0` para `v1.7.0` (backup em `.bak`), `docs/gestao/roster-agentes.md` preservado intacto (já preenchido). `agloop check` nessa máquina: 🔴, mas por um item pré-existente e não relacionado (`termo-abertura.md`/`visao.md` ausente) — fora do escopo desta atualização.
-- **Plugin/extensão nas máquinas do PO:** ainda pendente — atualizar `/plugin` (Claude Code) e a extensão do Gemini/Antigravity para `v0.9.1`/`stable`.
-- **CLI local nesta máquina:** reinstalado e confirmado em `0.9.1` (Turno 50, após o merge do PR #79).
+O Release 0.9.2 (2026-11-17) foi publicado no PyPI e a branch `stable` avançada (Turno 52, Issue #82 — empacota a correção da Issue #80/PR #81). Itens executados fora do working directory do AgLoop:
+- **Portfolio** (`yuremarketing/yuremarketing.github.io`): protocolo já estava em `v1.7.0` (atualizado no Turno 50); `pip install --upgrade agloop` reaplicado para `0.9.2`. `agloop check` nessa máquina: 🔴, por um item pré-existente e não relacionado (`termo-abertura.md`/`visao.md` ausente) — fora do escopo desta atualização.
+- **Plugin/extensão nas máquinas do PO:** ainda pendente — atualizar `/plugin` (Claude Code) e a extensão do Gemini/Antigravity para `v0.9.2`/`stable`.
+- **CLI local nesta máquina:** reinstalado e confirmado em `0.9.2` (Turno 52, após o merge do PR #83).
 
-### Achado de UX no `agloop update --dry-run` (não corrigido, registrar para turno futuro)
-O diff do `--dry-run` lista `docs/gestao/roster-agentes.md` como `[CUSTOMIZADO/DEFASADO]` com um diff completo de substituição — mas `run_update` (linha 226-229 de `core/update_scaffold.py`) sempre pula esse arquivo quando já existe localmente, preservando-o. O dry-run não reflete essa proteção: alarmou (a mim) a possibilidade de perda de dados de governança preenchida, quando na prática `--yes` nunca sobrescreve o arquivo. Sugestão: excluir `roster-agentes.md` da lista de diffs do dry-run (ou anotar "(preservado, nunca sobrescrito)") quando já existir localmente.
+### Achado de UX no `agloop update --dry-run` — RESOLVIDO (Issue #80, PR #81, Release v0.9.2)
+O diff do `--dry-run` listava `docs/gestao/roster-agentes.md` como `[CUSTOMIZADO/DEFASADO]` com diff completo de substituição, mesmo `run_update` sempre preservando o arquivo na prática. Corrigido na raiz: `core/update_scaffold.py` agora marca arquivos em `PROTECTED_ONCE_CREATED` com `needs_update = False` e `diff = ""`, reportando `[PRESERVADO]` no sumário. Já publicado no PyPI (`0.9.2`).
