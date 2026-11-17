@@ -18,6 +18,12 @@ from core.init_scaffold import get_templates_dir
 
 VERSION_PATTERN = re.compile(r'version:\s*["\']?([^"\'\n]+)["\']?')
 
+# Arquivos de governança que devem ser criados no `init` se não existirem,
+# mas NUNCA devem ser substituídos ou marcados como defasados no `update`.
+PROTECTED_ONCE_CREATED: set[str] = {
+    "docs/gestao/roster-agentes.md",
+}
+
 
 @dataclass
 class ProtocolFileStatus:
@@ -32,9 +38,12 @@ class ProtocolFileStatus:
     template_version: str | None = None
     diff: str = ""
     is_customized: bool = False
+    is_protected: bool = False
 
     @property
     def needs_update(self) -> bool:
+        if self.is_protected and self.exists_locally:
+            return False
         if not self.exists_locally:
             return True
         if self.local_version and self.template_version:
@@ -109,6 +118,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
         exists = local_path.is_file()
         tmpl_content = tmpl_path.read_text(encoding="utf-8")
         tmpl_version = extract_protocol_version(tmpl_content)
+        is_prot = rel_path in PROTECTED_ONCE_CREATED
 
         if not exists:
             statuses.append(
@@ -122,6 +132,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
                     template_version=tmpl_version,
                     diff=f"+ Arquivo novo a ser criado: {rel_path}",
                     is_customized=False,
+                    is_protected=is_prot,
                 )
             )
             continue
@@ -131,17 +142,20 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
         is_ident = local_content == tmpl_content
         is_cust = detect_customization(local_content, tmpl_content) if not is_ident else False
 
-        # Gera diff unificado
-        diff_lines = list(
-            difflib.unified_diff(
-                local_content.splitlines(keepends=True),
-                tmpl_content.splitlines(keepends=True),
-                fromfile=f"a/{rel_path} (local v{local_version or '?'})",
-                tofile=f"b/{rel_path} (template v{tmpl_version or '?'})",
-                n=3,
+        # Se o arquivo for protegido e já existir localmente, não gera diff para evitar falsos alarmes
+        if is_prot:
+            diff_str = ""
+        else:
+            diff_lines = list(
+                difflib.unified_diff(
+                    local_content.splitlines(keepends=True),
+                    tmpl_content.splitlines(keepends=True),
+                    fromfile=f"a/{rel_path} (local v{local_version or '?'})",
+                    tofile=f"b/{rel_path} (template v{tmpl_version or '?'})",
+                    n=3,
+                )
             )
-        )
-        diff_str = "".join(diff_lines)
+            diff_str = "".join(diff_lines)
 
         statuses.append(
             ProtocolFileStatus(
@@ -154,6 +168,7 @@ def check_protocol_update_status(repo_root: str = ".") -> list[ProtocolFileStatu
                 template_version=tmpl_version,
                 diff=diff_str,
                 is_customized=is_cust,
+                is_protected=is_prot,
             )
         )
 
@@ -223,8 +238,8 @@ def run_update(
 
     # Aplicação segura das alterações
     for s in pending_updates:
-        # docs/gestao/roster-agentes.md só é criado se não existia; se já existia, nunca sobrescreve
-        if s.rel_path == "docs/gestao/roster-agentes.md" and s.exists_locally:
+        # Arquivos de governança protegidos só são criados se não existiam; se já existiam, nunca sobrescreve
+        if (s.is_protected or s.rel_path in PROTECTED_ONCE_CREATED) and s.exists_locally:
             report.skipped_files.append(s.rel_path)
             continue
 
@@ -265,6 +280,8 @@ def format_update_summary(report: UpdateReport, dry_run: bool = False) -> str:
     for s in report.statuses:
         if not s.exists_locally:
             lines.append(f"  [NOVO]                 {s.rel_path} (template v{s.template_version or '?'})")
+        elif s.is_protected:
+            lines.append(f"  [PRESERVADO]           {s.rel_path} (governança preservada intacta)")
         elif s.needs_update:
             tag = "[CUSTOMIZADO/DEFASADO]" if s.is_customized else "[DEFASADO]"
             lines.append(

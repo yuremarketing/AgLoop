@@ -186,3 +186,35 @@ def test_cli_parse_update_args():
     assert args.yes is True
     assert args.dry_run is True
     assert args.repo_root == "/tmp/test"
+
+
+def test_dry_run_does_not_show_roster_diff_or_pending_update(tmp_path):
+    run_init(repo_root=str(tmp_path), quiet=True)
+
+    # 1. Customiza o roster de governança
+    roster_path = tmp_path / "docs" / "gestao" / "roster-agentes.md"
+    custom_roster_content = "# Roster Customizado do Projeto X\n- Agente Especial: Alpha"
+    roster_path.write_text(custom_roster_content, encoding="utf-8")
+
+    # 2. Downgrada o SKILL.md para simular atualização pendente de protocolo
+    skill_path = tmp_path / ".claude" / "skills" / "vigilia" / "SKILL.md"
+    skill_content = skill_path.read_text(encoding="utf-8")
+    tmpl_ver = extract_protocol_version(skill_content)
+    skill_path.write_text(skill_content.replace(f'version: "{tmpl_ver}"', 'version: "1.0.0"'), encoding="utf-8")
+
+    # Verifica status
+    statuses = check_protocol_update_status(repo_root=str(tmp_path))
+    roster_status = next(s for s in statuses if s.rel_path == "docs/gestao/roster-agentes.md")
+    assert roster_status.is_protected is True
+    assert roster_status.exists_locally is True
+    assert roster_status.needs_update is False
+    assert roster_status.diff == ""
+
+    # Executa dry-run
+    report = run_update(repo_root=str(tmp_path), dry_run=True)
+    summary = format_update_summary(report, dry_run=True)
+
+    assert "[PRESERVADO]           docs/gestao/roster-agentes.md (governança preservada intacta)" in summary
+    assert "--- docs/gestao/roster-agentes.md ---" not in summary
+    assert custom_roster_content not in summary
+    assert ".claude/skills/vigilia/SKILL.md" in summary
