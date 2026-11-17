@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/agloop-logo.png" alt="AgLoop Logo" width="220" />
+</p>
+
 # AgLoop
 
 [![PyPI version](https://img.shields.io/pypi/v/agloop.svg)](https://pypi.org/project/agloop/)
