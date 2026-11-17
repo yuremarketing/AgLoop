@@ -67,7 +67,7 @@ def get_installed_version() -> str:
     except Exception:
         pass
 
-    return "0.9.1"
+    return "0.9.2"
 
 
 def _get_default_cache_path() -> Path:
