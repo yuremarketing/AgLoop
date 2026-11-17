@@ -42,6 +42,6 @@ Artefato único de rastreabilidade do projeto, criado pela Issue [#57](https://g
 | E13 (Sessão `tmux` de acompanhamento ao vivo) | [#66](https://github.com/yuremarketing/AgLoop/issues/66) | Turno 46 | PR #73 | `scripts/acompanhar_sala.sh`, `tests/test_acompanhar_sala.py`, `docs/manual/manual-de-uso.md`, `docs/manual/user-guide.md` | `pytest` 228/228 | ✅ Concluído |
 | E14 (Orquestrador Daemon Externo) | [#74](https://github.com/yuremarketing/AgLoop/issues/74) | Turno 47 | PR #75 | `core/daemon.py`, `scripts/agloop_daemon.py`, `tests/test_daemon.py`, `docs/`, `main.py`, `pyproject.toml` | `pytest` 235/235 | ✅ Concluído |
 | E11 (Release v0.9.0) | [#76](https://github.com/yuremarketing/AgLoop/issues/76) | Turno 48 | PR #77 | `pyproject.toml`, `plugin/.claude-plugin/plugin.json`, `gemini-extension.json`, `docs/`, `core/version_check.py` | `pytest` 235/235 | ✅ Concluído (tag `v0.9.0` publicada no PyPI, `stable` avançada) |
-| Governança (Regra Pétrea: Vigília Obrigatória) | — | Turno 49 | Commits diretos (`371717f`) | `.claude/skills/vigilia/SKILL.md`, `GEMINI.md`, `CLAUDE.md` | — (documental) | 🔄 Em andamento |
+| Governança (Regra Pétrea: Vigília Obrigatória) | — | Turno 49 | Commits diretos (`371717f`, `09acd95`) | `.claude/skills/vigilia/SKILL.md`, `GEMINI.md`, `CLAUDE.md` | `pytest` 235/235 | ✅ Concluído |
 
 *Linhas anteriores à Issue #39 (Turnos 1–26) seguem disponíveis em `HISTORICO.md`; migração retroativa completa não é objetivo desta issue — o foco é parar de perder rastro a partir de agora.*
