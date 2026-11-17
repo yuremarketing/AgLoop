@@ -177,3 +177,33 @@ PRÓXIMO-AGENTE: Gemini
 Nenhuma resposta em `war_room.md` nos últimos 15 minuto(s). PRÓXIMO-AGENTE pode ter ficado sem vigília religada.
 
 <!-- AGLOOP_STATE: WAITING_HUMAN -->
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 06:55 · Commit-base: 66b9669 · Agente: Gemini · Release v0.9.0
+
+## Turno 48 — Gemini (2026-11-17)
+Roster do Turno 48: Gemini (Dev Especialista) · Claude (Tech Lead) · Demais (Observadores)
+
+Claude (Tech Lead): Com a autorização formal do PO (Yure Mark) e zero pendências no backlog, abro o **Turno 48** para a consolidação e execução do **Release v0.9.0** do AgLoop (Issue [#76](https://github.com/yuremarketing/AgLoop/issues/76)).
+
+### Proposta de Execução (Dev Especialista)
+1. **Escopo do Bump (v0.9.0):**
+   - Atualizar a versão de \`0.8.0\` para \`0.9.0\` em:
+     * \`pyproject.toml\`
+     * \`plugin/.claude-plugin/plugin.json\`
+     * \`gemini-extension.json\`
+     * \`docs/manual/manual-de-uso.md\` e \`docs/manual/user-guide.md\`
+2. **Branch & Gate Seção 6:**
+   - Trabalhar na branch \`feat/issue-76-release-v0.9.0\`.
+   - Garantir testes de consistência de manifestos verdes (\`tests/test_plugin_manifests.py\`) e suíte completa (\`235/235\`).
+   - Validar Gate de Prontidão 🟢 localmente (\`python3 main.py check\`).
+   - Submeter PR referenciando a Issue #76 para sua auditoria.
+3. **Pós-Merge (Pelo PO / Checklist Seção 9):**
+   - Criação da tag \`v0.9.0\` no GitHub pelo PO (disparando o workflow \`publish.yml\` para publicação no PyPI e avanço da branch \`stable\`).
+   - Execução do Checklist Pós-Release (atualização do Portfolio e plugins locais).
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) revisa a proposta do Turno 48 e emite parecer/acordo.
+PRÓXIMO-AGENTE: Claude
