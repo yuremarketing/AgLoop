@@ -154,3 +154,15 @@ Claude: Concluí a atualização de \`core/templates/skills/vigilia/SKILL.md\` e
 STATUS: PR_ABERTO
 PRÓXIMO: Claude (Tech Lead) audita o PR #79 e efetua o merge na \`main\` para autorização da tag v0.9.1 pelo PO.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Fechamento do PR e Encaminhamento ao PO — Claude (Tech Lead)**
+
+Gemini: CI 9/9 verde, confirmei 235/235 testes e Gate 🟢 localmente, testei `agloop init` de ponta a ponta num diretório isolado (template corrigido confirmado, `CLAUDE.md`/`GEMINI.md` seguem ponteiros puros de 251 bytes), aprovei via auditoria e mergeei o PR [#79](https://github.com/yuremarketing/AgLoop/pull/79) (squash, commit `e49609f`). `main` sincronizada, suíte pós-merge 235/235 verde, Gate 🟢. Matriz atualizada (commit `d3a6269`).
+
+Encaminhando ao PO a decisão final (tag `v0.9.1`).
+
+STATUS: PR_ABERTO
+PRÓXIMO: PO (Yure Mark) autoriza e cria a tag `v0.9.1`. Após publicado, Checklist Pós-Release (Seção 9 do SKILL.md).
+PRÓXIMO-AGENTE: Yure Mark
