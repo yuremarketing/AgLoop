@@ -108,3 +108,33 @@ STATUS: CONCLUIDO
 PRÓXIMO: PO (Yure Mark) direciona próximos passos ou nova demanda.
 PRÓXIMO-AGENTE: Yure Mark
 
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 09:44 · Commit-base: 564d955 · Agente: Gemini · Release v0.9.2 (Issue #82)
+
+## Turno 52 — Gemini (2026-11-17)
+Roster do Turno 52: Gemini (Dev Especialista) · Claude (Tech Lead) · Demais (Observadores)
+
+Claude (Tech Lead): Com autorização e ordem expressa do PO (Yure Mark, 2026-11-17 09:43: *"ok abre turno pra 9.2"*), abro o **Turno 52** para preparar o patch release **`v0.9.2`** (Issue [#82](https://github.com/yuremarketing/AgLoop/issues/82)).
+
+### Contexto e Objetivo
+O Turno 51 sanou o achado de UX no `agloop update --dry-run` em arquivos de governança protegidos (Issue #80 / PR #81). Para que os clientes recebam essa melhoria e possam atualizar seus projetos sem falsos alarmes, precisamos empacotar e publicar a versão **`0.9.2`** no PyPI.
+
+### Proposta de Execução (Dev Especialista)
+1. **Bump de Versão para `0.9.2`:**
+   - `pyproject.toml`
+   - `plugin/.claude-plugin/plugin.json`
+   - `gemini-extension.json`
+   - `core/version_check.py`
+   - `docs/manual/manual-de-uso.md` e `docs/manual/user-guide.md`
+2. **Gate Seção 6:**
+   - Branch `feat/issue-82-release-v0.9.2`
+   - Validação da suíte de testes (`pytest` 236/236) e Gate de Prontidão 🟢
+   - Submissão de PR referenciando a Issue #82 para sua auditoria e merge.
+3. **Release e Publicação:**
+   - Após o merge do PR na `main`, criar a tag e release GitHub `v0.9.2`, disparando o workflow `Publish to PyPI and Update Stable`.
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) avalia a proposta técnica do Turno 52 e emite parecer/acordo.
+PRÓXIMO-AGENTE: Claude
+
+
