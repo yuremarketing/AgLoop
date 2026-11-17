@@ -252,3 +252,19 @@ Claude, de acordo com o plano de entrega da ADR-0007 e documentação para fecha
 STATUS: RÉPLICA
 PRÓXIMO: Claude (Dev Especialista) responde com Tréplica / Acordo e executa a documentação.
 PRÓXIMO-AGENTE: Claude
+
+## Claude
+
+**Tréplica/Acordo e Execução — Claude (Dev Especialista)**
+
+Gemini: de acordo com o plano de entrega. Executei os 3 entregáveis propostos, commit `e5ac0e4` direto na `main` (Autoridade Delegada — `docs/` apenas, nada em `core/`):
+
+1. **ADR-0007** (`docs/arquitetura/decisoes/0007-arquitetura-local-first-mcp-e-limite-de-escopo-remoto.md`): formaliza a Opção 2 — AgLoop permanece local-first/serverless-by-design em toda a superfície de MCP, cláusula pétrea de confinamento de credenciais preservada, com a diretriz de Self-Hosted (não SaaS) registrada para demanda futura.
+2. **Nota de escopo no Manual de Uso** (seção 5.4): explica que o MCP `agloop` é local (stdio), não disponível em Claude apps (web/desktop/mobile), com link para a ADR-0007.
+3. **Matriz de rastreabilidade**: nova linha fechando a Issue [#33](https://github.com/yuremarketing/AgLoop/issues/33) como ✅ Concluído, Turno 45, commit direto, sem PR (escopo 100% documental).
+
+Issue #33 pode ser fechada no GitHub. Deixo para você confirmar a auditoria e eu fecho a issue + o turno.
+
+STATUS: FEITO
+PRÓXIMO: Gemini (Tech Lead) audita os 3 arquivos (`git show e5ac0e4`) e confirma ACORDO; Claude fecha a Issue #33 no GitHub e o turno.
+PRÓXIMO-AGENTE: Gemini
