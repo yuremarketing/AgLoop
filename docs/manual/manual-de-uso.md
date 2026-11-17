@@ -291,6 +291,30 @@ python3 scripts/vigia.py --agent Gemini --once
 - **Alarme de travamento:** `--stall-minutes 20` (ou `AGLOOP_STALL_MINUTES=20`) grava `WAITING_HUMAN` na sala se nada acontecer em 20 minutos, devolvendo a vez ao PO. Desligado por padrão.
 - **Importante:** a vigília acompanha a branch em que o clone está. Deixe o clone na mesma branch onde a sala é escrita (normalmente `main`); senão ela nunca vê as respostas.
 
+### 5.3a Acompanhamento ao vivo da Sala de Guerra (`tmux`)
+
+Para acompanhar o debate entre os agentes em tempo real sem precisar abrir o arquivo manualmente ou perguntar ao agente (e com **zero consumo de tokens**), use o script de acompanhamento da Sala de Guerra:
+
+```bash
+./scripts/acompanhar_sala.sh --attach
+```
+
+O script inicia uma sessão `tmux` desacoplada (`agloop-live`) com visual amigável (fundo roxo e detalhes/texto em laranja) dividida em 3 painéis:
+1. **Painel Principal (Topo/Esquerda):** Streaming contínuo das mensagens do debate na Sala de Guerra (`tail -f war_room.md`).
+2. **Painel de Ritmo (Rodapé/Esquerda):** Histórico recente de commits dos turnos (`git log`).
+3. **Painel de Observabilidade (Direita):** Status em tempo real do último orador, próximo agente e heartbeat da vigília passiva.
+
+**Comandos e atalhos úteis:**
+- `Ctrl+b, d`: Desanexa da sessão e volta ao terminal (o monitoramento continua rodando em background).
+- `Ctrl+b, setas`: Alterna o foco entre os painéis.
+- `./scripts/acompanhar_sala.sh --status`: Exibe um resumo estático da sala e do heartbeat sem precisar abrir o `tmux`.
+- `./scripts/acompanhar_sala.sh --kill`: Encerra a sessão `tmux`.
+
+> **Alternativa sem `tmux`:** Se não tiver o `tmux` instalado, acompanhe a sala diretamente com:
+> ```bash
+> watch -n 2 'tail -n 40 war_room.md'
+> ```
+
 ### 5.4 Ferramentas do servidor MCP (`agloop`)
 
 | Ferramenta | O que faz |

@@ -244,6 +244,27 @@ Without convergence after `TRÉPLICA`, the debate escalates to the PO. This prev
 
 A turn can contain **more than one task**, as long as they're independent (don't touch the same files/modules). Each task gets an identifier `T<turn>.<n>` (e.g. `T42.1`), cited in `TAREFA:` alongside `STATUS:`; with more than one open task, `PRÓXIMO-AGENTE:` lists each agent next to its task (`Gemini (T42.1); Claude (T42.2)`). PO authorization (§7.1 of the Portuguese manual) and the 3-round limit apply **per task**, not per turn, and the turn only closes once every task is `ACORDO` or explicitly deferred. Tracking which issue/PR/file belongs to which turn/task lives in [`docs/gestao/matriz-rastreabilidade.md`](../gestao/matriz-rastreabilidade.md) — no longer scattered across the backlog, the Artefato Mestre, and `HISTORICO.md`. Full, current rule: [`SKILL.md`](../../.claude/skills/vigilia/SKILL.md).
 
+### 4.8 Live War Room Monitoring (`tmux`)
+
+To watch the multi-agent debate unfold in real time without querying the agents (and with **zero token consumption**), use the live monitoring script:
+
+```bash
+./scripts/acompanhar_sala.sh --attach
+```
+
+The script opens a detached `tmux` session (`agloop-live`) styled with a friendly purple-and-orange theme, split into 3 panes:
+1. **Main Debate Stream (Top Left):** Live tail of the War Room debate (`tail -f war_room.md`).
+2. **Turn Rhythm (Bottom Left):** Recent turn commits from git (`git log`).
+3. **Observability (Right):** Real-time status of the active turn, last speaker, next agent, and watcher heartbeat.
+
+Useful commands:
+- `Ctrl+b, d`: Detach from the session (keeps running in the background).
+- `Ctrl+b, arrows`: Navigate between panes.
+- `./scripts/acompanhar_sala.sh --status`: One-shot status summary without opening tmux.
+- `./scripts/acompanhar_sala.sh --kill`: Stop the tmux session.
+
+> **Without `tmux`:** Run `watch -n 2 'tail -n 40 war_room.md'` directly.
+
 ---
 
 ## 5. FAQ
