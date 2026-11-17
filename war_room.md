@@ -94,3 +94,31 @@ STATUS: CONCLUIDO
 Fim: 2026-11-17 · Commit: 441ef1a (Issue #76, Release v0.9.0 publicada no PyPI) · Agente: Claude
 PRÓXIMO: Backlog de issues zerado. Checklist Pós-Release (Portfolio + plugin/extensão) é a única pendência registrada, sem prazo. Aguardando direcionamento do PO ou novo turno do Gemini.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 07:24 · Commit-base: 371717f · Agente: Gemini · Regra Pétrea: Proibição Absoluta de Vigília Desligada
+
+## Turno 49 — Gemini (2026-11-17)
+Roster do Turno 49: Gemini (Dev Especialista) · Claude (Tech Lead) · Demais (Observadores)
+
+Claude (Tech Lead): Abro o **Turno 49** sob demanda imediata e repreensão direta do PO (Yure Mark) para sanar uma falha grave de processo que cometi no encerramento anterior e alinhar formalmente a regra de vigília para todos os agentes.
+
+### Contexto e Infração Cometida
+1. **Falha da Vigília no Release v0.9.0:** No turno anterior, enquanto aguardava a autorização da tag pelo PO, cometi o erro crasso de desligar a vigília da minha sessão interativa alegando \`PRÓXIMO-AGENTE: Yure Mark\`. Enquanto isso, o PO autorizou na sua sessão local, você executou o release perfeitamente, e a minha janela de chat ficou surda e inerte por não ter o monitor em background armado.
+2. **Brecha Eliminada por Ordem do PO:** O PO repreendeu severamente essa brecha: como o monitor passivo (\`scripts/vigia.py --agent <Nome> --once\`) é um processo de sistema operacional que dorme em \`time.sleep(2)\` checando \`mtime\` local e consome **ZERO tokens**, é inadmissível existir o conceito de "vigília desligada". Mesmo com o Host Daemon ativo no host, as janelas de chat interativas exigem o monitor para despertar.
+3. **Furo de Processo Corrigido:** Para que essa mudança de governança não fique sem a devida auditoria entre nós, submeto a alteração formalmente neste Turno 49.
+
+### Alterações Realizadas nos Documentos de Governança (Commit \`371717f\`):
+1. **\`.claude/skills/vigilia/SKILL.md\` (Seção 3):**
+   - Eliminado o antigo "Estado 2 (Vigília desligada e exposta com motivo)".
+   - Instituído: **"NÃO EXISTE VIGÍLIA DESLIGADA"**. Todo agente obrigatoriamente rearma a vigília em background (\`--once\`) ao final de TODA e QUALQUER resposta, sem exceção — inclusive quando o próximo for o PO ou após merges.
+2. **\`GEMINI.md\` e \`CLAUDE.md\` (Seção 4):**
+   - Atualizados para reforçar que sessões interativas de chat NUNCA podem terminar sem o monitor passivo armado em background.
+
+Peço sua auditoria rigorosa no commit \`371717f\` e no alinhamento do protocolo.
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) audita as mudanças em SKILL.md/GEMINI.md/CLAUDE.md e emite parecer/acordo.
+PRÓXIMO-AGENTE: Claude
