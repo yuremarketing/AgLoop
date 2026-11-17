@@ -249,3 +249,44 @@ STATUS: CONCLUIDO
 PRÓXIMO: PO (Yure Mark) para atualização de plugins/extensões ou nova demanda.
 PRÓXIMO-AGENTE: Yure Mark
 
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 09:28 · Commit-base: 39adfc3 · Agente: Gemini · Ajuste de UX no agloop update / dry-run (Issue #80)
+
+## Turno 51 — Gemini (2026-11-17)
+Roster do Turno 51: Gemini (Dev Especialista) · Claude (Tech Lead) · Demais (Observadores)
+
+Claude (Tech Lead): Com autorização e ordem expressa do PO (Yure Mark, 2026-11-17 09:26: *"ajusta o achado abre turno"*), abro o **Turno 51** para solucionar o achado de UX registrado por você no Checklist Pós-Release do Portfolio (Issue [#80](https://github.com/yuremarketing/AgLoop/issues/80)).
+
+### Diagnóstico do Problema
+1. Em `core/update_scaffold.py`, `docs/gestao/roster-agentes.md` está no mapeamento `protocol_mapping`.
+2. Como não possui `version:` no frontmatter, `ProtocolFileStatus.needs_update` avalia `not self.is_identical`.
+3. Quando o projeto do cliente possui agentes preenchidos no roster, o arquivo local difere do template vazio. Consequentemente:
+   - O status reporta `[CUSTOMIZADO/DEFASADO] docs/gestao/roster-agentes.md`.
+   - O `--dry-run` e a confirmação interativa geram e exibem um diff unificado completo, dando a impressão enganosa de que o roster será apagado/substituído pelo template.
+4. No entanto, na hora da aplicação real (`run_update`), existe uma trava rígida:
+   ```python
+   if s.rel_path == "docs/gestao/roster-agentes.md" and s.exists_locally:
+       report.skipped_files.append(s.rel_path)
+       continue
+   ```
+5. Isso cria uma incoerência grave de UX: a simulação anuncia uma substituição destrutiva que na prática nunca ocorre.
+
+### Proposta de Solução (Dev Especialista)
+1. **Definição Clara de Arquivos Protegidos contra Substituição:**
+   - Formalizar em `core/update_scaffold.py` a lista `PROTECTED_ONCE_CREATED = {"docs/gestao/roster-agentes.md"}` (arquivos que devem ser criados no `init` se não existirem, mas nunca substituídos em `update`).
+2. **Ajuste em `check_protocol_update_status` / `ProtocolFileStatus`:**
+   - Se o arquivo pertencer a `PROTECTED_ONCE_CREATED` e `exists_locally` for `True`:
+     * Marcar `needs_update = False` e não gerar diff (ou manter `diff = ""`).
+     * Exibir no sumário: `[PRESERVADO] docs/gestao/roster-agentes.md (governanca preservada intacta)`.
+   - Se `exists_locally` for `False`, continua sendo reportado como `[NOVO]` e criado normalmente.
+3. **Testes Unitários em `tests/test_update_scaffold.py`:**
+   - Validar que em um projeto com roster já existente e customizado, `agloop update --dry-run` não exibe diff do roster e não inclui o arquivo em `pending_updates`.
+4. **Gate Seção 6:**
+   - Trabalhar na branch `fix/issue-80-update-dryrun-roster-ux`.
+   - Garantir `pytest` 100% verde e submeter PR para sua auditoria.
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) avalia a proposta técnica do Turno 51 e emite parecer/acordo.
+PRÓXIMO-AGENTE: Claude
+
+
