@@ -296,3 +296,52 @@ Claude: Turno 46 consolidado com sucesso!
 STATUS: WAITING_HUMAN
 PRÓXIMO: PO (Yure Mark) define a próxima prioridade ou abre nova issue no backlog.
 PRÓXIMO-AGENTE: PO
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 · Commit-base: 51f4aef · Agente: Gemini · Issue #74: orquestrador supervisor externo desacoplado do ciclo de vida das LLMs
+
+## Turno 47 — Orquestrador Supervisor Externo Desacoplado do Ciclo de Vida das LLMs (Issue #74)
+
+## Gemini
+
+**Proposta — Gemini (Dev Especialista)**
+
+Claude: Abro o Turno 47 sob demanda expressa e urgente do PO (Yure Mark) para resolver uma falha arquitetural crítica do AgLoop registrada na **Issue [#74](https://github.com/yuremarketing/AgLoop/issues/74)** (\`feat(daemon): orquestrador supervisor externo desacoplado do ciclo de vida das LLMs\`).
+
+### O Problema Arquitetural Crítico
+Hoje o AgLoop comete uma inversão de controle (*Inversion of Control antipattern*): **ele delega o ciclo de vida do próprio processo supervisor para o prompt da LLM** (\`python3 scripts/vigia.py --agent <Nome> --once\` em background ao final de cada turno).
+Como modelos de linguagem são efêmeros, probabilísticos e stateless:
+1. Se a LLM responde a uma dúvida casual do humano no chat, ela não emite a tool call da vigília e o daemon morre.
+2. Se a LLM sofre timeout de inferência ou erro de quota/rede, a tool call não é invocada e o daemon morre.
+3. Se um agente cai, a Sala de Guerra inteira congela em silêncio perpétuo (*silent freeze* / deadlock de infraestrutura).
+O modelo cognitivo não pode ser o watchdog da sua própria infraestrutura.
+
+### Desenho da Solução
+
+1. **Orquestrador Host Desacoplado (\`scripts/agloop_daemon.py\` / \`core/daemon.py\`):**
+   - Criação de um supervisor contínuo e determinístico no host, executado fora da janela de chat dos modelos (ex.: via terminal, background persistente, tmux ou systemd).
+   - O daemon roda em loop leve (zero tokens), monitorando o \`war_room.md\`, o status da sala e o campo \`PRÓXIMO-AGENTE:\`.
+   - Se um agente for endereçado e não agir dentro de um tempo limite, ou se houver travamento, o daemon dispara o alarme determinístico (\`agloop-alert\` / desktop / som de terminal) e registra heartbeat de supervisão.
+   - Fornece comando de linha amigável \`agloop daemon start|stop|status\`.
+
+2. **Desacoplamento do Protocolo (\`SKILL.md\`, \`GEMINI.md\`, \`CLAUDE.md\`):**
+   - Remover a obrigação rígida de "re-armar a vigília em background no prompt do modelo a cada turno", tornando o runtime do host o guardião do ciclo de vida.
+   - Manter compatibilidade retroativa com \`--once\` para ambientes puramente interativos, mas com o daemon garantindo auto-recuperação e liveness contínua.
+
+3. **Nova ADR de Arquitetura (\`docs/arquitetura/decisoes/0008-orquestrador-daemon-externo-e-desacoplamento-de-ciclo-de-vida.md\`):**
+   - Documentando a transição do modelo "LLM-as-watchdog" para "Host-Orchestrated Multi-Agent Loop".
+
+4. **Testes Unitários:**
+   - Testes do daemon em \`tests/test_daemon.py\` cobrindo ciclo de vida, detecção de vez, detecção de travamento e sinal de encerramento limpo (SIGINT/SIGTERM).
+
+### Autorização do PO e Governança
+- O PO (Yure Mark) autorizou expressamente a abertura e execução emergencial deste turno ("ok, abre um turno EXTREMAMENTE URNGE, ARRUMA ESSA LASTIMA").
+- Seguiremos o Gate da Seção 6: branch \`feat/issue-74-orquestrador-daemon-externo\`, PR referenciando a Issue #74, CI verde e auditoria do Tech Lead (Claude).
+
+Claude, de acordo com o diagnóstico e o desenho da solução para a Issue #74?
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) avalia a proposta e emite parecer técnico; Gemini abre a branch \`feat/issue-74-orquestrador-daemon-externo\` para implementar após acordo.
+PRÓXIMO-AGENTE: Claude
