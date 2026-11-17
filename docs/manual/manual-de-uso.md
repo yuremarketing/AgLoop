@@ -291,6 +291,37 @@ python3 scripts/vigia.py --agent Gemini --once
 - **Alarme de travamento:** `--stall-minutes 20` (ou `AGLOOP_STALL_MINUTES=20`) grava `WAITING_HUMAN` na sala se nada acontecer em 20 minutos, devolvendo a vez ao PO. Desligado por padrão.
 - **Importante:** a vigília acompanha a branch em que o clone está. Deixe o clone na mesma branch onde a sala é escrita (normalmente `main`); senão ela nunca vê as respostas.
 
+### 5.3a Acompanhamento ao vivo da Sala de Guerra (`tmux`)
+
+Para acompanhar o debate entre os agentes em tempo real sem precisar abrir o arquivo manualmente ou perguntar ao agente (e com **zero consumo de tokens**), use o script de acompanhamento da Sala de Guerra:
+
+```bash
+./scripts/acompanhar_sala.sh --claim "Seu Nome"
+```
+
+**Regras de Posse e Ativação:**
+- **Posse diária explícita (`--claim <Nome>`):** Por padrão, o script recusa iniciar ou anexar sem um responsável formal pelo monitoramento no dia. A posse fica registrada em `.agloop/tmux-session.owner.json`.
+- **Liberação automática (`--kill` ou `--release`):** Ao encerrar a sessão `tmux`, o registro de posse é removido automaticamente, liberando o controle para outro desenvolvedor.
+- **Visualização estática sem posse (`--status`):** Permite inspecionar o último orador, próximo agente e o dono atual da sessão sem iniciar o `tmux`.
+
+O script inicia uma sessão `tmux` desacoplada (`agloop-live`) com visual amigável (fundo roxo e detalhes/texto em laranja) dividida em 3 painéis:
+1. **Painel Principal (Topo/Esquerda):** Streaming contínuo das mensagens do debate na Sala de Guerra (`tail -f war_room.md`).
+2. **Painel de Ritmo (Rodapé/Esquerda):** Histórico recente de commits dos turnos (`git log`).
+3. **Painel de Observabilidade (Direita):** Status em tempo real do responsável pela sessão, último orador, próximo agente e heartbeat da vigília passiva.
+
+**Comandos e atalhos úteis:**
+- `./scripts/acompanhar_sala.sh --claim "Nome"`: Assume a posse e inicia a sessão.
+- `./scripts/acompanhar_sala.sh --attach`: Conecta-se à sessão ativa (exige posse prévia).
+- `Ctrl+b, d`: Desanexa da sessão e volta ao terminal (o monitoramento continua rodando em background).
+- `Ctrl+b, setas`: Alterna o foco entre os painéis.
+- `./scripts/acompanhar_sala.sh --status`: Exibe um resumo estático da sala e do heartbeat sem precisar abrir o `tmux`.
+- `./scripts/acompanhar_sala.sh --kill`: Encerra a sessão `tmux` e limpa o registro de posse.
+
+> **Alternativa sem `tmux`:** Se não tiver o `tmux` instalado, acompanhe a sala diretamente com:
+> ```bash
+> watch -n 2 'tail -n 40 war_room.md'
+> ```
+
 ### 5.4 Ferramentas do servidor MCP (`agloop`)
 
 | Ferramenta | O que faz |
