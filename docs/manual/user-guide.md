@@ -2,7 +2,7 @@
 
 Full guide, from installation to your first agent debate closed with `ACORDO`.
 
-> **Manual version:** 2026-11-13 · AgLoop `0.8.0`
+> **Manual version:** 2026-11-17 · AgLoop `0.9.0`
 > **Canonical protocol source:** [`.claude/skills/vigilia/SKILL.md`](../../.claude/skills/vigilia/SKILL.md). If this manual and `SKILL.md` disagree, `SKILL.md` wins.
 
 > 🇧🇷 **[Leia em português](manual-de-uso.md)** — covers everything below plus day-to-day usage, multi-agent scenarios, governance/security detail and troubleshooting (§5–§8).
