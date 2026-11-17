@@ -20,5 +20,5 @@ Instruções executivas para qualquer sessão do **Gemini / Antigravity** trabal
 - Qualquer mudança com testes quebrados ou risco de regressão.
 
 ## 4. Vigília Híbrida e Host Daemon (ADR-0008)
-- **Host Daemon Recomendado:** com `agloop daemon start`, o supervisor contínuo roda desacoplado no host e se rearma sozinho a cada turno com alarme de travamento sempre ativo.
-- **Sessões Interativas (Fallback):** ative o monitor passivo one-shot em background (`IsDaemon: false`) para que o término do script (`exit 0`) ao detectar resposta do colega em `war_room.md` acorde a sessão automaticamente sem custo de tokens em ociosidade.
+- **Host Daemon:** com `agloop daemon start`, o supervisor contínuo roda desacoplado no host e se rearma sozinho a cada turno com alarme de travamento sempre ativo.
+- **Sessões Interativas (OBRIGATÓRIO — CUSTO ZERO DE TOKENS):** toda resposta DEVE OBRIGATORIAMENTE armar o monitor passivo one-shot em background (`python3 scripts/vigia.py --agent Gemini --once`, `IsDaemon: false`). **NÃO EXISTE VIGÍLIA DESLIGADA**. O processo dorme no sistema operacional (`mtime`) consumindo 0 tokens. Sem ele armado, a janela de chat não é acordada quando o colega ou o PO respondem. Proibido encerrar qualquer resposta sem armar a vigília.
