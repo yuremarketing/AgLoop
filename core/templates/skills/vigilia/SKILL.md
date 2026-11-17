@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo da Sala de Guerra (AgLoop) deste projeto: papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO, debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   source: "agloop init"
-  version: "1.4.0"
+  version: "1.7.0"
 ---
 
 # Vigília — Protocolo da Sala de Guerra
@@ -46,18 +46,20 @@ Quem não está com a vez não narra o trabalho do colega na tela do usuário. S
 - Debates que passem da 3ª rodada (`TRÉPLICA`) sem convergência: escale ao PO.
 - **Banner Visual e Alerta Sonoro de Autorização Formal:** sempre que o orador for `PRÓXIMO-AGENTE: <PO>` solicitando aprovação da Cláusula Pétrea, renderize o banner visual de alto impacto (bloco ASCII sólido + callout `> [!CAUTION]`) com motivo, contexto e instrução clara para responder "ok" ou "autorizo", e dispare o alerta sonoro de alta visibilidade via `agloop-alert` (ou `core.banner.play_formal_auth_alert()`).
 
-
 ---
 
-## 3. Vigília Híbrida (zero tokens em ociosidade)
+## 3. Vigília Híbrida e Host Daemon (ADR-0008)
 
-- **Regra de ouro:** nunca use agendamento de LLM que dispare inferências periódicas enquanto não há nada a fazer.
-- **Monitor passivo one-shot:** `agloop-vigia --agent <Nome> --once` observa o `mtime` do `war_room.md` a cada 2 s (custo zero) e faz `git fetch` a cada 30 s.
-- **Despertar por evento:** o monitor só encerra (`exit 0`) quando é a vez do agente, acordando a sessão pela conclusão da tarefa em segundo plano.
-- **Religar sempre:** com `--once`, a vigília encerra ao acordar o agente. **Todo agente religa a vigília ao final de cada resposta**, salvo quando fecha o turno passando a vez ao PO. Esquecer de religar faz o loop parar em silêncio.
-- **Alarme de travamento:** `agloop-vigia --stall-minutes N` (ou `AGLOOP_STALL_MINUTES`) grava `<!-- AGLOOP_STATE: WAITING_HUMAN -->` na sala se nada acontecer em N minutos, devolvendo a decisão ao PO. Desligado por padrão.
-- **Endereçamento explícito:** com `PRÓXIMO-AGENTE: <Nome>`, só o agente citado desperta. Sem o campo, desperta todo agente que não foi o último a falar.
-- **Branch:** a vigília acompanha a branch em que o clone está. Mantenha o clone na branch onde a sala é escrita (normalmente `main`).
+- **Regra de Ouro:** Nunca utilize cron/schedule de LLM que dispare inferências periódicas em ociosidade.
+- **Host Daemon Recomendado:** Para eliminar a fragilidade do modelo efêmero como watchdog da sua própria infraestrutura, o AgLoop fornece o `agloop daemon start` (`core/daemon.py`). Ele executa como supervisor contínuo no host, se rearmando automaticamente a cada turno e disparando alarme sonoro determinístico (`agloop-alert`) caso a sala fique estagnada por mais de 15 minutos (`--stall-minutes`).
+- **Mecanismo Passivo One-Shot (Fallback para Sessões Interativas):** O monitor em background (`agloop-vigia --agent <Nome> --once` ou `scripts/vigia.py --agent <Nome> --once`) observa o `mtime` local de `war_room.md` (a cada `2s`, custo zero) e realiza `git fetch` periódico (a cada `30s`).
+- **Despertar por Evento:** O processo do monitor só encerra (`exit 0`) quando detecta que o último orador no `war_room.md` mudou para o agente colega, acordando a sessão automaticamente via conclusão da task em background.
+- **Religar Sempre Obrigatório (Custo Zero de Tokens):** O monitor passivo em background é um processo do sistema operacional que dorme em `time.sleep(2)` verificando `mtime` local e `git fetch` a cada 30s. Não faz inferência e **gasta ZERO tokens**. Portanto, **NÃO EXISTE VIGÍLIA DESLIGADA**. Mesmo quando o Host Daemon estiver rodando no host, a sessão interativa de chat precisa do seu próprio monitor passivo para ser despertada pelo harness. **Todo agente obrigatoriamente rearma a vigília em background (`--once`) ao final de TODA e QUALQUER resposta**, inclusive quando o turno fecha com `PRÓXIMO-AGENTE:` apontando para o PO, para o Tech Lead ou após merge. As **únicas exceções estritas** são: (a) comando explícito do usuário/PO para desligar a vigília nesta sessão, ou (b) o fim genuíno da sessão/conversa. Qualquer outro motivo (ex.: "achei que não ia disparar", "é a vez do PO", "o colega acabou de mergear") **não é exceção válida** — religue a vigília em vez de deixá-la parada.
+- **Checklist Obrigatório de Fim-de-Resposta (Toda Resposta, Salvo as Duas Exceções Estritas):** antes de encerrar qualquer resposta nesta sala, confirme explicitamente que a vigília está rodando em background (`agloop-vigia --agent <Nome> --once`). Nunca encerre um turno ou resposta sem armar esse processo, a menos que o usuário tenha explicitamente ordenado o desligamento ou a conversa tenha chegado ao seu encerramento final definitivo.
+- **Alarme de Travamento:** com `--stall-minutes N` (ou `$AGLOOP_STALL_MINUTES`), se a sala ficar N minutos sem atividade, a vigília grava `<!-- AGLOOP_STATE: WAITING_HUMAN -->` com o motivo, devolvendo a decisão ao PO. O Host Daemon mantém esse alarme sempre ativo por padrão (15 min).
+- **Backstop Técnico (Heartbeat):** a vigília grava um heartbeat (`.agloop/vigia.heartbeat.json`: agente, pid, estado `running`/`stopped`, motivo, timestamp) a cada ciclo de poll local e, de forma garantida (`try/finally` + handler de `SIGTERM`), no momento de encerrar. `agloop check` lê esse heartbeat e flagra o processo morto sem rodar encerramento.
+- **Branch da Sala:** a vigília acompanha a branch do clone. Mantenha o clone na branch onde a sala é escrita (`main`).
+- **Endereçamento Explícito em Salas com N > 2:** Quando o turno declara `PRÓXIMO-AGENTE: <Nome>`, só o agente citado desperta. Sem o campo, desperta todo agente que não foi o último a falar.
 
 ---
 

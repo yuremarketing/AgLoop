@@ -3,7 +3,7 @@ name: vigilia
 description: "Protocolo canônico da Sala de Guerra do AgLoop (Claude ⇄ Gemini/Antigravity ⇄ N agentes): inversão de papéis por turno (Dev Especialista / Tech Lead / Observador), regra de silêncio, autoridade delegada vs. limites do PO (Yure Mark), debate travado em 3 rodadas (Proposta → Réplica → Tréplica), endereçamento explícito via PRÓXIMO-AGENTE, vigília híbrida one-shot e fechamento atômico."
 metadata:
   author: yuremarketing
-  version: "1.6.2"
+  version: "1.7.0"
 ---
 
 # Vigília — Protocolo Canônico da Sala de Guerra (AgLoop)
