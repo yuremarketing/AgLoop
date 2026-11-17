@@ -302,6 +302,8 @@ python3 scripts/vigia.py --agent Gemini --once
 
 O servidor só lê e escreve `war_room.md` e `HISTORICO.md` dentro do projeto ativo (`LGPD-03`).
 
+> **Limite de escopo conhecido:** o servidor MCP `agloop` é **local (stdio)** — roda dentro do Claude Code, do Gemini CLI ou de ferramentas equivalentes com acesso ao filesystem do seu projeto. Ele **não** está disponível nas superfícies **Claude apps (web, desktop, mobile)** do claude.ai, que não têm acesso a esse filesystem. Essa é uma decisão arquitetural deliberada — o AgLoop é local-first e serverless-by-design por completo, nunca custodiando credenciais de escrita no GitHub fora da sua máquina — não um gap a ser corrigido. Ver [ADR 0007](../arquitetura/decisoes/0007-arquitetura-local-first-mcp-e-limite-de-escopo-remoto.md).
+
 ### 5.5 Diagnóstico de privacidade
 
 ```bash
