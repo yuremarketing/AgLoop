@@ -7,6 +7,7 @@ bloqueio por padrão e liberação automática (--kill/--release).
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "acompanhar_sala.sh"
@@ -129,12 +130,15 @@ def test_missing_tmux_exits_with_informative_error(tmp_path):
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     for tool in ("bash", "sh", "dirname", "basename", "cat", "python3"):
-        tool_path = subprocess.run(["which", tool], capture_output=True, text=True, check=False).stdout.strip()
+        tool_path = shutil.which(tool)
         if tool_path and os.path.exists(tool_path):
             (fake_bin / tool).symlink_to(tool_path)
 
     env = os.environ.copy()
     env["PATH"] = str(fake_bin)
+
+    # Posse prévia registrada para exercitar a tentativa de criar sessão sem tmux
+    subprocess.run([str(SCRIPT_PATH), "--claim", "Tester"], capture_output=True, check=False)
 
     res = subprocess.run(
         [str(SCRIPT_PATH)],

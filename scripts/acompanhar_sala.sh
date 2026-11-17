@@ -235,18 +235,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Validação do binário tmux
-if ! command -v tmux &>/dev/null; then
-    echo "Erro: tmux não encontrado no sistema." >&2
-    echo "Instale o tmux para usar a sala com 3 painéis:" >&2
-    echo "  sudo apt install tmux   (Debian/Ubuntu)" >&2
-    echo "  brew install tmux       (macOS)" >&2
-    echo "" >&2
-    echo "Alternativa leve sem tmux:" >&2
-    echo "  watch -n 2 'tail -n 40 war_room.md'" >&2
-    exit 1
-fi
-
 cd "$REPO_ROOT"
 
 # Registra a posse se solicitado
@@ -268,6 +256,29 @@ if [ -z "$CURRENT_OWNER" ]; then
     echo "Para apenas consultar o status sem criar a sessão:" >&2
     echo "  $0 --status" >&2
     exit 1
+fi
+
+# Validação do binário tmux (governança de posse e status operam independentemente)
+if ! command -v tmux &>/dev/null; then
+    if [ -n "$CLAIM_OWNER" ]; then
+        echo "Aviso: tmux não encontrado no sistema. Posse registrada com sucesso para: $CLAIM_OWNER"
+        echo "Para visualizar a interface em tempo real com 3 painéis, instale o tmux:"
+        echo "  sudo apt install tmux   (Debian/Ubuntu)"
+        echo "  brew install tmux       (macOS)"
+        echo ""
+        echo "Alternativa leve sem tmux:"
+        echo "  watch -n 2 'tail -n 40 war_room.md'"
+        exit 0
+    else
+        echo "Erro: tmux não encontrado no sistema." >&2
+        echo "Instale o tmux para usar a sala com 3 painéis:" >&2
+        echo "  sudo apt install tmux   (Debian/Ubuntu)" >&2
+        echo "  brew install tmux       (macOS)" >&2
+        echo "" >&2
+        echo "Alternativa leve sem tmux:" >&2
+        echo "  watch -n 2 'tail -n 40 war_room.md'" >&2
+        exit 1
+    fi
 fi
 
 # Se a sessão tmux já existe
