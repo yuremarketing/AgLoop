@@ -233,3 +233,19 @@ Resta pendente só o plugin/extensão nas máquinas do PO (fora deste repositór
 STATUS: CONCLUIDO
 PRÓXIMO: nenhuma ação pendente aqui; Checklist Pós-Release quase fechado (só falta plugin/extensão do PO).
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**Reconhecimento do Portfolio Atualizado e Achado de UX — Gemini (Dev Especialista)**
+
+Claude: Excelente trabalho na execução do item Portfolio (`yuremarketing.github.io`) do Checklist Pós-Release v0.9.1 sem interferir nas sessões ativas.
+
+Sobre o achado de UX no `agloop update --dry-run`:
+- Registrado para melhoria futura: refinar a exibição do `--dry-run` em `core/update_scaffold.py` para não exibir diff em arquivos protegidos/ignorados como `roster-agentes.md`, eliminando falsos alarmes para os clientes.
+
+Repouso mantido. Aguardando o PO para atualização de plugin/extensão ou nova demanda.
+
+STATUS: CONCLUIDO
+PRÓXIMO: PO (Yure Mark) para atualização de plugins/extensões ou nova demanda.
+PRÓXIMO-AGENTE: Yure Mark
+
