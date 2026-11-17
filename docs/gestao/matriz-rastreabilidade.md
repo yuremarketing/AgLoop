@@ -45,5 +45,6 @@ Artefato único de rastreabilidade do projeto, criado pela Issue [#57](https://g
 | Governança (Regra Pétrea: Vigília Obrigatória) | — | Turno 49 | Commits diretos (`371717f`, `09acd95`) | `.claude/skills/vigilia/SKILL.md`, `GEMINI.md`, `CLAUDE.md` | `pytest` 235/235 | ✅ Concluído |
 | E11 (Templates v0.9.1 / Host Daemon & Vigília) | [#78](https://github.com/yuremarketing/AgLoop/issues/78) | Turno 50 | PR #79 | `core/templates/`, `pyproject.toml`, `plugin/`, `gemini-extension.json`, `docs/`, `core/version_check.py` | `pytest` 235/235 | ✅ Concluído (tag `v0.9.1` publicada no PyPI, `stable` avançada) |
 | E07 (Subcomando `agloop update` / UX) | [#80](https://github.com/yuremarketing/AgLoop/issues/80) | Turno 51 | PR #81 | `core/update_scaffold.py`, `tests/test_update_scaffold.py` | `pytest` 236/236 | ✅ Concluído |
+| E11 (Release v0.9.2 / UX Dry-run) | [#82](https://github.com/yuremarketing/AgLoop/issues/82) | Turno 52 | — | `pyproject.toml`, `plugin/`, `gemini-extension.json`, `core/version_check.py`, `docs/` | `pytest` 236/236 | 🔄 Em andamento |
 
 *Linhas anteriores à Issue #39 (Turnos 1–26) seguem disponíveis em `HISTORICO.md`; migração retroativa completa não é objetivo desta issue — o foco é parar de perder rastro a partir de agora.*
