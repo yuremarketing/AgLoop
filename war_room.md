@@ -81,3 +81,37 @@ STATUS: ACORDO
 Fim: 2026-11-17 · Commit: 09acd95 (Regra Pétrea de Vigília Obrigatória, exceções estritas) · Agente: Claude
 PRÓXIMO: Backlog de issues zerado; Checklist Pós-Release v0.9.0 (Portfolio + plugin/extensão) é a única pendência registrada, sem prazo. Aguardando direcionamento do PO ou novo turno do Gemini.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+<!--INICIANDO_TURNO-->
+Início: 2026-11-17 08:18 · Commit-base: 943cdd0 · Agente: Gemini · Templates de Distribuição (Issue #78 / Release v0.9.1)
+
+## Turno 50 — Gemini (2026-11-17)
+Roster do Turno 50: Gemini (Dev Especialista) · Claude (Tech Lead) · Demais (Observadores)
+
+Claude (Tech Lead): Com a autorização formal do PO (Yure Mark, \"ok\" em 2026-11-17 08:17), abro o **Turno 50** para sanar um achado crítico nos templates empacotados de distribuição (\`core/templates/\`) e preparar o patch release **\`v0.9.1\`** (Issue [#78](https://github.com/yuremarketing/AgLoop/issues/78)).
+
+### Contexto e Achado Crítico
+Ao analisar a experiência de terceiros e clientes que instalam o AgLoop (\`pip install agloop\` → \`agloop init\`), identificamos que os arquivos em \`core/templates/\` ficaram defasados em relação à governança viva do repositório:
+1. \`core/templates/skills/vigilia/SKILL.md\`: permaneceu na versão \`1.4.0\`. Contém literalmente na linha 57 a brecha antiga: *\"salvo quando fecha o turno passando a vez ao PO. Esquecer de religar faz o loop parar em silêncio\"*, não ensina sobre \`agloop daemon start\` e não incorpora a Regra Pétrea de vigília obrigatória a custo zero.
+2. \`core/templates/GEMINI.md\` e \`core/templates/CLAUDE.md\`: são stubs mínimos sem a instrução executiva do Host Daemon e do monitor passivo contínuo.
+3. Se um cliente inicializar um projeto hoje via \`agloop init\`, seus agentes herdarão o protocolo antigo com a brecha de desligamento da vigília.
+
+### Proposta de Execução (Dev Especialista)
+1. **Atualização Neutra de \`core/templates/skills/vigilia/SKILL.md\`:**
+   - Adicionar a Seção 3 do Host Daemon (\`agloop daemon start\`) e a Regra Pétrea de vigília contínua obrigatória (custo zero de tokens, sem brecha de desligamento, com as duas exceções estritas).
+   - Preservar a neutralidade de projeto (sem nomes hardcoded de PO, usando os marcadores neutros que os testes exigem).
+   - Bump da versão do template no frontmatter para \`1.7.0\` (ou alinhado).
+2. **Atualização de \`core/templates/GEMINI.md\` e \`core/templates/CLAUDE.md\`:**
+   - Manter conciso (< 500 bytes per teste \`test_claude_and_gemini_md_templates_point_to_agents_md_without_duplicating_rules\`) mas com instrução executiva clara sobre vigília obrigatória e Host Daemon.
+3. **Bump para \`v0.9.1\`:**
+   - Atualizar \`pyproject.toml\`, \`plugin/.claude-plugin/plugin.json\`, \`gemini-extension.json\`, \`core/version_check.py\` e documentação.
+4. **Gate Seção 6:**
+   - Trabalhar na branch \`feat/issue-78-templates-daemon-v0.9.1\`.
+   - Validar suíte completa de testes (\`pytest\` 235/235) e Gate de Prontidão 🟢.
+   - Submeter PR referenciando a Issue #78 para sua auditoria e merge, preparando a tag \`v0.9.1\`.
+
+STATUS: PROPOSTA
+PRÓXIMO: Claude (Tech Lead) revisa a proposta do Turno 50 e emite parecer/acordo.
+PRÓXIMO-AGENTE: Claude
