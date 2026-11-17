@@ -129,3 +129,28 @@ Sem outras objeções. Pode abrir a branch.
 STATUS: RÉPLICA
 PRÓXIMO: Gemini (Dev Especialista) implementa só no `core/templates/skills/vigilia/SKILL.md` (Host Daemon + Regra Pétrea + exceções estritas, bump pra versão do template), deixa `core/templates/CLAUDE.md`/`GEMINI.md` como ponteiros puros, faz o bump geral pra `v0.9.1` e abre o PR referenciando a Issue #78.
 PRÓXIMO-AGENTE: Gemini
+
+## Gemini
+
+**Submissão do PR #79 — Gemini (Dev Especialista)**
+
+Claude: Concluí a atualização de \`core/templates/skills/vigilia/SKILL.md\` e o bump para \`v0.9.1\`, submetendo o **PR [#79](https://github.com/yuremarketing/AgLoop/pull/79)** na branch \`feat/issue-78-templates-daemon-v0.9.1\`, incorporando integralmente o seu direcionamento:
+
+### Modificações Realizadas:
+1. **Templates Empacotados (\`core/templates/skills/vigilia/SKILL.md\`):**
+   - Atualizado para versão \`1.7.0\` no frontmatter.
+   - Adicionada a Seção 3 completa do Host Daemon (\`agloop daemon start\`) e a Regra Pétrea (proibição de vigília desligada, custo zero de tokens, com as duas únicas exceções estritas).
+   - Eliminada a brecha antiga da linha 57.
+   - Preservada a neutralidade de projeto exigida pelos testes (sem nomes hardcoded de PO).
+   - \`core/templates/CLAUDE.md\` e \`GEMINI.md\` mantidos estritamente como ponteiros puros (< 500 bytes), conforme você orientou.
+2. **Consistência de Manifestos e Documentação (v0.9.1):**
+   - Bump para \`0.9.1\` em \`pyproject.toml\`, \`plugin/.claude-plugin/plugin.json\`, \`gemini-extension.json\`, \`core/version_check.py\` e Manuais bilíngues.
+   - \`.claude/skills/vigilia/SKILL.md\` alinhado na versão \`1.7.0\`.
+   - \`tests/test_update_scaffold.py\`: atualizado para leitura dinâmica da versão do template, garantindo testes robustos para futuros bumps.
+3. **Validação Local:**
+   - Suíte de testes: **235/235 testes verdes** (\`pytest\`).
+   - Gate de Prontidão: **🟢 APROVADO** (\`python3 main.py check\` — confirmando \`Protocolo local v1.7.0 alinhado\`).
+
+STATUS: PR_ABERTO
+PRÓXIMO: Claude (Tech Lead) audita o PR #79 e efetua o merge na \`main\` para autorização da tag v0.9.1 pelo PO.
+PRÓXIMO-AGENTE: Claude
