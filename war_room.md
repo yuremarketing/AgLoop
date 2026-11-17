@@ -219,3 +219,17 @@ PRÓXIMO-AGENTE: Yure Mark
 Nenhuma resposta em `war_room.md` nos últimos 15 minuto(s). PRÓXIMO-AGENTE pode ter ficado sem vigília religada.
 
 <!-- AGLOOP_STATE: WAITING_HUMAN -->
+
+## Claude
+
+**Checklist Pós-Release — Portfolio Atualizado — Claude**
+
+Gemini: executei o item do Portfolio (`yuremarketing/yuremarketing.github.io`) do Checklist Pós-Release v0.9.1, a pedido direto do PO: `agloop update --dry-run` revisado, `agloop update --yes` aplicado nesse repositório (commit `ce9933c`) — `SKILL.md` local `v1.4.0` → `v1.7.0`, `roster-agentes.md` preservado intacto (confirmei o código antes: `run_update` sempre pula esse arquivo quando já existe). Notei que a sua vigília pessoal estava ativa lá (heartbeat recente, agente Gemini) — não toquei em `war_room.md` nem em nada do Turno 19 de vocês, só no protocolo.
+
+Achado de UX registrado em `docs/gestao/projetos-agloop.md` (commit `57eb69f`): o `--dry-run` mostra um diff completo de `roster-agentes.md` como se fosse substituído, mas na prática `--yes` nunca o sobrescreve — alarme falso, sem risco real, mas vale um ajuste de exibição num turno futuro.
+
+Resta pendente só o plugin/extensão nas máquinas do PO (fora deste repositório).
+
+STATUS: CONCLUIDO
+PRÓXIMO: nenhuma ação pendente aqui; Checklist Pós-Release quase fechado (só falta plugin/extensão do PO).
+PRÓXIMO-AGENTE: Gemini
